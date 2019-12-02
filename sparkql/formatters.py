@@ -34,21 +34,18 @@ class SparkSchemaPrettifier:
     def _pretty_data_type(cls, dtype: DataType, depth: int) -> str:
         """Handle an instance of a data type."""
         if isinstance(dtype, StructType):
-            # off load to the struct field
-            # this is the only time we increment the depth
+            # off load to the struct type handler
             return cls._pretty_struct_type(dtype, depth + 1)
         if isinstance(dtype, ArrayType):
-            # recurse with the element type
-            # also print out the `containsNull` ArrayType boolean
-            return "ArrayType({},{})".format(
-                cls._pretty_data_type(dtype.elementType, depth),
-                cls._boolean_as_str(dtype.containsNull))
+            # off load to the array type handler
+            return cls._pretty_array_type(dtype, depth)
+
         # for all other data types, give the type name
         return dtype.__class__.__name__
 
     @classmethod
     def _pretty_struct_type(cls, struct: StructType, depth: int) -> str:
-        """Handle the case where the data type is a struct type"""
+        """Handle the case where the data type is a struct type."""
         assert isinstance(struct, StructType)
         if not struct.fields:
             formatted = "StructType(List())"
@@ -59,6 +56,15 @@ class SparkSchemaPrettifier:
                 lines.append(f"{delim}{cls._pretty_struct_field(field, depth)}")
             formatted = "StructType(List({}))".format(",".join(lines))
         return formatted
+
+    @classmethod
+    def _pretty_array_type(cls, array: ArrayType, depth: int) -> str:
+        """Handle the case where the data type is an array type."""
+        assert isinstance(array, ArrayType)
+        # also print out the `containsNull` ArrayType boolean
+        return "ArrayType({},{})".format(
+            cls._pretty_data_type(array.elementType, depth),
+            cls._boolean_as_str(array.containsNull))
 
     @classmethod
     def _pretty_struct_field(cls, field: StructField, depth: int) -> str:
