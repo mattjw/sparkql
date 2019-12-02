@@ -70,11 +70,16 @@ class SparkSchemaPrettifier:
     def _pretty_struct_field(cls, field: StructField, depth: int) -> str:
         """Helper for `_pretty_struct_type`, that formats a field."""
         assert isinstance(field, StructField)
-        formatted = "StructField({},{},{}{})".format(
-            field.name,
-            cls._pretty_data_type(field.dataType, depth),
-            ("\n" + cls._indent(depth + 1)) if isinstance(field.dataType, StructType) else "",
-            cls._boolean_as_str(field.nullable))
+        formatted = "StructField({},".format(field.name)
+        if isinstance(field.dataType, (StructType, ArrayType)):
+            formatted += "\n" + cls._indent(depth + 1)
+
+        formatted += cls._pretty_data_type(field.dataType, depth + 1) + ","
+
+        if isinstance(field.dataType, (StructType, ArrayType)):
+            formatted += "\n" + cls._indent(depth + 1)
+        formatted += "{})".format(cls._boolean_as_str(field.nullable))
+
         return formatted
 
 

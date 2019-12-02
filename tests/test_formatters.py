@@ -18,17 +18,22 @@ class TestPrettySchema:
                     StructField("int_b", IntegerType())
                 ])),
                 StructField("array_a", ArrayType(StructType([
-                    StructField("long_a", LongType())
+                    StructField("long_a", LongType()),
+                    StructField("long_b", LongType())
                 ]))),
             ]), """StructType(List(
     StructField(str_a#etc,StringType,true),
     StructField(str b,StringType,true),
-    StructField(object_a,StructType(List(
-        StructField(int_a,IntegerType,true),
-        StructField(int_b,IntegerType,true))),
+    StructField(object_a,
+        StructType(List(
+            StructField(int_a,IntegerType,true),
+            StructField(int_b,IntegerType,true))),
         true),
-    StructField(array_a,ArrayType(StructType(List(
-        StructField(long_a,LongType,true))),true),true)))"""
+    StructField(array_a,
+        ArrayType(StructType(List(
+            StructField(long_a,LongType,true),
+            StructField(long_b,LongType,true))),true),
+        true)))"""
         )
     ]
 
