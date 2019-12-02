@@ -28,8 +28,7 @@ class TestPrettySchema:
         StructField(int_b,IntegerType,true))),
         true),
     StructField(array_a,ArrayType(StructType(List(
-        StructField(long_a,LongType,true))),true),
-        true)))"""
+        StructField(long_a,LongType,true))),true),true)))"""
         )
     ]
 
