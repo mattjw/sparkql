@@ -16,6 +16,7 @@ from .fields.atomic import (
     DateField,
     TimestampField,)
 from .fields.struct import StructObject
+from .formatters import pretty_schema
 
 
 __all__ = [
@@ -33,5 +34,6 @@ __all__ = [
     "BooleanField",
     "DateField",
     "TimestampField",
-    "StructObject"
+    "StructObject",
+    "pretty_schema"
 ]
