@@ -14,8 +14,18 @@ class SparkSchemaPrettifier:
     #
     # Helpers
     @classmethod
-    def _indent(cls, depth: int ) -> str:
+    def _indent(cls, depth: int) -> str:
+        """
+        Create indentation prefix for given depth.
+
+        "depth" is defined as the current nestedness within StructTypes. The root (i.e., top level
+        StructType) has a depth of zero.
+        """
         return cls.PREFIX * (depth + 1)
+
+    @classmethod
+    def _boolean_as_str(cls, value: bool) -> str:
+        return str(value).lower()
 
     #
     # Recursive handlers
@@ -28,8 +38,11 @@ class SparkSchemaPrettifier:
             # this is the only time we increment the depth
             return cls._pretty_struct_type(dtype, depth + 1)
         if isinstance(dtype, ArrayType):
-            # recurse
-            return f"ArrayType({cls._pretty_data_type(dtype.elementType, depth)})"
+            # recurse with the element type
+            # also print out the `containsNull` ArrayType boolean
+            return "ArrayType({},{})".format(
+                cls._pretty_data_type(dtype.elementType, depth),
+                cls._boolean_as_str(dtype.containsNull))
         # for all other data types, give the type name
         return dtype.__class__.__name__
 
@@ -55,7 +68,7 @@ class SparkSchemaPrettifier:
             field.name,
             cls._pretty_data_type(field.dataType, depth),
             ("\n" + cls._indent(depth + 1)) if isinstance(field.dataType, StructType) else "",
-            str(field.nullable).lower())
+            cls._boolean_as_str(field.nullable))
         return formatted
 
 
