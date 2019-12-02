@@ -9,7 +9,7 @@ from sparkql import pretty_schema
 class TestPrettySchema:
 
     TEST_CASES = [
-        (
+        pytest.param(
             StructType([
                 StructField("str_a#etc", StringType()),
                 StructField("str b", StringType()),
@@ -33,7 +33,8 @@ class TestPrettySchema:
         ArrayType(StructType(List(
             StructField(long_a,LongType,true),
             StructField(long_b,LongType,true))),true),
-        true)))"""
+        true)))""",
+            id="nested_structs_and_arrays"
         )
     ]
 
