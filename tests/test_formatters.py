@@ -34,8 +34,28 @@ class TestPrettySchema:
             StructField(long_a,LongType,true),
             StructField(long_b,LongType,true))),true),
         true)))""",
-            id="nested_structs_and_arrays"
-        )
+            id="mixed nested structs and arrays"
+        ),
+        pytest.param(
+            StructType([
+                StructField("a", ArrayType(StringType())),
+            ]),
+            """StructType(List(
+    StructField(a,
+        ArrayType(StringType,true),
+        true)))""",
+            id="simple array",
+        ),
+        pytest.param(
+            StructType([
+                StructField("a", ArrayType(StringType(), containsNull=False)),
+            ]),
+            """StructType(List(
+    StructField(a,
+        ArrayType(StringType,false),
+        true)))""",
+            id="array without nulls",
+        ),
     ]
 
     @staticmethod
