@@ -14,8 +14,7 @@ class BaseField(ABC):
     _name_contextual: Optional[str] = None
     _parent_struct_object: Optional["StructObject"] = None
 
-    def __init__(
-            self, nullable: bool = True, name: Optional[str] = None):
+    def __init__(self, nullable: bool = True, name: Optional[str] = None):
         """
         Constructor for a base field.
 
@@ -45,8 +44,7 @@ class BaseField(ABC):
     def _parent(self) -> Optional["StructObject"]:
         return self._parent_struct_object
 
-    def replace_parent(
-            self, parent: Optional["StructObject"] = None) -> "StructObject":
+    def replace_parent(self, parent: Optional["StructObject"] = None) -> "StructObject":
         """Return a copy of this Field with the parent attribute set."""
         field = copy.copy(self)
         if self._parent_struct_object is not None:
@@ -61,7 +59,9 @@ class BaseField(ABC):
         if name is None:
             raise ValueError(
                 "No field name found among: explicit name = {}, inferred name = {}".format(
-                    self._name_explicit, self._name_contextual))
+                    self._name_explicit, self._name_contextual
+                )
+            )
         return name
 
     def _resolve_field_name(self) -> Optional[str]:
@@ -90,7 +90,8 @@ class BaseField(ABC):
             f"  nullable = {self.is_nullable} \n"
             f"  name = {self._resolve_field_name()} <- {[self._name_explicit, self._name_contextual]} \n"
             f"  parent = {self._parent}"
-            ">")
+            ">"
+        )
 
 
 class AtomicField(BaseField):
@@ -120,7 +121,9 @@ class AtomicField(BaseField):
     @property
     def spark_struct_field(self) -> StructField:
         """The StructField for this object."""
-        return StructField(name=self.field_name, dataType=self.spark_data_type, nullable=self.is_nullable)
+        return StructField(
+            name=self.field_name, dataType=self.spark_data_type, nullable=self.is_nullable
+        )
 
 
 class NumericField(AtomicField):
