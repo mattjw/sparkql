@@ -2,6 +2,9 @@ from invoke import run as invoke_run
 from invoke import UnexpectedExit, Result
 
 
+SRC_DIR = "sparkql"
+
+
 def run(cmd, pty=None, env=None, *args, **kwargs):
     """
     invoke's default runner, with some customisation.
@@ -24,3 +27,7 @@ def run(cmd, pty=None, env=None, *args, **kwargs):
 
 def test():
     run("pytest -vv -c tests/.pytest.ini")
+
+
+def reformat():
+    run(f"black {SRC_DIR}")

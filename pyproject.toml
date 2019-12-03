@@ -5,23 +5,23 @@ description = "sparkql: Apache Spark SQL DataFrame schema management for sensibl
 authors = ["Matt J Williams <mattjw@mattjw.net>"]
 repository = "https://github.com/mattjw/sparkql"
 
-
 [tool.poetry.dependencies]
 python = "^3.6"
-
 pyspark = "=2.4.1"
 dataclasses = { version = "~0.7.0", python=">=3.6, <3.7" }
-
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.3"
 invoke = "^1.3"
-
+black = {version = "^18.3-alpha.0", allows-prereleases = true}
 
 [tool.poetry.scripts]
 test = "tasks:test"
-
+reformat = "tasks:reformat"
 
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
+
+[tool.black]
+line-length = 100

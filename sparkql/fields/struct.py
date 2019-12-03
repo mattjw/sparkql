@@ -33,14 +33,19 @@ class StructObject(BaseField):
     @property
     def spark_struct_field(self) -> StructField:
         return StructField(
-            name=self.field_name, dataType=self._struct_object_meta.spark_struct, nullable=self.is_nullable)
+            name=self.field_name,
+            dataType=self._struct_object_meta.spark_struct,
+            nullable=self.is_nullable,
+        )
 
     #
     # Hook in to sub-class creation. Ensure fields are pre-processed when a sub-class is declared
 
     @classmethod
     def __extract_fields(cls) -> Mapping[str, BaseField]:
-        fields = OrderedDict((key, value) for key, value in cls.__dict__.items() if isinstance(value, BaseField))
+        fields = OrderedDict(
+            (key, value) for key, value in cls.__dict__.items() if isinstance(value, BaseField)
+        )
         for field_name, field in fields.items():
             field._contextual_name = field_name
         return fields
@@ -58,7 +63,8 @@ class StructObject(BaseField):
 
         fields = cls.__extract_fields()
         cls._struct_object_meta = StructObjectClassMeta(
-            fields=fields, spark_struct=StructObject.__build_spark_struct(fields.values()))
+            fields=fields, spark_struct=StructObject.__build_spark_struct(fields.values())
+        )
 
         # TO-DO: ensure that the subclass does not override any of the StructObject or BaseField props
 
@@ -87,4 +93,5 @@ class StructObject(BaseField):
             f"  name = {self._resolve_field_name()} <- {[self._name_explicit, self._name_contextual]} \n"
             f"  parent = {self._parent} \n"
             f"  metadata = {self._struct_object_meta}"
-            ">")
+            ">"
+        )

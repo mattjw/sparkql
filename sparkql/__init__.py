@@ -1,4 +1,4 @@
-__version__ = '0.1.0'
+__version__ = "0.1.0"
 
 from .schema_builder import schema
 from . import path
@@ -14,7 +14,8 @@ from .fields.atomic import (
     BinaryField,
     BooleanField,
     DateField,
-    TimestampField,)
+    TimestampField,
+)
 from .fields.struct import StructObject
 from .formatters import pretty_schema
 
@@ -35,5 +36,5 @@ __all__ = [
     "DateField",
     "TimestampField",
     "StructObject",
-    "pretty_schema"
+    "pretty_schema",
 ]

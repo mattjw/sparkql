@@ -2,14 +2,28 @@
 
 from typing import Type
 
-from pyspark.sql.types import ByteType, IntegerType, LongType, ShortType, DecimalType, DoubleType, FloatType, \
-    StringType, BinaryType, BooleanType, DateType, TimestampType, DataType
+from pyspark.sql.types import (
+    ByteType,
+    IntegerType,
+    LongType,
+    ShortType,
+    DecimalType,
+    DoubleType,
+    FloatType,
+    StringType,
+    BinaryType,
+    BooleanType,
+    DateType,
+    TimestampType,
+    DataType,
+)
 
 from .base import AtomicField, IntegralField, FractionalField
 
 
 #
 # DataType -> AtomicType -> NumericType -> IntegralType
+
 
 class ByteField(IntegralField):
     @property
@@ -38,6 +52,7 @@ class ShortField(IntegralField):
 #
 # DataType -> AtomicType -> NumericType -> FractionalType
 
+
 class DecimalField(FractionalField):
     @property
     def _spark_type_class(self) -> Type[DataType]:
@@ -58,6 +73,7 @@ class FloatField(FractionalField):
 
 #
 # DataType -> AtomicType -> non-numeric types
+
 
 class StringField(AtomicField):
     @property

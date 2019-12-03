@@ -13,6 +13,7 @@ class SparkSchemaPrettifier:
 
     #
     # Helpers
+
     @classmethod
     def _indent(cls, depth: int) -> str:
         """
@@ -63,8 +64,8 @@ class SparkSchemaPrettifier:
         assert isinstance(array, ArrayType)
         # also print out the `containsNull` ArrayType boolean
         return "ArrayType({},{})".format(
-            cls._pretty_data_type(array.elementType, depth),
-            cls._boolean_as_str(array.containsNull))
+            cls._pretty_data_type(array.elementType, depth), cls._boolean_as_str(array.containsNull)
+        )
 
     @classmethod
     def _pretty_struct_field(cls, field: StructField, depth: int) -> str:
