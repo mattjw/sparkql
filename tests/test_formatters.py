@@ -9,7 +9,7 @@ from sparkql import pretty_schema
 class TestPrettySchema:
 
     TEST_CASES = [
-        (
+        pytest.param(
             StructType([
                 StructField("str_a#etc", StringType()),
                 StructField("str b", StringType()),
@@ -18,18 +18,44 @@ class TestPrettySchema:
                     StructField("int_b", IntegerType())
                 ])),
                 StructField("array_a", ArrayType(StructType([
-                    StructField("long_a", LongType())
+                    StructField("long_a", LongType()),
+                    StructField("long_b", LongType())
                 ]))),
             ]), """StructType(List(
     StructField(str_a#etc,StringType,true),
     StructField(str b,StringType,true),
-    StructField(object_a,StructType(List(
-        StructField(int_a,IntegerType,true),
-        StructField(int_b,IntegerType,true))),
+    StructField(object_a,
+        StructType(List(
+            StructField(int_a,IntegerType,true),
+            StructField(int_b,IntegerType,true))),
         true),
-    StructField(array_a,ArrayType(StructType(List(
-        StructField(long_a,LongType,true))),true),true)))"""
-        )
+    StructField(array_a,
+        ArrayType(StructType(List(
+            StructField(long_a,LongType,true),
+            StructField(long_b,LongType,true))),true),
+        true)))""",
+            id="mixed nested structs and arrays"
+        ),
+        pytest.param(
+            StructType([
+                StructField("a", ArrayType(StringType())),
+            ]),
+            """StructType(List(
+    StructField(a,
+        ArrayType(StringType,true),
+        true)))""",
+            id="simple array",
+        ),
+        pytest.param(
+            StructType([
+                StructField("a", ArrayType(StringType(), containsNull=False)),
+            ]),
+            """StructType(List(
+    StructField(a,
+        ArrayType(StringType,false),
+        true)))""",
+            id="array without nulls",
+        ),
     ]
 
     @staticmethod
