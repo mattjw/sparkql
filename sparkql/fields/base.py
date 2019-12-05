@@ -95,7 +95,7 @@ class BaseField(ABC):
         """The Spark StructField for this field."""
 
     #
-    # Boilerplate
+    # Misc.
 
     def __str__(self):
         """String formatted object."""
