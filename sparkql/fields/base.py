@@ -25,10 +25,31 @@ class BaseField(ABC):
         self._nullable = nullable
         self._name_explicit = name
 
+    #
+    # Nullability
+
     @property
     def is_nullable(self) -> bool:
         """Is this field nullable?"""
         return self._nullable
+
+    #
+    # Field path chaining
+
+    @property
+    def _parent(self) -> Optional["StructObject"]:
+        return self._parent_struct_object
+
+    def replace_parent(self, parent: Optional["StructObject"] = None) -> "StructObject":
+        """Return a copy of this Field with the parent attribute set."""
+        field = copy.copy(self)
+        if self._parent_struct_object is not None:
+            raise ValueError("double replace is bad")  # FIXME
+        field._parent_struct_object = parent
+        return field
+
+    #
+    # Field name management
 
     @property
     def _contextual_name(self) -> Optional[str]:
@@ -39,18 +60,6 @@ class BaseField(ABC):
         if self._name_contextual is not None:
             raise ValueError("double set! bad")  # TO-DO
         self._name_contextual = value
-
-    @property
-    def _parent(self) -> Optional["StructObject"]:
-        return self._parent_struct_object
-
-    def replace_parent(self, parent: Optional["StructObject"] = None) -> "StructObject":
-        """Return a copy of this Field with the parent attribute set."""
-        field = copy.copy(self)
-        if self._parent_struct_object is not None:
-            raise ValueError("double replace is bad")
-        field._parent_struct_object = parent
-        return field
 
     @property
     def field_name(self) -> str:
@@ -72,6 +81,9 @@ class BaseField(ABC):
             return self._name_contextual
         return None
 
+    #
+    # Spark type management
+
     @property
     @abstractmethod
     def _spark_type_class(self) -> Type[DataType]:
@@ -81,6 +93,9 @@ class BaseField(ABC):
     @abstractmethod
     def spark_struct_field(self) -> StructField:
         """The Spark StructField for this field."""
+
+    #
+    # Boilerplate
 
     def __str__(self):
         """String formatted object."""
