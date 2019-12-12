@@ -1,6 +1,6 @@
-from pyspark.sql.types import StructField, StructType, StringType, FloatType, TimestampType
+from pyspark.sql.types import StructField, StructType, StringType, FloatType, TimestampType, ArrayType
 
-from sparkql import StringField, FloatField, StructObject, TimestampField, schema
+from sparkql import StringField, ArrayField, FloatField, StructObject, TimestampField, schema
 
 
 class TestSparkSchema:
@@ -46,4 +46,34 @@ class TestSparkSchema:
                 StructField("name", StringType())])),
             StructField("title", StringType(), nullable=False),
             StructField("date", TimestampType()),
+        ])
+
+    @staticmethod
+    def test_should_structise_object_containing_array_of_objects():
+        # given
+        class Tag(StructObject):
+            id = StringField(nullable=False)
+            name = StringField()
+
+        class Article(StructObject):
+            id = StringField(nullable=False)
+            tags = ArrayField(Tag(nullable=True))
+
+        # when
+        struct = schema(Article)
+
+        # then
+        assert struct == StructType([
+            StructField("id", StringType(), nullable=False),
+            StructField(
+                "tags",
+                ArrayType(
+                    containsNull=True,
+                    elementType=StructType([
+                        StructField("id", StringType(), nullable=False),
+                        StructField("name", StringType()),
+                    ]),
+                ),
+                nullable=True,
+            )
         ])

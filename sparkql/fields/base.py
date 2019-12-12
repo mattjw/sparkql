@@ -5,9 +5,18 @@ import copy
 from pyspark.sql import types as sql_type
 from pyspark.sql.types import StructField, DataType
 
+from ..exceptions import FieldNameError, FieldParentError
+
 
 class BaseField(ABC):
     """Root of the field hierarchy; shadows DataType in the Spark API."""
+
+    # Name management logic:
+    # - Explicit name (`_name_explicit`): Set via constructor.
+    # - Contextual name (`_name_contextual`): Inferred for the field as it is used in a struct object.
+    #   This will always get set, although not immediately. The struct object that will contain this field
+    #   is responsible for setting the contextual name.
+    # The explicit name, if provided, will override the contextual name.
 
     _nullable: bool = True
     _name_explicit: Optional[str] = None
@@ -25,20 +34,16 @@ class BaseField(ABC):
         self._nullable = nullable
         self._name_explicit = name
 
+    #
+    # Nullability
+
     @property
     def is_nullable(self) -> bool:
         """Is this field nullable?"""
         return self._nullable
 
-    @property
-    def _contextual_name(self) -> Optional[str]:
-        return self._name_contextual
-
-    @_contextual_name.setter
-    def _contextual_name(self, value: str):
-        if self._name_contextual is not None:
-            raise ValueError("double set! bad")  # TO-DO
-        self._name_contextual = value
+    #
+    # Field path chaining
 
     @property
     def _parent(self) -> Optional["StructObject"]:
@@ -48,16 +53,32 @@ class BaseField(ABC):
         """Return a copy of this Field with the parent attribute set."""
         field = copy.copy(self)
         if self._parent_struct_object is not None:
-            raise ValueError("double replace is bad")
+            raise FieldParentError("Attempted to set parent field that has already been set")
         field._parent_struct_object = parent
         return field
+
+    #
+    # Field name management
+
+    @property
+    def _contextual_name(self) -> Optional[str]:
+        return self._name_contextual
+
+    @_contextual_name.setter
+    def _contextual_name(self, value: str):
+        if self._name_contextual is not None:
+            raise FieldNameError(
+                "Attempted to override a name that has already been set: "
+                f"'{value}' replacing '{self._name_contextual}'"
+            )
+        self._name_contextual = value
 
     @property
     def field_name(self) -> str:
         """The name for this field."""
         name = self._resolve_field_name()
         if name is None:
-            raise ValueError(
+            raise FieldNameError(
                 "No field name found among: explicit name = {}, inferred name = {}".format(
                     self._name_explicit, self._name_contextual
                 )
@@ -72,6 +93,9 @@ class BaseField(ABC):
             return self._name_contextual
         return None
 
+    #
+    # Spark type management
+
     @property
     @abstractmethod
     def _spark_type_class(self) -> Type[DataType]:
@@ -81,6 +105,9 @@ class BaseField(ABC):
     @abstractmethod
     def spark_struct_field(self) -> StructField:
         """The Spark StructField for this field."""
+
+    #
+    # Misc.
 
     def __str__(self):
         """String formatted object."""
