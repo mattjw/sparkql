@@ -8,7 +8,7 @@ from pyspark.sql import functions as sql_funcs
 from .fields.base import BaseField
 
 
-def field_names(field: BaseField) -> Sequence[str]:
+def path_seq(field: BaseField) -> Sequence[str]:
     """Items on the path to a field."""
     fields = [field]
     while fields[0]._parent is not None:
@@ -18,14 +18,14 @@ def field_names(field: BaseField) -> Sequence[str]:
     return [f.field_name for f in fields]
 
 
-def string(field: BaseField) -> str:
+def path_str(field: BaseField) -> str:
     """Return dot-delimited path to field `field`."""
-    return ".".join(field_names(field))
+    return ".".join(path_seq(field))
 
 
-def column(field: BaseField) -> Column:
+def path_col(field: BaseField) -> Column:
     """Return Spark column pointing to field `field`."""
-    fields_seq = field_names(field)
+    fields_seq = path_seq(field)
     col: Column = sql_funcs.col(fields_seq[0])
     for field_name in fields_seq[1:]:
         col = col(field_name)
