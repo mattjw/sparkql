@@ -8,3 +8,8 @@ Spark SQL DataFrame schema management for sensible humans.
 poetry install
 poetry run tests
 ```
+
+## Design principles
+
+- Favour strong type inference. Enables IDE completions and strong
+  type checking.
