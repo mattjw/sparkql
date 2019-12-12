@@ -1,4 +1,5 @@
 """Array field."""
+
 import copy
 from typing import Optional, Generic, TypeVar
 
@@ -21,17 +22,20 @@ class ArrayField(Generic[T], BaseField):
       `ArrayField.element.nullable`.
 
     Attributes:
-
+        ArrayElem: Data type info for the element of this array.
     """
 
     ArrayElem: T
 
     def __init__(self, element: T, nullable: bool = True, name: Optional[str] = None):
         super().__init__(nullable, name)
-        self.ArrayElem = element
 
+        if not isinstance(element, BaseField):
+            raise ValueError(f"Array element must be a field. Found type: {type(element)}")
+
+        self.ArrayElem = element
         if element._name_explicit is not None:
-            raise ValueError("The element type of array should not have an explicit name")
+            raise ValueError("The element field of an array should not have an explicit name")
             # None of the naming mechanics of this array's element type will be used.
             # The name of the element type will not be used for anything
 
@@ -48,8 +52,8 @@ class ArrayField(Generic[T], BaseField):
 
     @BaseField._contextual_name.setter
     def _contextual_name(self, value: str):
-        self._name_contextual = value  # TODO: this should go through parent
-        self.ArrayElem._name_contextual = value  # TODO: set child to same name as parent
+        self._name_contextual = value
+        self.ArrayElem._name_contextual = value  # set child to same name as parent
 
     #
     # Spark type management

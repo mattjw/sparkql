@@ -5,7 +5,7 @@ import copy
 from pyspark.sql import types as sql_type
 from pyspark.sql.types import StructField, DataType
 
-from exceptions import FieldNameError, FieldParentError
+from ..exceptions import FieldNameError, FieldParentError
 
 
 class BaseField(ABC):
