@@ -29,7 +29,7 @@ class TestFieldNames:
             authors = ArrayField(User())
 
         # when
-        path_field_names = path.field_names(Article.authors.name)
+        path_field_names = path.field_names(Article.authors._element.name)
 
         # then
         assert path_field_names == ["authors", "name"]

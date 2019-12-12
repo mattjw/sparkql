@@ -1,13 +1,16 @@
 """Array field."""
 import copy
-from typing import Optional
+from typing import Optional, Generic, TypeVar
 
 from pyspark.sql.types import ArrayType, StructField
 
 from .base import BaseField
 
 
-class ArrayField(BaseField):
+T = TypeVar('T', bound=BaseField)
+
+
+class ArrayField(Generic[T], BaseField):
     """
     Array field; shadows ArrayType in the Spark API.
 
@@ -18,9 +21,9 @@ class ArrayField(BaseField):
       `ArrayField.element.nullable`.
     """
 
-    _element: BaseField
+    _element: T
 
-    def __init__(self, element: BaseField, nullable: bool = True, name: Optional[str] = None):
+    def __init__(self, element: T, nullable: bool = True, name: Optional[str] = None):
         super().__init__(nullable, name)
         self._element = element
 
@@ -28,7 +31,6 @@ class ArrayField(BaseField):
             raise ValueError("The element type of array should not have an explicit name")
             # None of the naming mechanics of this array's element type will be used.
             # The name of the element type will not be used for anything
-        element._name_explicit = "dummy-name"  # TODO can this be improved?
 
     #
     # Field path chaining
@@ -39,7 +41,15 @@ class ArrayField(BaseField):
         return field
 
     #
-    # Property info
+    # Field name management
+
+    @BaseField._contextual_name.setter
+    def _contextual_name(self, value: str):
+        self._name_contextual = value  # TODO: this should go through parent
+        self._element._name_contextual = value  # TODO: set child to same name as parent
+
+    #
+    # Spark type management
 
     @property
     def _spark_type_class(self):
