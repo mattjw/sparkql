@@ -62,8 +62,6 @@ class TestSparkSchema:
         # when
         struct = schema(Article)
 
-        print(Article.tags)  # TODO
-
         # then
         assert struct == StructType([
             StructField("id", StringType(), nullable=False),
