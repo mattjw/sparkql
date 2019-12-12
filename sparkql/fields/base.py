@@ -69,7 +69,8 @@ class BaseField(ABC):
         if self._name_contextual is not None:
             raise FieldNameError(
                 "Attempted to override a name that has already been set: "
-                f"'{value}' replacing '{self._name_contextual}'")
+                f"'{value}' replacing '{self._name_contextual}'"
+            )
         self._name_contextual = value
 
     @property

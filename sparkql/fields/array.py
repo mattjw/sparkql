@@ -7,7 +7,7 @@ from pyspark.sql.types import ArrayType, StructField
 from .base import BaseField
 
 
-T = TypeVar('T', bound=BaseField)
+T = TypeVar("T", bound=BaseField)
 
 
 class ArrayField(Generic[T], BaseField):
@@ -66,7 +66,7 @@ class ArrayField(Generic[T], BaseField):
             dataType=ArrayType(
                 # Note that we do not care about the element's field name here:
                 elementType=self.ArrayElem.spark_struct_field.dataType,
-                containsNull=self.ArrayElem.is_nullable
+                containsNull=self.ArrayElem.is_nullable,
             ),
             nullable=self.is_nullable,
         )
