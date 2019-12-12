@@ -19,13 +19,16 @@ class ArrayField(Generic[T], BaseField):
     - `containsNull` of the `ArrayType` is given by the nullability of the element contained
       within this field. In other words, `ArrayType.containsNull` is given by
       `ArrayField.element.nullable`.
+
+    Attributes:
+
     """
 
-    _element: T
+    ArrayElem: T
 
     def __init__(self, element: T, nullable: bool = True, name: Optional[str] = None):
         super().__init__(nullable, name)
-        self._element = element
+        self.ArrayElem = element
 
         if element._name_explicit is not None:
             raise ValueError("The element type of array should not have an explicit name")
@@ -37,7 +40,7 @@ class ArrayField(Generic[T], BaseField):
 
     def replace_parent(self, parent: Optional["StructObject"] = None) -> "StructObject":
         field = copy.copy(self)
-        field._parent_struct_object = self._element.replace_parent(parent=parent)
+        field._parent_struct_object = self.ArrayElem.replace_parent(parent=parent)
         return field
 
     #
@@ -46,7 +49,7 @@ class ArrayField(Generic[T], BaseField):
     @BaseField._contextual_name.setter
     def _contextual_name(self, value: str):
         self._name_contextual = value  # TODO: this should go through parent
-        self._element._name_contextual = value  # TODO: set child to same name as parent
+        self.ArrayElem._name_contextual = value  # TODO: set child to same name as parent
 
     #
     # Spark type management
@@ -62,8 +65,8 @@ class ArrayField(Generic[T], BaseField):
             name=self.field_name,
             dataType=ArrayType(
                 # Note that we do not care about the element's field name here:
-                elementType=self._element.spark_struct_field.dataType,
-                containsNull=self._element.is_nullable
+                elementType=self.ArrayElem.spark_struct_field.dataType,
+                containsNull=self.ArrayElem.is_nullable
             ),
             nullable=self.is_nullable,
         )
