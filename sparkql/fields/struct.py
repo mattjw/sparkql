@@ -5,9 +5,9 @@ from dataclasses import dataclass
 from typing import ClassVar, Sequence, Optional, Mapping, Iterable, Type
 
 from pyspark.sql import types as sql_types
-from pyspark.sql.types import DataType, StructField, StructType
+from pyspark.sql.types import DataType, StructField
 
-from .base import BaseField, AtomicField
+from .base import BaseField
 
 
 @dataclass(frozen=True)
