@@ -7,6 +7,7 @@ from typing import ClassVar, Sequence, Optional, Mapping, Iterable, Type
 from pyspark.sql import types as sql_types
 from pyspark.sql.types import DataType, StructField
 
+from ..exceptions import InvalidStructObjectError
 from .base import BaseField
 
 
@@ -58,15 +59,24 @@ class StructObject(BaseField):
     def __init_subclass__(cls, **options):
         super().__init_subclass__()
 
+        # Do not re-extract
         if cls._struct_object_meta is not None:
             return
 
+        # Ensure a subclass does not break base class functionality
+        print("parent   ", StructObject.__dict__)
+        print("child    ", cls.__dict__)  # FIXME
+
+        for child_prop, child_val in cls.__dict__.items():
+            if (child_prop in StructObject.__dict__) and (isinstance(child_val, BaseField)):
+                raise InvalidStructObjectError(
+                    f"Field should note override inherited class properties: {child_prop}")
+
+        # Extract fields
         fields = cls.__extract_fields()
         cls._struct_object_meta = StructObjectClassMeta(
             fields=fields, spark_struct=StructObject.__build_spark_struct(fields.values())
         )
-
-        # TO-DO: ensure that the subclass does not override any of the StructObject or BaseField props
 
     #
     # Handle dot chaining for full path ref to nested fields
