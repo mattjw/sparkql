@@ -7,3 +7,7 @@ class FieldNameError(Exception):
 
 class FieldParentError(Exception):
     """A field-to-field-parent management error occurred."""
+
+
+class InvalidStructObjectError(Exception):
+    """Invalid creation of a custom StructObject subclass."""
