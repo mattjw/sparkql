@@ -22,3 +22,14 @@ def run(cmd, pty=None, env=None, *args, **kwargs):
     except UnexpectedExit as err:
         result: Result = err.result
         exit(result.return_code)
+
+
+class ProjectInfo:
+    """Information about this project."""
+
+    source_directory: str = "sparkql/"  # top of source code tree
+    tests_directory: str = "tests/"
+    tasks_directory: str = "tasks/"
+
+
+PROJECT_INFO = ProjectInfo()

@@ -70,7 +70,8 @@ class StructObject(BaseField):
         for child_prop, child_val in cls.__dict__.items():
             if (child_prop in StructObject.__dict__) and (isinstance(child_val, BaseField)):
                 raise InvalidStructObjectError(
-                    f"Field should note override inherited class properties: {child_prop}")
+                    f"Field should note override inherited class properties: {child_prop}"
+                )
 
         # Extract fields
         fields = cls.__extract_fields()
