@@ -10,18 +10,33 @@ class TestPrettySchema:
 
     TEST_CASES = [
         pytest.param(
-            StructType([
-                StructField("str_a#etc", StringType()),
-                StructField("str b", StringType()),
-                StructField("object_a", StructType([
-                    StructField("int_a", IntegerType()),
-                    StructField("int_b", IntegerType())
-                ])),
-                StructField("array_a", ArrayType(StructType([
-                    StructField("long_a", LongType()),
-                    StructField("long_b", LongType())
-                ]))),
-            ]), """StructType(List(
+            StructType(
+                [
+                    StructField("str_a#etc", StringType()),
+                    StructField("str b", StringType()),
+                    StructField(
+                        "object_a",
+                        StructType(
+                            [
+                                StructField("int_a", IntegerType()),
+                                StructField("int_b", IntegerType()),
+                            ]
+                        ),
+                    ),
+                    StructField(
+                        "array_a",
+                        ArrayType(
+                            StructType(
+                                [
+                                    StructField("long_a", LongType()),
+                                    StructField("long_b", LongType()),
+                                ]
+                            )
+                        ),
+                    ),
+                ]
+            ),
+            """StructType(List(
     StructField(str_a#etc,StringType,true),
     StructField(str b,StringType,true),
     StructField(object_a,
@@ -34,12 +49,10 @@ class TestPrettySchema:
             StructField(long_a,LongType,true),
             StructField(long_b,LongType,true))),true),
         true)))""",
-            id="mixed nested structs and arrays"
+            id="mixed nested structs and arrays",
         ),
         pytest.param(
-            StructType([
-                StructField("a", ArrayType(StringType())),
-            ]),
+            StructType([StructField("a", ArrayType(StringType()))]),
             """StructType(List(
     StructField(a,
         ArrayType(StringType,true),
@@ -47,9 +60,7 @@ class TestPrettySchema:
             id="simple array",
         ),
         pytest.param(
-            StructType([
-                StructField("a", ArrayType(StringType(), containsNull=False)),
-            ]),
+            StructType([StructField("a", ArrayType(StringType(), containsNull=False))]),
             """StructType(List(
     StructField(a,
         ArrayType(StringType,false),
