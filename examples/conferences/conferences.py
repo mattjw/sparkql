@@ -18,8 +18,7 @@ class Conference(StructObject):
     keywords = ArrayField(StringField(False), True)
 
 
-# pretty_schema(schema(Conference))
-stringified_schema = """
+prettified_schema = """
 StructType(List(
     StructField(name,StringType,false),
     StructField(city,StringType,false),
