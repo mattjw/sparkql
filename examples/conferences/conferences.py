@@ -36,4 +36,3 @@ StructType(List(
         ArrayType(StringType,false),
         true)))
 """
-
