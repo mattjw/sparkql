@@ -1,7 +1,11 @@
+"""String formatters."""
+
 from pyspark.sql.types import StructType, StructField, ArrayType, DataType
 
 
 class SparkSchemaPrettifier:
+    """Pretty formatting of a Spark schema."""
+
     PREFIX = "    "
 
     #
@@ -9,6 +13,7 @@ class SparkSchemaPrettifier:
 
     @classmethod
     def pretty_schema(cls, struct: StructType) -> str:
+        """Prettify `struct`."""
         return cls._pretty_struct_type(struct, depth=0)
 
     #

@@ -7,6 +7,8 @@ from pyspark.sql import functions as sql_funcs
 
 from .fields.base import BaseField
 
+# pylint: disable=protected-access
+
 
 def path_seq(field: BaseField) -> Sequence[str]:
     """Items on the path to a field."""
@@ -26,7 +28,7 @@ def path_str(field: BaseField) -> str:
 def path_col(field: BaseField) -> Column:
     """Return Spark column pointing to field `field`."""
     fields_seq = path_seq(field)
-    col: Column = sql_funcs.col(fields_seq[0])
+    col: Column = sql_funcs.col(fields_seq[0])  # pylint: disable=no-member
     for field_name in fields_seq[1:]:
         col = col(field_name)
     return col

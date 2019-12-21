@@ -1,6 +1,6 @@
 # sparkql ✨
 
-Spark SQL DataFrame schema management for sensible humans.
+Python Spark SQL DataFrame schema management for sensible humans.
 
 ## Run tests
 

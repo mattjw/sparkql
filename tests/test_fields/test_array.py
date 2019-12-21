@@ -4,7 +4,6 @@ from sparkql import StringField, ArrayField
 
 
 class TestArrayField:
-
     @staticmethod
     def test_should_not_allow_element_with_explicit_name():
         # given

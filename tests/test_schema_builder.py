@@ -4,7 +4,6 @@ from sparkql import StringField, ArrayField, FloatField, StructObject, Timestamp
 
 
 class TestSparkSchema:
-
     @staticmethod
     def test_should_structise_flat_object():
         # given
@@ -17,10 +16,13 @@ class TestSparkSchema:
         struct = schema(User)
 
         # then
-        assert struct == StructType([
-            StructField("id", StringType(), nullable=False),
-            StructField("age", FloatType()),
-            StructField("name", StringType())])
+        assert struct == StructType(
+            [
+                StructField("id", StringType(), nullable=False),
+                StructField("age", FloatType()),
+                StructField("name", StringType()),
+            ]
+        )
 
     @staticmethod
     def test_should_structise_deep_object():
@@ -39,14 +41,23 @@ class TestSparkSchema:
         struct = schema(Article)
 
         # then
-        assert struct == StructType([
-            StructField("article_author", nullable=False, dataType=StructType([
-                StructField("id", StringType(), nullable=False),
-                StructField("age", FloatType()),
-                StructField("name", StringType())])),
-            StructField("title", StringType(), nullable=False),
-            StructField("date", TimestampType()),
-        ])
+        assert struct == StructType(
+            [
+                StructField(
+                    "article_author",
+                    nullable=False,
+                    dataType=StructType(
+                        [
+                            StructField("id", StringType(), nullable=False),
+                            StructField("age", FloatType()),
+                            StructField("name", StringType()),
+                        ]
+                    ),
+                ),
+                StructField("title", StringType(), nullable=False),
+                StructField("date", TimestampType()),
+            ]
+        )
 
     @staticmethod
     def test_should_structise_object_containing_array_of_objects():
@@ -63,17 +74,18 @@ class TestSparkSchema:
         struct = schema(Article)
 
         # then
-        assert struct == StructType([
-            StructField("id", StringType(), nullable=False),
-            StructField(
-                "tags",
-                ArrayType(
-                    containsNull=True,
-                    elementType=StructType([
-                        StructField("id", StringType(), nullable=False),
-                        StructField("name", StringType()),
-                    ]),
+        assert struct == StructType(
+            [
+                StructField("id", StringType(), nullable=False),
+                StructField(
+                    "tags",
+                    ArrayType(
+                        containsNull=True,
+                        elementType=StructType(
+                            [StructField("id", StringType(), nullable=False), StructField("name", StringType())]
+                        ),
+                    ),
+                    nullable=True,
                 ),
-                nullable=True,
-            )
-        ])
+            ]
+        )

@@ -8,10 +8,10 @@ from pyspark.sql.types import ArrayType, StructField
 from .base import BaseField
 
 
-T = TypeVar("T", bound=BaseField)
+ArrayElementType = TypeVar("ArrayElementType", bound=BaseField)
 
 
-class ArrayField(Generic[T], BaseField):
+class ArrayField(Generic[ArrayElementType], BaseField):
     """
     Array field; shadows ArrayType in the Spark API.
 
@@ -22,18 +22,18 @@ class ArrayField(Generic[T], BaseField):
       `ArrayField.element.nullable`.
 
     Attributes:
-        ArrayElem: Data type info for the element of this array.
+        etype: Data type info for the element of this array. Should be an instance of a `BaseField`.
     """
 
-    ArrayElem: T
+    etype: ArrayElementType
 
-    def __init__(self, element: T, nullable: bool = True, name: Optional[str] = None):
+    def __init__(self, element: ArrayElementType, nullable: bool = True, name: Optional[str] = None):
         super().__init__(nullable, name)
 
         if not isinstance(element, BaseField):
             raise ValueError(f"Array element must be a field. Found type: {type(element)}")
 
-        self.ArrayElem = element
+        self.etype = element
         if element._name_explicit is not None:
             raise ValueError("The element field of an array should not have an explicit name")
             # None of the naming mechanics of this array's element type will be used.
@@ -44,7 +44,7 @@ class ArrayField(Generic[T], BaseField):
 
     def replace_parent(self, parent: Optional["StructObject"] = None) -> "StructObject":
         field = copy.copy(self)
-        field._parent_struct_object = self.ArrayElem.replace_parent(parent=parent)
+        field._parent_struct_object = self.etype.replace_parent(parent=parent)  # pylint: disable=protected-access
         return field
 
     #
@@ -53,7 +53,10 @@ class ArrayField(Generic[T], BaseField):
     @BaseField._contextual_name.setter
     def _contextual_name(self, value: str):
         self._name_contextual = value
-        self.ArrayElem._name_contextual = value  # set child to same name as parent
+        self.etype._name_contextual = (  # pylint: disable=protected-access
+            # set child to same name as parent
+            value
+        )
 
     #
     # Spark type management
@@ -69,8 +72,8 @@ class ArrayField(Generic[T], BaseField):
             name=self.field_name,
             dataType=ArrayType(
                 # Note that we do not care about the element's field name here:
-                elementType=self.ArrayElem.spark_struct_field.dataType,
-                containsNull=self.ArrayElem.is_nullable,
+                elementType=self.etype.spark_struct_field.dataType,
+                containsNull=self.etype.is_nullable,
             ),
             nullable=self.is_nullable,
         )

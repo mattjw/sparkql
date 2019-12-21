@@ -1,8 +1,11 @@
+"""Python Spark SQL DataFrame schema management for sensible humans."""
+
 __version__ = "0.1.0"
 
 from .schema_builder import schema
 from .path import path_col, path_seq, path_str
-from .fields.atomic import (
+from .formatters import pretty_schema
+from .fields import (
     ByteField,
     IntegerField,
     LongField,
@@ -15,10 +18,9 @@ from .fields.atomic import (
     BooleanField,
     DateField,
     TimestampField,
+    ArrayField,
+    StructObject,
 )
-from .fields.array import ArrayField
-from .fields.struct import StructObject
-from .formatters import pretty_schema
 
 
 __all__ = [
@@ -26,6 +28,7 @@ __all__ = [
     "path_col",
     "path_seq",
     "path_str",
+    "pretty_schema",
     "ByteField",
     "IntegerField",
     "LongField",
@@ -40,5 +43,4 @@ __all__ = [
     "TimestampField",
     "ArrayField",
     "StructObject",
-    "pretty_schema",
 ]

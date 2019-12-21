@@ -16,7 +16,6 @@ class Message(StructObject):
 
 
 class TestPathSeq:
-
     @staticmethod
     def test_should_return_correct_list_for_nested_schema():
         # given (see above)
@@ -32,14 +31,13 @@ class TestPathSeq:
         # given (see above)
 
         # when
-        path_field_names = path.path_seq(Message.recipients.ArrayElem.full_name)
+        path_field_names = path.path_seq(Message.recipients.etype.full_name)
 
         # then
         assert path_field_names == ["recipients", "full_name"]
 
 
 class TestPathStr:
-
     @staticmethod
     def test_should_return_correct_str_for_nested_schema():
         # given (see above)
@@ -55,14 +53,13 @@ class TestPathStr:
         # given (see above)
 
         # when
-        path_field_names = path.path_str(Message.recipients.ArrayElem.full_name)
+        path_field_names = path.path_str(Message.recipients.etype.full_name)
 
         # then
         assert path_field_names == "recipients.full_name"
 
 
 class TestPathCol:
-
     @staticmethod
     def test_should_return_correct_column_for_nested_schemas():
         # given (see above)

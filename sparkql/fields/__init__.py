@@ -1,3 +1,5 @@
+"""Schema fields."""
+
 from .atomic import (
     ByteField,
     IntegerField,
@@ -12,6 +14,9 @@ from .atomic import (
     DateField,
     TimestampField,
 )
+from .array import ArrayField
+from .struct import StructObject
+
 
 __all__ = [
     "ByteField",
@@ -26,4 +31,6 @@ __all__ = [
     "BooleanField",
     "DateField",
     "TimestampField",
+    "ArrayField",
+    "StructObject",
 ]
