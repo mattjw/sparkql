@@ -13,10 +13,12 @@ from .base import BaseField
 
 @dataclass(frozen=True)
 class StructObjectClassMeta:
+    """Metadata associated with a struct object; part of the underlying machinery of sparkql."""
+
     fields: Mapping[str, BaseField]
     spark_struct: sql_types.StructType
-    includes: Optional[Sequence["StructObject"]] = None  # TO-DO
-    interfaces: Optional[Sequence["StructObject"]] = None  # TO-DO
+    includes: Optional[Sequence["StructObject"]] = None  # ^ TO-DO  https://github.com/mattjw/sparkql/issues/17
+    interfaces: Optional[Sequence["StructObject"]] = None  # ^ TO-DO  https://github.com/mattjw/sparkql/issues/16
 
 
 class StructObject(BaseField):
@@ -34,9 +36,7 @@ class StructObject(BaseField):
     @property
     def spark_struct_field(self) -> StructField:
         return StructField(
-            name=self.field_name,
-            dataType=self._struct_object_meta.spark_struct,
-            nullable=self.is_nullable,
+            name=self.field_name, dataType=self._struct_object_meta.spark_struct, nullable=self.is_nullable
         )
 
     #
@@ -44,11 +44,9 @@ class StructObject(BaseField):
 
     @classmethod
     def __extract_fields(cls) -> Mapping[str, BaseField]:
-        fields = OrderedDict(
-            (key, value) for key, value in cls.__dict__.items() if isinstance(value, BaseField)
-        )
+        fields = OrderedDict((key, value) for key, value in cls.__dict__.items() if isinstance(value, BaseField))
         for field_name, field in fields.items():
-            field._contextual_name = field_name
+            field._contextual_name = field_name  # pylint: disable=protected-access
         return fields
 
     @staticmethod
@@ -56,7 +54,7 @@ class StructObject(BaseField):
         """Build a Spark struct (StructType) for a list of fields."""
         return sql_types.StructType([field.spark_struct_field for field in fields])
 
-    def __init_subclass__(cls, **options):
+    def __init_subclass__(cls, **options):  # pylint: disable=unused-argument
         super().__init_subclass__()
 
         # Do not re-extract
@@ -64,14 +62,9 @@ class StructObject(BaseField):
             return
 
         # Ensure a subclass does not break base class functionality
-        print("parent   ", StructObject.__dict__)
-        print("child    ", cls.__dict__)  # FIXME
-
         for child_prop, child_val in cls.__dict__.items():
             if (child_prop in StructObject.__dict__) and (isinstance(child_val, BaseField)):
-                raise InvalidStructObjectError(
-                    f"Field should note override inherited class properties: {child_prop}"
-                )
+                raise InvalidStructObjectError(f"Field should note override inherited class properties: {child_prop}")
 
         # Extract fields
         fields = cls.__extract_fields()

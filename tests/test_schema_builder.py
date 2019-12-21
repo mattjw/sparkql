@@ -1,11 +1,4 @@
-from pyspark.sql.types import (
-    StructField,
-    StructType,
-    StringType,
-    FloatType,
-    TimestampType,
-    ArrayType,
-)
+from pyspark.sql.types import StructField, StructType, StringType, FloatType, TimestampType, ArrayType
 
 from sparkql import StringField, ArrayField, FloatField, StructObject, TimestampField, schema
 
@@ -89,10 +82,7 @@ class TestSparkSchema:
                     ArrayType(
                         containsNull=True,
                         elementType=StructType(
-                            [
-                                StructField("id", StringType(), nullable=False),
-                                StructField("name", StringType()),
-                            ]
+                            [StructField("id", StringType(), nullable=False), StructField("name", StringType())]
                         ),
                     ),
                     nullable=True,

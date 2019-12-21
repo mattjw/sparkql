@@ -16,23 +16,11 @@ class TestPrettySchema:
                     StructField("str b", StringType()),
                     StructField(
                         "object_a",
-                        StructType(
-                            [
-                                StructField("int_a", IntegerType()),
-                                StructField("int_b", IntegerType()),
-                            ]
-                        ),
+                        StructType([StructField("int_a", IntegerType()), StructField("int_b", IntegerType())]),
                     ),
                     StructField(
                         "array_a",
-                        ArrayType(
-                            StructType(
-                                [
-                                    StructField("long_a", LongType()),
-                                    StructField("long_b", LongType()),
-                                ]
-                            )
-                        ),
+                        ArrayType(StructType([StructField("long_a", LongType()), StructField("long_b", LongType())])),
                     ),
                 ]
             ),

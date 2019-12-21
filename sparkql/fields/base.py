@@ -1,3 +1,5 @@
+"""Base field and abstract fields."""
+
 from abc import ABC, abstractmethod
 from typing import Optional, Type
 import copy
@@ -54,7 +56,7 @@ class BaseField(ABC):
         field = copy.copy(self)
         if self._parent_struct_object is not None:
             raise FieldParentError("Attempted to set parent field that has already been set")
-        field._parent_struct_object = parent
+        field._parent_struct_object = parent  # pylint: disable=protected-access
         return field
 
     #
@@ -138,7 +140,6 @@ class AtomicField(BaseField):
     @abstractmethod
     def _spark_type_class(self) -> Type[DataType]:
         """The class of the Spark type corresponding to this field."""
-        pass
 
     @property
     def spark_data_type(self) -> sql_type.DataType:
@@ -148,9 +149,7 @@ class AtomicField(BaseField):
     @property
     def spark_struct_field(self) -> StructField:
         """The StructField for this object."""
-        return StructField(
-            name=self.field_name, dataType=self.spark_data_type, nullable=self.is_nullable
-        )
+        return StructField(name=self.field_name, dataType=self.spark_data_type, nullable=self.is_nullable)
 
 
 class NumericField(AtomicField):
@@ -171,7 +170,6 @@ class NumericField(AtomicField):
     @abstractmethod
     def _spark_type_class(self) -> Type[DataType]:
         """The class of the Spark type corresponding to this field."""
-        pass
 
 
 class IntegralField(NumericField):
@@ -193,7 +191,6 @@ class IntegralField(NumericField):
     @abstractmethod
     def _spark_type_class(self) -> Type[DataType]:
         """The class of the Spark type corresponding to this field."""
-        pass
 
 
 class FractionalField(NumericField):
@@ -215,4 +212,3 @@ class FractionalField(NumericField):
     @abstractmethod
     def _spark_type_class(self) -> Type[DataType]:
         """The class of the Spark type corresponding to this field."""
-        pass

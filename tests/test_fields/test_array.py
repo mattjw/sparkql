@@ -10,7 +10,5 @@ class TestArrayField:
         element = StringField(name="explicit_name")
 
         # when, then
-        with pytest.raises(
-            ValueError, match="The element field of an array should not have an explicit name"
-        ):
+        with pytest.raises(ValueError, match="The element field of an array should not have an explicit name"):
             ArrayField(element)

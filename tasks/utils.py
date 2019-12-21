@@ -10,7 +10,7 @@ def run(cmd, pty=None, env=None, *args, **kwargs):
 
     Customisations:
     - Ensure PYTHONPATH is present and allows package to be imported.
-    - Do not use UnexpectedExit's default message format. stderr & stdout will be output and
+    - Do not use UnexpectedExit's default message format. stderr & stdout will be output and then the task will exit
     """
     if pty is None:
         pty = True
@@ -18,7 +18,7 @@ def run(cmd, pty=None, env=None, *args, **kwargs):
         env = {"PYTHONPATH": "./"}
 
     try:
-        invoke_run(cmd, env=env, pty=pty, *args, **kwargs)
+        return invoke_run(cmd, env=env, pty=pty, *args, **kwargs)
     except UnexpectedExit as err:
         result: Result = err.result
         exit(result.return_code)

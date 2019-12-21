@@ -31,7 +31,7 @@ class TestPathSeq:
         # given (see above)
 
         # when
-        path_field_names = path.path_seq(Message.recipients.ArrayElem.full_name)
+        path_field_names = path.path_seq(Message.recipients.etype.full_name)
 
         # then
         assert path_field_names == ["recipients", "full_name"]
@@ -53,7 +53,7 @@ class TestPathStr:
         # given (see above)
 
         # when
-        path_field_names = path.path_str(Message.recipients.ArrayElem.full_name)
+        path_field_names = path.path_str(Message.recipients.etype.full_name)
 
         # then
         assert path_field_names == "recipients.full_name"
