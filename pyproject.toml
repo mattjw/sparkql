@@ -21,6 +21,7 @@ pydocstyle = "^5.0"
 test = "tasks:test"
 reformat = "tasks:reformat"
 lint = "tasks:lint"
+typecheck = "tasks:typecheck"
 
 [tool.black]
 line-length = 120
