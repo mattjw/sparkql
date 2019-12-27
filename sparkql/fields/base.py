@@ -7,6 +7,7 @@ import copy
 from pyspark.sql import types as sql_type
 from pyspark.sql.types import StructField, DataType
 
+from .struct import StructObject
 from ..exceptions import FieldNameError, FieldParentError
 
 
