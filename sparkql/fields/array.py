@@ -25,7 +25,7 @@ class ArrayField(Generic[ArrayElementType], BaseField):
         etype: Data type info for the element of this array. Should be an instance of a `BaseField`.
     """
 
-    etype: ArrayElementType
+    etype: ArrayElementType  # pytype: disable=not-supported-yet
 
     def __init__(self, element: ArrayElementType, nullable: bool = True, name: Optional[str] = None):
         super().__init__(nullable, name)
@@ -42,7 +42,9 @@ class ArrayField(Generic[ArrayElementType], BaseField):
     #
     # Field path chaining
 
-    def replace_parent(self, parent: Optional["StructObject"] = None) -> "StructObject":
+    def replace_parent(
+        self, parent: Optional["StructObject"] = None
+    ) -> "StructObject":  # pytype: disable=invalid-annotation
         field = copy.copy(self)
         field._parent_struct_object = self.etype.replace_parent(parent=parent)  # pylint: disable=protected-access
         return field
