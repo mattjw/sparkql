@@ -1,3 +1,7 @@
+from pyspark.sql import SparkSession
+from pyspark.sql.types import StructType, StructField, StringType
+from pyspark.sql import functions as sql_funcs
+
 from sparkql import StringField, StructObject, ArrayField
 from sparkql import path
 
@@ -61,11 +65,13 @@ class TestPathStr:
 
 class TestPathCol:
     @staticmethod
-    def test_should_return_correct_column_for_nested_schemas():
+    def test_should_return_correct_column_for_nested_schemas(spark_session: SparkSession):
+        # spark_session: Testing of `path_col` has implicit JVM Spark dependency
+
         # given (see above)
 
         # when
-        column = path.path_col(Article.author.full_name)
+        col_ref = path.path_col(Article.author.full_name)
 
         # then
-        assert column == ["author", "name"]
+        assert str(col_ref) == str(sql_funcs.col("author")["full_name"])

@@ -1,13 +1,13 @@
 """Obtain path to a field within a possibly nested hierarchy."""
 
+# pylint: disable=protected-access
+
 from typing import Sequence
 
 from pyspark.sql import Column
 from pyspark.sql import functions as sql_funcs
 
 from .fields.base import BaseField
-
-# pylint: disable=protected-access
 
 
 def path_seq(field: BaseField) -> Sequence[str]:
@@ -30,5 +30,5 @@ def path_col(field: BaseField) -> Column:
     fields_seq = path_seq(field)
     col: Column = sql_funcs.col(fields_seq[0])  # pylint: disable=no-member
     for field_name in fields_seq[1:]:
-        col = col(field_name)
+        col = col[field_name]
     return col
