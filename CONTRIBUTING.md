@@ -55,9 +55,9 @@ Type hints are strongly encouraged, and are checked during CI.
 
 ## Versioning strategy
 
-This library uses [Semantic Versioning](https://semver.org/).
+This library uses [Semantic Versioning](https://semver.org/) (semver).
 
-## Library design principles
+## Library design philosophy
 
 - The API should favour strong type inference. Enables IDE completions
   and strong type checking.
