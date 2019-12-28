@@ -9,6 +9,8 @@ from pyspark.sql.types import StructField, DataType
 
 from ..exceptions import FieldNameError, FieldParentError
 
+# pytype: disable=invalid-annotation
+
 
 class BaseField(ABC):
     """Root of the field hierarchy; shadows DataType in the Spark API."""
@@ -41,7 +43,7 @@ class BaseField(ABC):
 
     @property
     def is_nullable(self) -> bool:
-        """Is this field nullable?"""
+        """The nullability status of this field."""
         return self._nullable
 
     #
@@ -51,7 +53,7 @@ class BaseField(ABC):
     def _parent(self) -> Optional["StructObject"]:
         return self._parent_struct_object
 
-    def replace_parent(self, parent: Optional["StructObject"] = None) -> "StructObject":
+    def replace_parent(self, parent: Optional["StructObject"] = None) -> "BaseField":
         """Return a copy of this Field with the parent attribute set."""
         field = copy.copy(self)
         if self._parent_struct_object is not None:
@@ -195,18 +197,18 @@ class IntegralField(NumericField):
 
 class FractionalField(NumericField):
     """
-        Integral field type.
+    Integral field type.
 
-        In the Spark API types hierarchy:
+    In the Spark API types hierarchy:
 
-        ```
-        DataType
-         |- AtomicType
-             |- NumericType
-                 |- FractionalType
-         |- ...
-        ```
-        """
+    ```
+    DataType
+     |- AtomicType
+         |- NumericType
+             |- FractionalType
+     |- ...
+    ```
+    """
 
     @property
     @abstractmethod

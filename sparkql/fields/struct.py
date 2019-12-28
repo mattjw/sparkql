@@ -35,6 +35,7 @@ class StructObject(BaseField):
 
     @property
     def spark_struct_field(self) -> StructField:
+        """The Spark StructField for this field."""
         return StructField(
             name=self.field_name, dataType=self._struct_object_meta.spark_struct, nullable=self.is_nullable
         )
@@ -54,8 +55,10 @@ class StructObject(BaseField):
         """Build a Spark struct (StructType) for a list of fields."""
         return sql_types.StructType([field.spark_struct_field for field in fields])
 
+    @classmethod
     def __init_subclass__(cls, **options):  # pylint: disable=unused-argument
-        super().__init_subclass__()
+        """Hook in to the subclassing of this base class; process fields when sub-classing occurs."""
+        super().__init_subclass__()  # pytype: disable=attribute-error
 
         # Do not re-extract
         if cls._struct_object_meta is not None:
@@ -89,7 +92,8 @@ class StructObject(BaseField):
     #
     # Other methods
 
-    def __str__(self):
+    def __str__(self) -> str:
+        """Nicely printable string representation."""
         return (
             f"<{type(self).__name__} \n"
             f"  spark type = {self._spark_type_class.__name__} \n"

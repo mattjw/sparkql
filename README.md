@@ -2,14 +2,7 @@
 
 Python Spark SQL DataFrame schema management for sensible humans.
 
-## Run tests
+## Contributing
 
-```bash
-poetry install
-poetry run tests
-```
-
-## Design principles
-
-- Favour strong type inference. Enables IDE completions and strong
-  type checking.
+Developers who'd like to contribute to this project should refer to
+[CONTRIBUTING.md](./CONTRIBUTING.md).

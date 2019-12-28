@@ -25,7 +25,7 @@ class ArrayField(Generic[ArrayElementType], BaseField):
         etype: Data type info for the element of this array. Should be an instance of a `BaseField`.
     """
 
-    etype: ArrayElementType
+    etype: ArrayElementType  # pytype: disable=not-supported-yet
 
     def __init__(self, element: ArrayElementType, nullable: bool = True, name: Optional[str] = None):
         super().__init__(nullable, name)
@@ -42,7 +42,10 @@ class ArrayField(Generic[ArrayElementType], BaseField):
     #
     # Field path chaining
 
-    def replace_parent(self, parent: Optional["StructObject"] = None) -> "StructObject":
+    def replace_parent(
+        self, parent: Optional["StructObject"] = None
+    ) -> "StructObject":  # pytype: disable=invalid-annotation
+        """Return a copy of this array with the parent attribute set."""
         field = copy.copy(self)
         field._parent_struct_object = self.etype.replace_parent(parent=parent)  # pylint: disable=protected-access
         return field
@@ -50,7 +53,11 @@ class ArrayField(Generic[ArrayElementType], BaseField):
     #
     # Field name management
 
-    @BaseField._contextual_name.setter
+    @property
+    def _contextual_name(self) -> Optional[str]:
+        return self._name_contextual
+
+    @_contextual_name.setter
     def _contextual_name(self, value: str):
         self._name_contextual = value
         self.etype._name_contextual = (  # pylint: disable=protected-access
@@ -67,6 +74,7 @@ class ArrayField(Generic[ArrayElementType], BaseField):
 
     @property
     def spark_struct_field(self) -> StructField:
+        """The Spark StructField for this field."""
         # containsNull => is used to indicate if elements in a ArrayType value can have null values
         return StructField(
             name=self.field_name,
