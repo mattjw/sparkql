@@ -18,6 +18,7 @@ pycodestyle = "^2.5"
 pydocstyle = "^5.0"
 pytype = "=2019.12.17"
 pylint = "^2.4.4"
+pytest-spark = "^0.5.2"
 
 [tool.poetry.scripts]
 test = "tasks:test"
