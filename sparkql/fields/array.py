@@ -45,6 +45,7 @@ class ArrayField(Generic[ArrayElementType], BaseField):
     def replace_parent(
         self, parent: Optional["StructObject"] = None
     ) -> "StructObject":  # pytype: disable=invalid-annotation
+        """Return a copy of this array with the parent attribute set."""
         field = copy.copy(self)
         field._parent_struct_object = self.etype.replace_parent(parent=parent)  # pylint: disable=protected-access
         return field
@@ -73,6 +74,7 @@ class ArrayField(Generic[ArrayElementType], BaseField):
 
     @property
     def spark_struct_field(self) -> StructField:
+        """The Spark StructField for this field."""
         # containsNull => is used to indicate if elements in a ArrayType value can have null values
         return StructField(
             name=self.field_name,

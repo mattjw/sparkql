@@ -43,7 +43,7 @@ class BaseField(ABC):
 
     @property
     def is_nullable(self) -> bool:
-        """Is this field nullable?"""
+        """The nullability status of this field."""
         return self._nullable
 
     #
@@ -197,18 +197,18 @@ class IntegralField(NumericField):
 
 class FractionalField(NumericField):
     """
-        Integral field type.
+    Integral field type.
 
-        In the Spark API types hierarchy:
+    In the Spark API types hierarchy:
 
-        ```
-        DataType
-         |- AtomicType
-             |- NumericType
-                 |- FractionalType
-         |- ...
-        ```
-        """
+    ```
+    DataType
+     |- AtomicType
+         |- NumericType
+             |- FractionalType
+     |- ...
+    ```
+    """
 
     @property
     @abstractmethod
