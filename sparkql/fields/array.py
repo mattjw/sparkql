@@ -52,7 +52,11 @@ class ArrayField(Generic[ArrayElementType], BaseField):
     #
     # Field name management
 
-    @BaseField._contextual_name.setter
+    @property
+    def _contextual_name(self) -> Optional[str]:
+        return self._name_contextual
+
+    @_contextual_name.setter
     def _contextual_name(self, value: str):
         self._name_contextual = value
         self.etype._name_contextual = (  # pylint: disable=protected-access
