@@ -66,7 +66,7 @@ version = "0.4.3"
 [[package]]
 category = "main"
 description = "A backport of the dataclasses module for Python 3.6"
-marker = "python_version >= \"3.6\" and python_version < \"3.7\" or python_version < \"3.7\""
+marker = "python_version >= \"3.6\" and python_version < \"3.7\""
 name = "dataclasses"
 optional = false
 python-versions = ">=3.6, <3.7"
@@ -118,38 +118,11 @@ version = "1.3.0"
 
 [[package]]
 category = "dev"
-description = "A concrete syntax tree with AST-like properties for Python 3.5, 3.6 and 3.7 programs."
-name = "libcst"
-optional = false
-python-versions = ">=3.6"
-version = "0.2.5"
-
-[package.dependencies]
-typing-extensions = ">=3.7.2"
-typing-inspect = ">=0.3.1"
-
-[package.dependencies.dataclasses]
-python = "<3.7"
-version = "*"
-
-[package.extras]
-dev = ["black", "codecov", "coverage", "hypothesis (>=4.36.0)", "hypothesmith (>=0.0.4)", "isort", "flake8", "jupyter", "nbsphinx", "pyre-check", "sphinx", "sphinx-rtd-theme"]
-
-[[package]]
-category = "dev"
 description = "More routines for operating on iterables, beyond itertools"
 name = "more-itertools"
 optional = false
 python-versions = ">=3.5"
 version = "8.0.2"
-
-[[package]]
-category = "dev"
-description = "Experimental type system extensions for programs checked with the mypy typechecker."
-name = "mypy-extensions"
-optional = false
-python-versions = "*"
-version = "0.4.3"
 
 [[package]]
 category = "dev"
@@ -213,17 +186,6 @@ dev = ["pre-commit", "tox"]
 
 [[package]]
 category = "dev"
-description = "Cross-platform lib for process and system monitoring in Python."
-name = "psutil"
-optional = false
-python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "5.6.7"
-
-[package.extras]
-enum = ["enum34"]
-
-[[package]]
-category = "dev"
 description = "library with cross-python path, ini-parsing, io, code, log facilities"
 name = "py"
 optional = false
@@ -264,34 +226,6 @@ name = "pyparsing"
 optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 version = "2.4.6"
-
-[[package]]
-category = "dev"
-description = "A performant type checker for Python"
-name = "pyre-check"
-optional = false
-python-versions = ">=3.5"
-version = "0.0.38"
-
-[package.dependencies]
-libcst = "*"
-psutil = "*"
-pyre-extensions = "*"
-pywatchman = "*"
-
-[package.extras]
-sapp = ["click", "click-log", "ipython (7.6.1)", "munch", "pygments", "sqlalchemy", "ujson (>=1.35,<2.0)", "xxhash (>=1.3.0,<1.4.0)", "prompt-toolkit (>=2.0.9,<2.1.0)"]
-
-[[package]]
-category = "dev"
-description = "Type system extensions for use with the pyre type checker"
-name = "pyre-extensions"
-optional = false
-python-versions = "*"
-version = "0.0.16"
-
-[package.dependencies]
-typing-inspect = "*"
 
 [[package]]
 category = "main"
@@ -352,14 +286,6 @@ typed_ast = "*"
 
 [[package]]
 category = "dev"
-description = "Watchman client for python"
-name = "pywatchman"
-optional = false
-python-versions = "*"
-version = "1.4.1"
-
-[[package]]
-category = "dev"
 description = "YAML parser and emitter for Python"
 name = "pyyaml"
 optional = false
@@ -400,26 +326,6 @@ version = "1.4.0"
 
 [[package]]
 category = "dev"
-description = "Backported and Experimental Type Hints for Python 3.5+"
-name = "typing-extensions"
-optional = false
-python-versions = "*"
-version = "3.7.4.1"
-
-[[package]]
-category = "dev"
-description = "Runtime inspection utilities for typing module."
-name = "typing-inspect"
-optional = false
-python-versions = "*"
-version = "0.5.0"
-
-[package.dependencies]
-mypy-extensions = ">=0.3.0"
-typing-extensions = ">=3.7.4"
-
-[[package]]
-category = "dev"
 description = "Measures number of Terminal column cells of wide-character codes"
 name = "wcwidth"
 optional = false
@@ -443,7 +349,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["pathlib2", "contextlib2", "unittest2"]
 
 [metadata]
-content-hash = "76e10afec038179703dda563b7c974c6e9ed4338ddd884d115c3d6da4267ff62"
+content-hash = "e5a61ef954a187f949d6fada7b8613f77e0136d32ab23545f57bf2b22cbc4252"
 python-versions = "^3.6"
 
 [metadata.files]
@@ -491,17 +397,9 @@ invoke = [
     {file = "invoke-1.3.0-py3-none-any.whl", hash = "sha256:f4ec8a134c0122ea042c8912529f87652445d9f4de590b353d23f95bfa1f0efd"},
     {file = "invoke-1.3.0.tar.gz", hash = "sha256:c52274d2e8a6d64ef0d61093e1983268ea1fc0cd13facb9448c4ef0c9a7ac7da"},
 ]
-libcst = [
-    {file = "libcst-0.2.5-py3-none-any.whl", hash = "sha256:2fd59f776c05aa18599def1ac83d62c72f04f59900b890a08a312e46c94d60af"},
-    {file = "libcst-0.2.5.tar.gz", hash = "sha256:bc48014c4378a099de2669e6879c77d58715a5b496ec9cc56fab25450f1580fa"},
-]
 more-itertools = [
     {file = "more-itertools-8.0.2.tar.gz", hash = "sha256:b84b238cce0d9adad5ed87e745778d20a3f8487d0f0cb8b8a586816c7496458d"},
     {file = "more_itertools-8.0.2-py3-none-any.whl", hash = "sha256:c833ef592a0324bcc6a60e48440da07645063c453880c9477ceb22490aec1564"},
-]
-mypy-extensions = [
-    {file = "mypy_extensions-0.4.3-py2.py3-none-any.whl", hash = "sha256:090fedd75945a69ae91ce1303b5824f428daf5a028d2f6ab8a299250a846f15d"},
-    {file = "mypy_extensions-0.4.3.tar.gz", hash = "sha256:2d82818f5bb3e369420cb3c4060a7970edba416647068eb4c5343488a6c604a8"},
 ]
 networkx = [
     {file = "networkx-2.4-py3-none-any.whl", hash = "sha256:cdfbf698749a5014bf2ed9db4a07a5295df1d3a53bf80bf3cbd61edf9df05fa1"},
@@ -528,19 +426,6 @@ pluggy = [
     {file = "pluggy-0.13.1-py2.py3-none-any.whl", hash = "sha256:966c145cd83c96502c3c3868f50408687b38434af77734af1e9ca461a4081d2d"},
     {file = "pluggy-0.13.1.tar.gz", hash = "sha256:15b2acde666561e1298d71b523007ed7364de07029219b604cf808bfa1c765b0"},
 ]
-psutil = [
-    {file = "psutil-5.6.7-cp27-none-win32.whl", hash = "sha256:1b1575240ca9a90b437e5a40db662acd87bbf181f6aa02f0204978737b913c6b"},
-    {file = "psutil-5.6.7-cp27-none-win_amd64.whl", hash = "sha256:28f771129bfee9fc6b63d83a15d857663bbdcae3828e1cb926e91320a9b5b5cd"},
-    {file = "psutil-5.6.7-cp35-cp35m-win32.whl", hash = "sha256:21231ef1c1a89728e29b98a885b8e0a8e00d09018f6da5cdc1f43f988471a995"},
-    {file = "psutil-5.6.7-cp35-cp35m-win_amd64.whl", hash = "sha256:b74b43fecce384a57094a83d2778cdfc2e2d9a6afaadd1ebecb2e75e0d34e10d"},
-    {file = "psutil-5.6.7-cp36-cp36m-win32.whl", hash = "sha256:e85f727ffb21539849e6012f47b12f6dd4c44965e56591d8dec6e8bc9ab96f4a"},
-    {file = "psutil-5.6.7-cp36-cp36m-win_amd64.whl", hash = "sha256:b560f5cd86cf8df7bcd258a851ca1ad98f0d5b8b98748e877a0aec4e9032b465"},
-    {file = "psutil-5.6.7-cp37-cp37m-win32.whl", hash = "sha256:094f899ac3ef72422b7e00411b4ed174e3c5a2e04c267db6643937ddba67a05b"},
-    {file = "psutil-5.6.7-cp37-cp37m-win_amd64.whl", hash = "sha256:fd2e09bb593ad9bdd7429e779699d2d47c1268cbde4dda95fcd1bd17544a0217"},
-    {file = "psutil-5.6.7-cp38-cp38-win32.whl", hash = "sha256:70387772f84fa5c3bb6a106915a2445e20ac8f9821c5914d7cbde148f4d7ff73"},
-    {file = "psutil-5.6.7-cp38-cp38-win_amd64.whl", hash = "sha256:10b7f75cc8bd676cfc6fa40cd7d5c25b3f45a0e06d43becd7c2d2871cbb5e806"},
-    {file = "psutil-5.6.7.tar.gz", hash = "sha256:ffad8eb2ac614518bbe3c0b8eb9dffdb3a8d2e3a7d5da51c5b974fb723a5c5aa"},
-]
 py = [
     {file = "py-1.8.1-py2.py3-none-any.whl", hash = "sha256:c20fdd83a5dbc0af9efd622bee9a5564e278f6380fffcacc43ba6f43db2813b0"},
     {file = "py-1.8.1.tar.gz", hash = "sha256:5e27081401262157467ad6e7f851b7aa402c5852dbcb3dae06768434de5752aa"},
@@ -561,14 +446,6 @@ pyparsing = [
     {file = "pyparsing-2.4.6-py2.py3-none-any.whl", hash = "sha256:c342dccb5250c08d45fd6f8b4a559613ca603b57498511740e65cd11a2e7dcec"},
     {file = "pyparsing-2.4.6.tar.gz", hash = "sha256:4c830582a84fb022400b85429791bc551f1f4871c33f23e44f353119e92f969f"},
 ]
-pyre-check = [
-    {file = "pyre_check-0.0.38-py3-none-macosx_10_11_x86_64.whl", hash = "sha256:0b83aaa201bb4de95ac9de4742b7798aea92017107005c3a565118423c6b70b9"},
-    {file = "pyre_check-0.0.38-py3-none-manylinux1_x86_64.whl", hash = "sha256:a7feed0bd53b92c5f94bdeb0b23dd250747f10b8bf1041ee270f4bf5cc6a0a14"},
-]
-pyre-extensions = [
-    {file = "pyre-extensions-0.0.16.tar.gz", hash = "sha256:51160e4fc76620578c376d86aa0f46e283352c20c7227802b1a297fc509ce2ee"},
-    {file = "pyre_extensions-0.0.16-py3-none-any.whl", hash = "sha256:1ca81b464003316f9c2f20702410558f7872132bc7a8f870b23be17cbdd11e8c"},
-]
 pyspark = [
     {file = "pyspark-2.4.1.tar.gz", hash = "sha256:923cc4075d586074f68b722f5ed029b0d25396828441b5ed421a0e40fe14e749"},
 ]
@@ -578,9 +455,6 @@ pytest = [
 ]
 pytype = [
     {file = "pytype-2019.12.17.tar.gz", hash = "sha256:0f62eb869af655b111e848109bcfc90a12da98574b107d74cf8ead16bf82802e"},
-]
-pywatchman = [
-    {file = "pywatchman-1.4.1.tar.gz", hash = "sha256:d0047eb275deafb0011eda0a1a815fbd9742478c3d2b5ad6956d300e447dc2f9"},
 ]
 pyyaml = [
     {file = "PyYAML-5.2-cp27-cp27m-win32.whl", hash = "sha256:35ace9b4147848cafac3db142795ee42deebe9d0dad885ce643928e88daebdcc"},
@@ -629,16 +503,6 @@ typed-ast = [
     {file = "typed_ast-1.4.0-cp38-cp38-win32.whl", hash = "sha256:1170afa46a3799e18b4c977777ce137bb53c7485379d9706af8a59f2ea1aa161"},
     {file = "typed_ast-1.4.0-cp38-cp38-win_amd64.whl", hash = "sha256:838997f4310012cf2e1ad3803bce2f3402e9ffb71ded61b5ee22617b3a7f6b6e"},
     {file = "typed_ast-1.4.0.tar.gz", hash = "sha256:66480f95b8167c9c5c5c87f32cf437d585937970f3fc24386f313a4c97b44e34"},
-]
-typing-extensions = [
-    {file = "typing_extensions-3.7.4.1-py2-none-any.whl", hash = "sha256:910f4656f54de5993ad9304959ce9bb903f90aadc7c67a0bef07e678014e892d"},
-    {file = "typing_extensions-3.7.4.1-py3-none-any.whl", hash = "sha256:cf8b63fedea4d89bab840ecbb93e75578af28f76f66c35889bd7065f5af88575"},
-    {file = "typing_extensions-3.7.4.1.tar.gz", hash = "sha256:091ecc894d5e908ac75209f10d5b4f118fbdb2eb1ede6a63544054bb1edb41f2"},
-]
-typing-inspect = [
-    {file = "typing_inspect-0.5.0-py2-none-any.whl", hash = "sha256:75c97b7854426a129f3184c68588db29091ff58e6908ed520add1d52fc44df6e"},
-    {file = "typing_inspect-0.5.0-py3-none-any.whl", hash = "sha256:c6ed1cd34860857c53c146a6704a96da12e1661087828ce350f34addc6e5eee3"},
-    {file = "typing_inspect-0.5.0.tar.gz", hash = "sha256:811b44f92e780b90cfe7bac94249a4fae87cfaa9b40312765489255045231d9c"},
 ]
 wcwidth = [
     {file = "wcwidth-0.1.7-py2.py3-none-any.whl", hash = "sha256:f4ebe71925af7b40a864553f761ed559b43544f8f71746c2d756c7fe788ade7c"},
