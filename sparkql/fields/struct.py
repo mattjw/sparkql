@@ -54,8 +54,9 @@ class StructObject(BaseField):
         """Build a Spark struct (StructType) for a list of fields."""
         return sql_types.StructType([field.spark_struct_field for field in fields])
 
+    @classmethod
     def __init_subclass__(cls, **options):  # pylint: disable=unused-argument
-        super().__init_subclass__()
+        super().__init_subclass__()  # pytype: disable=attribute-error
 
         # Do not re-extract
         if cls._struct_object_meta is not None:

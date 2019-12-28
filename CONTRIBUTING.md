@@ -21,7 +21,7 @@ poetry run verify-all
 To only run the tests:
 
 ```bash
-poetry run tests
+poetry run test
 ```
 
 To only run the type checks:
