@@ -20,7 +20,7 @@ jobs:
       - run:
           name: install dependencies
           command: |
-            poetry install
+            pip install poetry && poetry install
 
       # Save deps
       - save_cache:
