@@ -4,7 +4,7 @@ jobs:
 
   build:
     docker:
-      - image: circleci/python:3.6.1
+      - image: circleci/python:3.6.8
 
     working_directory: ~/repo
 
@@ -20,7 +20,7 @@ jobs:
       - run:
           name: install dependencies
           command: |
-            pip install poetry && poetry install
+            poetry install
 
       # Save deps
       - save_cache:
