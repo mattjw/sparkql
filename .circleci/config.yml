@@ -20,7 +20,8 @@ jobs:
       - run:
           name: install dependencies
           command: |
-            pip install --upgrade poetry~=1.0.0 && poetry install
+            sudo pip install --upgrade poetry~=1.0.0 \
+              && poetry install
 
       # Save deps
       - save_cache:
