@@ -4,7 +4,7 @@ jobs:
 
   build:
     docker:
-      - image: circleci/python:3.6.8
+      - image: docker.pkg.github.com/mattjw/docker-images/circleci-python-java8:py3.6.8
 
     working_directory: ~/repo
 
@@ -20,9 +20,7 @@ jobs:
       - run:
           name: install dependencies
           command: |
-            sudo pip install --upgrade poetry~=1.0.0 \
-              && poetry install
-          # TODO: unwated -- do not want to install each time
+            poetry install
 
       # Save deps
       - save_cache:
