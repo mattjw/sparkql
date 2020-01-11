@@ -26,7 +26,7 @@ jobs:
       - run:
           name: install dependencies
           command: |
-            poetry install --no-root
+            poetry --version && poetry install --no-root
 
       # Save deps
       - save_cache:
