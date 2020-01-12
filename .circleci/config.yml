@@ -4,24 +4,21 @@ version: "2.1"
 workflows:
   version: "2.1"
 
-  verify_all_workflow:
+  pipeline:
+    description: "Complete project workflow: build, verify (test), release."
     jobs:
-      - verify_all
-
-  release_workflow:
-    jobs:
-      - verify_all
+      - build_verify
       - release:
           requires:
-            - verify_all
+            - build_verify
           filters:
             branches:
               only: master
 
 jobs:
 
-  verify_all:
-    description: "Run all project tests and checks"
+  build_verify:
+    description: "Build project and run all tests and checks"
 
     docker:
       - image: docker.pkg.github.com/mattjw/docker-images/circleci-python-java8:py3.6.8
