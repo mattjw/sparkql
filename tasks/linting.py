@@ -1,6 +1,6 @@
 from invoke import Result
 
-from .utils import run, PROJECT_INFO
+from .utils import run, PROJECT_INFO, print_heavy
 
 
 def lint():
@@ -17,13 +17,13 @@ def lint():
 
 def _run_pylint(source_dir: str, pylintrc_fpath: str = ".pylintrc"):
     """Run pylint with a given configuration on a given code tree."""
-    print(f"\n🔍 PYLINT '{source_dir}' 🔎\n")
+    print_heavy(f"\n🔍 PYLINT '{source_dir}' 🔎\n")
     run(f'find {source_dir} -type f -name "*.py" | xargs pylint --rcfile {pylintrc_fpath}')
 
 
 def _run_pycodestyle(source_dir: str):
     """Run pycodestyle with a given configuration on a given code tree."""
-    print(f"\n🔍 PYCODESTYLE '{source_dir}' 🔎\n")
+    print_heavy(f"\n🔍 PYCODESTYLE '{source_dir}' 🔎\n")
     run(f"pycodestyle --ignore=E501 --exclude=.svn,CVS,.bzr,.hg,.git,__pycache__,.tox {source_dir}")
     # Ignores explained:
     # - E501: Line length is checked by PyLint
@@ -37,13 +37,13 @@ def _run_pydocstyle(source_dir: str):
     This ensures compliance with PEP 257, with a few exceptions. Note that pylint also carries out additional
     docstyle checks.
     """
-    print(f"\n🔍 PYDOCSTYLE '{source_dir}' 🔎\n")
+    print_heavy(f"\n🔍 PYDOCSTYLE '{source_dir}' 🔎\n")
     run(f"pydocstyle {PROJECT_INFO.source_directory}")
 
 
 def _run_project_needs_reformatting():
     """Check if the code needs re-formatting via black."""
-    print(f"\n🔍 CHECK CODE FORMATTING 🔎\n")
+    print_heavy(f"\n🔍 CHECK CODE FORMATTING 🔎\n")
 
     result: Result = run(
         f"black {PROJECT_INFO.source_directory} {PROJECT_INFO.tasks_directory} "

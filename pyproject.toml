@@ -6,19 +6,20 @@ authors = ["Matt J Williams <mattjw@mattjw.net>"]
 repository = "https://github.com/mattjw/sparkql"
 
 [tool.poetry.dependencies]
-python = "^3.6.8"
+python = "~3.6.8"
 pyspark = "=2.4.1"
 dataclasses = { version = "~0.7.0", python=">=3.6, <3.7" }
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.3"
-invoke = "^1.3"
+pytest = "~5.3"
+invoke = "~1.3"
 black = {version = "^18.3-alpha.0", allow-prereleases = true}
-pycodestyle = "^2.5"
-pydocstyle = "^5.0"
+pycodestyle = "~2.5"
+pydocstyle = "~5.0"
 pytype = "=2019.12.17"
-pylint = "^2.4.4"
-pytest-spark = "^0.5.2"
+pylint = "~2.4.4"
+pytest-spark = "~0.5.2"
+termcolor = "~1.1.0"
 
 [tool.poetry.scripts]
 test = "tasks:test"
