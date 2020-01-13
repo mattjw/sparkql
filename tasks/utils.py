@@ -2,6 +2,12 @@
 
 from invoke import run as invoke_run
 from invoke import UnexpectedExit, Result
+from termcolor import cprint
+
+
+def print_heavy(text):
+    """Print `text` to terminal with 'heavy' styling."""
+    cprint(text, "cyan", attrs=["bold", "underline", "dark"], on_color=None)
 
 
 def run(cmd, pty=None, env=None, *args, **kwargs):

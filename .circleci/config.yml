@@ -1,15 +1,32 @@
-version: 2.1
+version: "2.1"
+
+
+workflows:
+  version: "2.1"
+
+  full_pipeline:
+    description: "Complete project workflow: build, verify (test), release."
+    jobs:
+      - build_verify
+      - release:
+          requires:
+            - build_verify
+          filters:
+            branches:
+              only: master
 
 jobs:
 
-  build:
+  build_verify:
+    description: "Build project and run all tests and checks"
+
     docker:
       - image: docker.pkg.github.com/mattjw/docker-images/circleci-python-java8:py3.6.8
         auth:
           username: ${GITHUB_USERNAME}
           password: ${GITHUB_DOCKER_READ_TOKEN}
-        # This is a public image (via Github Packages), but Github Packages does not yet support authless read from
-        # public images
+        # This is a public image (via Github Packages), so shouldn't need auth, but Github Packages does not yet
+        # support authless read from public images
         # https://github.community/t5/GitHub-Actions/docker-pull-from-public-GitHub-Package-Registry-fail-with-quot/td-p/32782
 
     working_directory: ~/repo
@@ -40,3 +57,20 @@ jobs:
           name: run tests
           command: |
             poetry run verify-all
+
+  release:
+    description: "Release this version of the package to PyPI"
+
+    docker:
+      - image: docker.pkg.github.com/mattjw/docker-images/circleci-python-java8:py3.6.8
+        auth:
+          username: ${GITHUB_USERNAME}
+          password: ${GITHUB_DOCKER_READ_TOKEN}
+
+    steps:
+      - checkout
+
+      - run:
+          name: Push to PyPI
+          command: |
+            poetry publish --build --username "${PYPI_USERNAME}" --password "${PYPI_TOKEN}" --no-interaction
