@@ -7,7 +7,7 @@ from termcolor import cprint
 
 def print_heavy(text):
     """Print `text` to terminal with 'heavy' styling."""
-    cprint(text, attrs=["bold"], on_color="on_grey")
+    cprint(text, "blue", attrs=["bold"], on_color="on_grey")
 
 
 def run(cmd, pty=None, env=None, *args, **kwargs):
