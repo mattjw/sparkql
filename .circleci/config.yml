@@ -11,9 +11,9 @@ workflows:
       - release:
           requires:
             - build_verify
-#          filters:
-#            branches:
-#              only: master
+          filters:
+            branches:
+              only: master
 
 jobs:
 
