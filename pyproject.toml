@@ -5,6 +5,7 @@ description = "sparkql: Apache Spark SQL DataFrame schema management for sensibl
 authors = ["Matt J Williams <mattjw@mattjw.net>"]
 repository = "https://github.com/mattjw/sparkql"
 readme = "README.md"
+license = "MIT"
 
 [tool.poetry.dependencies]
 python = "~3.6.8"
