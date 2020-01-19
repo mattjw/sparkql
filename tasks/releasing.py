@@ -42,7 +42,7 @@ def prepare_release():
         exit(1)
 
     # Apply version change
-    # run("poetry version ")
+    run(f"poetry version {next_ver_info.next_version}")
 
 
 #
