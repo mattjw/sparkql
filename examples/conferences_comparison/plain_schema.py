@@ -36,7 +36,7 @@ StructType(List(
 # Create a data frame with some dummy data
 
 spark = SparkSession.builder.appName("conferences-comparison-demo").getOrCreate()
-df = spark.createDataFrame([
+dframe = spark.createDataFrame([
     {
         CONF_NAME_FIELD: "PyCon UK 2019",
         CONF_CITY_FIELD: {CITY_NAME_FIELD: "Cardiff", CITY_LAT_FIELD: 51.48, CITY_LONG_FIELD: -3.18}
@@ -46,7 +46,7 @@ df = spark.createDataFrame([
 #
 # Munge some data
 
-df = df.withColumn("city_name", df[CONF_CITY_FIELD][CITY_NAME_FIELD])
+dframe = dframe.withColumn("city_name", dframe[CONF_CITY_FIELD][CITY_NAME_FIELD])
 
 #
 # Here's what the output looks like

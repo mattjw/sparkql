@@ -1,5 +1,6 @@
-from sparkql import pretty_schema
+from sparkql import pretty_schema, schema
 from .. import plain_schema
+from .. import sparkql_schema
 
 
 def test_plain_stringified_schema():
@@ -16,18 +17,31 @@ def test_plain_munged_data():
     # given
 
     # when
-    actual_rows = [row.asDict(True) for row in plain_schema.df.collect()]
+    actual_rows = [row.asDict(True) for row in plain_schema.dframe.collect()]
 
     # then
     assert actual_rows == plain_schema.expected_rows
 
 
-def test_schemas_are_equivalent():
+def test_sparkql_stringified_schema():
     # given
 
-
     # when
-    actual_rows = [row.asDict(True) for row in df.collect()]
+    generated_schema = pretty_schema(schema(sparkql_schema.Conference))
 
     # then
-    assert actual_rows == expected_rows
+    assert generated_schema == sparkql_schema.prettified_schema.strip()
+
+
+def test_sparkql_munged_data():
+    # given
+
+    # when
+    actual_rows = [row.asDict(True) for row in sparkql_schema.dframe.collect()]
+
+    # then
+    assert actual_rows == sparkql_schema.expected_rows
+
+
+def test_schemas_are_equivalent():
+    assert schema(sparkql_schema.Conference) == plain_schema.CONFERENCE_SCHEMA
