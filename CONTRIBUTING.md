@@ -53,9 +53,19 @@ Additional lint checks are handled by a few linting tools, including
 
 Type hints are strongly encouraged, and are checked during CI.
 
-## Versioning strategy
+## Versioning and tracking changes
 
 This library uses [Semantic Versioning](https://semver.org/) (semver).
+
+To track changes to the library (major, minor, patch), this library
+uses an abridged version of [Conventional Commits](https://woile.github.io/commitizen/tutorials/writing_commits/#conventional-commits):
+
+- The change is a MAJOR change if the message includes `BREAKING CHANGE` .
+- The change is a MINOR change if the message begins with `feat`.
+- All other changes are assumed to be PATCH.
+
+commitizen is used to evaluate the type of change. There is no requirement
+to use commitzen to prepare your commit messages.
 
 ## Library design philosophy
 
