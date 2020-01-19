@@ -58,7 +58,8 @@ Type hints are strongly encouraged, and are checked during CI.
 This library uses [Semantic Versioning](https://semver.org/) (semver).
 
 To track changes to the library (major, minor, patch), this library
-uses an abridged version of [Conventional Commits](https://woile.github.io/commitizen/tutorials/writing_commits/#conventional-commits):
+uses an abridged version of
+[Conventional Commits](https://woile.github.io/commitizen/tutorials/writing_commits/#conventional-commits):
 
 - The change is a MAJOR change if the message includes `BREAKING CHANGE` .
 - The change is a MINOR change if the message begins with `feat`.
