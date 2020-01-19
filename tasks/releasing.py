@@ -1,4 +1,5 @@
 """Tools to support building and publishing a release."""
+
 import re
 from dataclasses import dataclass
 from typing import Optional
@@ -20,21 +21,48 @@ def prepare_release():
     - Creation of a new git tag.
     - Creation of a new commit, implementing the version increment.
     """
-    print(get_version_info())
+    next_ver_info = get_version_info()
+
+    # Abandon if version fields do not match
+    if next_ver_info.current_version != get_poetry_version():
+        print(
+            "Aborting\n"
+            "Something's wrong with the project version. poetry and commitizen do not agree:\n"
+            f"  poetry is {get_poetry_version()}\n"
+            f"  commitizen is {next_ver_info.current_version}")
+        exit(1)
+
+    if next_ver_info.current_version == next_ver_info.next_version:
+        print("No changes to release")
+        exit()
+
+    # Abandon if git tag already exists
+    if git_tag_exists(next_ver_info.next_tag):
+        print(f"Aborting\ngit tag for next release ({next_ver_info.next_tag}) already exists")
+        exit(1)
+
+    # Apply version change
+    # run("poetry version ")
 
 
 #
 # Utils
 
 @dataclass
-class VersionInfo:
+class NextVersionInfo:
     current_version: str
     next_version: Optional[str]  # next version, or None if no bump detected
     next_tag: Optional[str]  # next git tag, or None if no bump detected
     increment_type: Optional[str]  # increment type (MAJOR, MINOR, PATCH), or None if no bump detected
 
 
-def get_version_info() -> VersionInfo:
+def get_poetry_version() -> str:
+    """Get current version according to poetry."""
+    output = run("poetry version", warn=True, hide=True).stdout
+    return re.search(r"(\d+\.\d+\.\d+)", output).group(1)
+
+
+def get_version_info() -> NextVersionInfo:
     """
     Determine the version number that the next releaes will be, if any.
 
@@ -56,7 +84,7 @@ def get_version_info() -> VersionInfo:
     current_version, next_version = match.groups()
 
     if current_version == next_version:
-        return VersionInfo(current_version, None, None, None)
+        return NextVersionInfo(current_version, None, None, None)
 
     match = re.search(r"""tag to create: ([.v\d]+)""", cz_output)
     next_tag = match.group(1)
@@ -64,4 +92,10 @@ def get_version_info() -> VersionInfo:
     match = re.search(r"""increment detected: ([A-Z]+)""", cz_output)
     increment_type = match.group(1)
 
-    return VersionInfo(current_version, next_version, next_tag, increment_type)
+    return NextVersionInfo(current_version, next_version, next_tag, increment_type)
+
+
+def git_tag_exists(tag):
+    """Return True if `tag` exists as a git tag."""
+    result: Result = run(f"git describe --tags {tag}", hide=True, warn=True)
+    return result.return_code == 0
