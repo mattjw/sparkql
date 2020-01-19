@@ -114,7 +114,13 @@ class BaseField(ABC):
     # Misc.
 
     def __str__(self):
-        """String formatted object."""
+        """Returns the name of this field."""
+        # stringifying a field as its field adds some convenience for cases where we need the field
+        # name
+        return self._resolve_field_name()
+
+    def _info(self):
+        """String formatted object with a more complete summary of this field, primarily for debugging."""
         return (
             f"<{type(self).__name__} \n"
             f"  spark type = {self._spark_type_class.__name__} \n"

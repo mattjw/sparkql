@@ -92,8 +92,8 @@ class StructObject(BaseField):
     #
     # Other methods
 
-    def __str__(self) -> str:
-        """Nicely printable string representation."""
+    def _info(self):
+        """String formatted object with a more complete summary of this field, primarily for debugging."""
         return (
             f"<{type(self).__name__} \n"
             f"  spark type = {self._spark_type_class.__name__} \n"
