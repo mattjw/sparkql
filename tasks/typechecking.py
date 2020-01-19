@@ -1,4 +1,4 @@
-from .utils import run, PROJECT_INFO
+from .utils import run
 
 
 def typecheck():

@@ -30,14 +30,16 @@ reformat = "tasks:reformat"
 lint = "tasks:lint"
 typecheck = "tasks:typecheck"
 verify-all = "tasks:verify_all"
+prepare-release = "tasks:prepare_release"
 
 [tool.black]
 line-length = 120
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
 
 [tool.commitizen]
 name = "cz_conventional_commits"
 version = "0.1.1"  # do not edit manually
 tag_format = "v$version"
-[build-system]
-requires = ["poetry>=0.12"]
-build-backend = "poetry.masonry.api"
