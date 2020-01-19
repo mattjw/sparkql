@@ -11,7 +11,7 @@ Python Spark SQL DataFrame schema management for sensible humans.
 sparkql takes the pain out of working with DataFrame schemas in PySpark. It's
 particularly useful when you have structured data.
 
-You might find that you write schemas like this:
+In plain old PySpark, you might find that you write schemas like this:
 
 ```python
 CITY_SCHEMA = StructType()
@@ -29,16 +29,51 @@ CONF_CITY_FIELD = "city"
 CONFERENCE_SCHEMA.add(StructField(CONF_CITY_FIELD, CITY_SCHEMA))
 ```
 
-And use it like this:
+And then refer to fields like this:
 
 ```python
-df.withColumn("city_name", df[CONF_CITY_FIELD][CITY_NAME_FIELD])
+dframe("city_name", df[CONF_CITY_FIELD][CITY_NAME_FIELD])
 ```
 
-With sparkql, schemas become more pythonic and literate:
+With sparkql, schemas become a lot more literate:
 
 ```python
+class City(StructObject):
+    name = StringField(nullable=False)
+    latitude = FloatField()
+    longitude = FloatField()
 
+class Conference(StructObject):
+    name = StringField(nullable=False)
+    city = City()
+
+# ...create a DataFrame...
+
+dframe = dframe.withColumn("city_name", path_col(Conference.city.name))
+```
+
+## Features
+
+### Prettified Spark schema strings
+
+Spark's stringified schema representation isn't very user friendly, particularly for large schemas:
+
+
+```text
+StructType(List(StructField(name,StringType,false),StructField(city,StructType(List(StructField(name,StringType,false),StructField(latitude,FloatType,true),StructField(longitude,FloatType,true))),true)))
+```
+
+The function `pretty_schema` will return something more useful:
+
+```text
+StructType(List(
+    StructField(name,StringType,false),
+    StructField(city,
+        StructType(List(
+            StructField(name,StringType,false),
+            StructField(latitude,FloatType,true),
+            StructField(longitude,FloatType,true))),
+        true)))
 ```
 
 ## Contributing
