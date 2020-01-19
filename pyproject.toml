@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sparkql"
-version = "0.1.1"
+version = "0.1.1"  # do not edit manually
 description = "sparkql: Apache Spark SQL DataFrame schema management for sensible humans"
 authors = ["Matt J Williams <mattjw@mattjw.net>"]
 repository = "https://github.com/mattjw/sparkql"
@@ -36,3 +36,8 @@ line-length = 120
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.1.1"  # do not edit manually
+tag_format = "v$version"
