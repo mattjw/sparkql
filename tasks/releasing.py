@@ -45,15 +45,18 @@ def get_version_info() -> VersionInfo:
         A string of the form "0.1.1" there is a new release to generate (based on commit messages), or
         `None` if the messages indicate that there is nothing to release.
     """
-    cz_output = run("cz bump --dry-run --files-only", warn=True, hide=True).stdout
-    print(cz_output)
+    result: Result = run("cz bump --dry-run --files-only", warn=True)
+    cz_output = result.stdout
 
-    """bump: version 0.1.1 → 0.1.2
-tag to create: v0.1.2
-increment detected: PATCH"""
+    if "NO_VERSION_SPECIFIED" in cz_output:
+        print("It doesn't look like this project is set up for commitizen")
+        exit(1)
 
     match = re.search(r"""bump: version ([.\d]+) → ([.\d]+)""", cz_output)
     current_version, next_version = match.groups()
+
+    if current_version == next_version:
+        return VersionInfo(current_version, None, None, None)
 
     match = re.search(r"""tag to create: ([.v\d]+)""", cz_output)
     next_tag = match.group(1)
