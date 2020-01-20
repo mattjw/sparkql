@@ -70,6 +70,11 @@ uses an abridged version of
 `commitizen` is used to identify releasable changes and the resulting
 version bump.
 
+A note on squashed commits: If commit histories are squashed before
+merge/rebase, the resulting commit message must be compliant with
+these conventions. If using the Github UI to merge, the `fix:`/`feat:`
+lines must be put in the commit title field.
+
 ## Creating a new release
 
 If you have accumulated releasable changes that you would like to
@@ -88,25 +93,20 @@ The following command will look through the commit history to detect
 whether any releasable changes have been made. If this is the case,
 it will bump the project's version number (MAJOR/MINOR/PATCH, as
 automatically identified from the commit history) and then create a
-new commit and tag for the release. 
+new commit and tag for the release. The tag will be pushed to the
+upstream repository.
 
 ```bash
 poetry run prepare-release
 ```
 
-Finally, ensure you have PyPI crendentials available and then
+Finally, ensure you have PyPI credentials available and then
 enact the release:
 
 ```bash
 export PYPI_USERNAME="MY_USERNAME"
 export PYPI_PASSWORD="MY_PASSWORD_OR_TOKEN"
 poetry publish --build --username "${PYPI_USERNAME}" --password "${PYPI_TOKEN}" --no-interaction
-```
-
-Don't forget to push the git tag:
-
-```bash
-git push origin <TAG>
 ```
 
 ## Library design philosophy

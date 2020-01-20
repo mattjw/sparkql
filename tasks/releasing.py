@@ -50,12 +50,20 @@ def prepare_release():
         )
         exit(1)
 
+    # Abandon if not on master branch
+    if get_current_branch() != "master":
+        print(f"Aborting! Not on master branch. Current branch: {get_current_branch()}")
+        exit(1)
+
     if next_ver_info.next_version is None:
         print("No changes to release")
         exit()
 
     print("\nReleasable changes identified")
     print(f"Will bump from {next_ver_info.current_version} to {next_ver_info.next_version}\n")
+
+    # Retrieve tags from origin
+    run("git fetch --tags", hide="stdout", echo=True)
 
     # Abandon if git tag already exists
     if git_tag_exists(next_ver_info.next_tag):
@@ -72,6 +80,7 @@ def prepare_release():
     commit_message = f'"bump: {next_ver_info.current_version} -> {next_ver_info.next_tag}"'
     run(f"git add {PROJECT_INFO.project_toml} && git commit -m {commit_message}", hide="stdout", echo=True)
     run(f"git tag {next_ver_info.next_tag}", hide="stdout", echo=True)
+    run(f"git push origin {next_ver_info.next_tag}", hide="stdout", echo=True)
 
 
 #
@@ -129,6 +138,11 @@ def git_tag_exists(tag: str) -> bool:
     """Return True if `tag` exists as a git tag."""
     result: Result = run(f"git describe --tags {tag}", hide="stdout", warn=True)
     return result.return_code == 0
+
+
+def get_current_branch() -> str:
+    """Get current git branch."""
+    return run(f"git rev-parse --abbrev-ref HEAD", hide="stdout", warn=True).stdout.strip()
 
 
 def update_toml_commitizen_version(ver: str):
