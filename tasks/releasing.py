@@ -47,13 +47,13 @@ def prepare_release():
 
     # Bump version in project TOML
     print(f"\nUpdating {PROJECT_INFO.project_toml}")
-    run(f"poetry version {next_ver_info.next_version}", hide=True)
+    run(f"poetry version {next_ver_info.next_version}", hide="stdout")
 
-    # JUST USE COMMITIZEN TO DO THE BUMP?
-    run("cz bump")
-
-    # update_toml_commitizen_version(next_ver_info.next_version)
     # Commit and tag
+    # run(
+    #     f"git commit -m \"bump: {next_ver_info.current_version} -> {next_ver_info.next_tag}\"",
+    #     hide="stdout", echo=True)
+    # run(f"git tag {next_ver_info.next_tag}", hide="stdout", echo=True)
 
 
 #
@@ -69,7 +69,7 @@ class NextVersionInfo:
 
 def get_poetry_version() -> str:
     """Get current version according to poetry."""
-    output = run("poetry version", warn=True, hide=True).stdout
+    output = run("poetry version", warn=True, hide="stdout").stdout
     return re.search(r"(\d+\.\d+\.\d+)", output).group(1)
 
 
@@ -108,7 +108,7 @@ def get_version_info() -> NextVersionInfo:
 
 def git_tag_exists(tag: str) -> bool:
     """Return True if `tag` exists as a git tag."""
-    result: Result = run(f"git describe --tags {tag}", hide=True, warn=True)
+    result: Result = run(f"git describe --tags {tag}", hide="stdout", warn=True)
     return result.return_code == 0
 
 
