@@ -27,8 +27,7 @@ def prepare_release():
     # Abandon if version fields do not match
     if next_ver_info.current_version != get_poetry_version():
         print(
-            "Aborting\n"
-            "Something's wrong with the project version. poetry and commitizen do not agree:\n"
+            "Aborting! Something's wrong with the project version. poetry and commitizen do not agree:\n"
             f"  poetry is {get_poetry_version()}\n"
             f"  commitizen is {next_ver_info.current_version}")
         exit(1)
@@ -38,11 +37,11 @@ def prepare_release():
         exit()
 
     print("\nReleasable changes identified")
-    print(f"Will bump from {next_ver_info.current_version} to {next_ver_info.next_version}")
+    print(f"Will bump from {next_ver_info.current_version} to {next_ver_info.next_version}\n")
 
     # Abandon if git tag already exists
     if git_tag_exists(next_ver_info.next_tag):
-        print(f"Aborting\ngit tag for next release ({next_ver_info.next_tag}) already exists")
+        print(f"Aborting! git tag for next release ({next_ver_info.next_tag}) already exists")
         exit(1)
 
     # Bump version in project TOML
