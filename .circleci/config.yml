@@ -43,7 +43,7 @@ jobs:
           username: ${GITHUB_USERNAME}
           password: ${GITHUB_DOCKER_READ_TOKEN}
         # This is a public image (via Github Packages), so shouldn't need auth, but Github Packages does not yet
-        # support authless read from public images
+        # support authless read from public images.
         # https://github.community/t5/GitHub-Actions/docker-pull-from-public-GitHub-Package-Registry-fail-with-quot/td-p/32782
 
     working_directory: ~/repo
