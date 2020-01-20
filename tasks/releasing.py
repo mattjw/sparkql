@@ -15,14 +15,19 @@ from .utils import run, PROJECT_INFO
 
 
 def find_releasable_changes():
-    """Identify whether a release can happen; does not modify the project."""
+    """
+    Identify whether a release can happen; does not modify the project.
+
+    Returns non-zero exit code if there are NOT any releasable changes.
+    """
     next_ver_info = get_version_info()
     if next_ver_info.next_version is None:
         print(f"No changes to release. Project is currently on version {next_ver_info.current_version}")
-        exit()
+        exit(1)
     print("Releasable changes identified")
     print(f"The new release will be a {next_ver_info.increment_type} bump")
     print(f"The version will bump from {next_ver_info.current_version} to {next_ver_info.next_version}\n")
+    exit(0)
 
 
 def prepare_release():
