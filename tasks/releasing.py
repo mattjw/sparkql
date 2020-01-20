@@ -57,6 +57,9 @@ def prepare_release():
     print("\nReleasable changes identified")
     print(f"Will bump from {next_ver_info.current_version} to {next_ver_info.next_version}\n")
 
+    # Retrieve tags from origin
+    run("git fetch --tags", hide="stdout", echo=True)
+
     # Abandon if git tag already exists
     if git_tag_exists(next_ver_info.next_tag):
         print(f"Aborting! git tag for next release ({next_ver_info.next_tag}) already exists")
@@ -72,6 +75,7 @@ def prepare_release():
     commit_message = f'"bump: {next_ver_info.current_version} -> {next_ver_info.next_tag}"'
     run(f"git add {PROJECT_INFO.project_toml} && git commit -m {commit_message}", hide="stdout", echo=True)
     run(f"git tag {next_ver_info.next_tag}", hide="stdout", echo=True)
+    run(f"git push origin {next_ver_info.next_tag}", hide="stdout", echo=True)
 
 
 #
