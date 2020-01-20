@@ -61,14 +61,14 @@ To track changes to the library (major, minor, patch), this library
 uses an abridged version of
 [Conventional Commits](https://woile.github.io/commitizen/tutorials/writing_commits/#conventional-commits):
 
-- The change is a PATCH change if the message begins with `fix`.
-- The change is a MINOR change if the message begins with `feat`.
+- The change is a PATCH change if the message begins with `fix:`.
+- The change is a MINOR change if the message begins with `feat:`.
 - The change is a MAJOR change if the message includes `BREAKING CHANGE`.
 - If the commit history does not match any of the above, no new
   release will happen.
 
-commitizen is used to evaluate the type of change. There is no requirement
-to use commitzen to prepare your commit messages.
+`commitizen` is used to identify releasable changes and the resulting
+version bump.
 
 ## Creating a new release
 
