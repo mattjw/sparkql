@@ -106,11 +106,9 @@ def git_tag_exists(tag: str) -> bool:
 def update_toml_commitizen_version(ver: str):
     """Update the commitizen version in the project TOML file."""
     with open(PROJECT_INFO.project_toml) as f_in:
-        conf_text = f_in.read()
+        conf = tomlkit.parse(f_in.read())
 
-    conf = tomlkit.parse(conf_text)
     conf["tool"]["commitizen"]["version"] = ver
-    conf_write = tomlkit.dumps(conf)
 
     with open(PROJECT_INFO.project_toml, "w") as f_out:
-        f_out.write(conf_write)
+        f_out.write(tomlkit.dumps(conf))
