@@ -100,7 +100,7 @@ upstream repository.
 poetry run prepare-release
 ```
 
-Finally, ensure you have PyPI crendentials available and then
+Finally, ensure you have PyPI credentials available and then
 enact the release:
 
 ```bash
