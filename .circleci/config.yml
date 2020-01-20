@@ -4,33 +4,31 @@ version: "2.1"
 workflows:
   version: "2.1"
 
-  full_pipeline:
-    description: "Complete project workflow: build, verify (test), release."
+  non_master_pipeline:
+    description: "Build and test. Applied to all non-master branches."
+    filters:
+      branches:
+        ignore: master
     jobs:
-      #
-      # Testing (all branches)
       - build_verify
+      - check_releasable_changes
 
-      #
-      # Release pipeline, with manual approval (master only)
-      - check_releasable_changes:
-          filters:
-            branches:
-              only: master
+  master_pipeline:
+    description: "Build and test. Bump version and release, if manually approved."
+    filters:
+      branches:
+        only: master
+    jobs:
+      - build_verify
+      - check_releasable_changes
       - request_release:
           type: approval
           requires:
             - build_verify
             - check_releasable_changes
-          filters:
-            branches:
-              only: master
       - release:
           requires:
             - request_release
-          filters:
-            branches:
-              only: master
 
 
 jobs:
@@ -88,7 +86,12 @@ jobs:
       - run:
           name: Show for releasable changes
           command: |
-            poetry run releasable-changes
+            result=$(poetry run find-releasable-changes)
+            echo "${result}"
+            if [[ ${result} == *"No changes to release"* ]]; then
+              echo "Ending CircleCI job here"
+              circleci-agent step halt
+            fi
 
   release:
     description: "Release this version of the package to PyPI"
