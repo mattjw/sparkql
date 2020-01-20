@@ -43,7 +43,7 @@ def prepare_release():
         exit(1)
 
     # Apply version change
-    # run(f"poetry version {next_ver_info.next_version}")
+    run(f"poetry version {next_ver_info.next_version}")
     update_toml_commitizen_version(next_ver_info.next_version)
 
 
