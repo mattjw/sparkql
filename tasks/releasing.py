@@ -6,7 +6,7 @@ from typing import Optional
 
 from invoke import Result
 
-from .utils import run, print_heavy
+from .utils import run, PROJECT_INFO
 
 
 #
@@ -42,7 +42,8 @@ def prepare_release():
         exit(1)
 
     # Apply version change
-    run(f"poetry version {next_ver_info.next_version}")
+    # run(f"poetry version {next_ver_info.next_version}")
+    update_toml_commitizen_version(next_ver_info.next_version)
 
 
 #
@@ -95,7 +96,18 @@ def get_version_info() -> NextVersionInfo:
     return NextVersionInfo(current_version, next_version, next_tag, increment_type)
 
 
-def git_tag_exists(tag):
+def git_tag_exists(tag: str) -> bool:
     """Return True if `tag` exists as a git tag."""
     result: Result = run(f"git describe --tags {tag}", hide=True, warn=True)
     return result.return_code == 0
+
+
+def update_toml_commitizen_version(ver: str):
+    """Update the commitizen version in the project TOML file."""
+    with open(PROJECT_INFO.project_toml) as f_obj:
+        conf = f_obj.read()
+
+    conf = re.sub(r"""(\[tool.commitizen\].*?version\s*=\s*")(.*?)(".*?\n\[)""", f"\\1{ver}\\3", conf, flags=re.DOTALL)
+    # conf = re.sub(r"""(\[tool.commitizen\].*?version\s*=\w*")(.*?)(".*?\n\[)""", "xx", conf, flags=re.DOTALL)
+    # conf = re.sub(r"""(\[tool.commitizen\]).*?version""", "xx", conf, flags=re.DOTALL)
+    print(conf)

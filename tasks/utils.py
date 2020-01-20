@@ -36,6 +36,7 @@ class ProjectInfo:
     source_directory: str = "sparkql/"  # top of source code tree
     tests_directory: str = "tests/"
     tasks_directory: str = "tasks/"
+    project_toml: str = "pyproject.toml"
 
 
 PROJECT_INFO = ProjectInfo()
