@@ -50,7 +50,7 @@ def prepare_release():
     run(f"poetry version {next_ver_info.next_version}", hide="stdout")
 
     # Commit and tag
-    commit_message = '"bump: {next_ver_info.current_version} -> {next_ver_info.next_tag}"'
+    commit_message = f'"bump: {next_ver_info.current_version} -> {next_ver_info.next_tag}"'
     run(
         f"git add {PROJECT_INFO.project_toml} && git commit -m {commit_message}",
         hide="stdout", echo=True)
