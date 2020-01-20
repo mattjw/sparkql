@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 from invoke import Result
+import tomlkit
 
 from .utils import run, PROJECT_INFO
 
@@ -104,10 +105,12 @@ def git_tag_exists(tag: str) -> bool:
 
 def update_toml_commitizen_version(ver: str):
     """Update the commitizen version in the project TOML file."""
-    with open(PROJECT_INFO.project_toml) as f_obj:
-        conf = f_obj.read()
+    with open(PROJECT_INFO.project_toml) as f_in:
+        conf_text = f_in.read()
 
-    conf = re.sub(r"""(\[tool.commitizen\].*?version\s*=\s*")(.*?)(".*?\n\[)""", f"\\1{ver}\\3", conf, flags=re.DOTALL)
-    # conf = re.sub(r"""(\[tool.commitizen\].*?version\s*=\w*")(.*?)(".*?\n\[)""", "xx", conf, flags=re.DOTALL)
-    # conf = re.sub(r"""(\[tool.commitizen\]).*?version""", "xx", conf, flags=re.DOTALL)
-    print(conf)
+    conf = tomlkit.parse(conf_text)
+    conf["tool"]["commitizen"]["version"] = ver
+    conf_write = tomlkit.dumps(conf)
+
+    with open(PROJECT_INFO.project_toml, "w") as f_out:
+        f_out.write(conf_write)

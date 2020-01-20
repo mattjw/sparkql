@@ -478,7 +478,7 @@ python-versions = "*"
 version = "0.10.0"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Style preserving TOML library"
 name = "tomlkit"
 optional = false
@@ -526,7 +526,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["pathlib2", "contextlib2", "unittest2"]
 
 [metadata]
-content-hash = "f0cffc1afdbbac770f6f8c25da1fa1cc39e6e273beb8857fb87ca44aa17e077a"
+content-hash = "f5f31e70e868c8cd2ca56f81ca0560bc2c97b5c2eb6609d23cd2f4a9de3b3e3c"
 python-versions = "~3.6.8"
 
 [metadata.files]

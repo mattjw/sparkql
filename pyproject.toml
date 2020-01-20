@@ -23,6 +23,7 @@ pylint = "~2.4.4"
 pytest-spark = "~0.5.2"
 termcolor = "~1.1.0"
 commitizen = "~1.14.2"
+tomlkit = "~0.5.8"
 
 [tool.poetry.scripts]
 test = "tasks:test"
