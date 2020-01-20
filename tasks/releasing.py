@@ -43,7 +43,11 @@ def prepare_release():
         exit(1)
 
     # Bump version in project TOML
-    run(f"poetry version {next_ver_info.next_version}")
+    print("\nReleasable changes identified")
+    print(f"Will bump from {next_ver_info.current_version} to {next_ver_info.next_version}")
+
+    print(f"\nUpdating {PROJECT_INFO.project_toml}")
+    run(f"poetry version {next_ver_info.next_version}", hide=True)
     update_toml_commitizen_version(next_ver_info.next_version)
 
 
@@ -75,7 +79,7 @@ def get_version_info() -> NextVersionInfo:
         A string of the form "0.1.1" there is a new release to generate (based on commit messages), or
         `None` if the messages indicate that there is nothing to release.
     """
-    result: Result = run("cz bump --dry-run --files-only", warn=True)
+    result: Result = run("cz bump --dry-run --files-only", warn=True, hide=True)
     cz_output = result.stdout
 
     if "NO_VERSION_SPECIFIED" in cz_output:
