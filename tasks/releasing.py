@@ -37,18 +37,23 @@ def prepare_release():
         print("No changes to release")
         exit()
 
+    print("\nReleasable changes identified")
+    print(f"Will bump from {next_ver_info.current_version} to {next_ver_info.next_version}")
+
     # Abandon if git tag already exists
     if git_tag_exists(next_ver_info.next_tag):
         print(f"Aborting\ngit tag for next release ({next_ver_info.next_tag}) already exists")
         exit(1)
 
     # Bump version in project TOML
-    print("\nReleasable changes identified")
-    print(f"Will bump from {next_ver_info.current_version} to {next_ver_info.next_version}")
-
     print(f"\nUpdating {PROJECT_INFO.project_toml}")
     run(f"poetry version {next_ver_info.next_version}", hide=True)
-    update_toml_commitizen_version(next_ver_info.next_version)
+
+    # JUST USE COMMITIZEN TO DO THE BUMP?
+    run("cz bump")
+
+    # update_toml_commitizen_version(next_ver_info.next_version)
+    # Commit and tag
 
 
 #
