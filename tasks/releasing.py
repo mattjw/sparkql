@@ -13,6 +13,7 @@ from .utils import run, PROJECT_INFO
 #
 # Commands
 
+
 def find_releasable_changes():
     """Identify whether a release can happen; does not modify the project."""
     next_ver_info = get_version_info()
@@ -45,7 +46,8 @@ def prepare_release():
         print(
             "Aborting! Something's wrong with the project version. poetry and commitizen do not agree:\n"
             f"  poetry is {get_poetry_version()}\n"
-            f"  commitizen is {next_ver_info.current_version}")
+            f"  commitizen is {next_ver_info.current_version}"
+        )
         exit(1)
 
     if next_ver_info.next_version is None:
@@ -68,14 +70,13 @@ def prepare_release():
 
     # Commit and tag
     commit_message = f'"bump: {next_ver_info.current_version} -> {next_ver_info.next_tag}"'
-    run(
-        f"git add {PROJECT_INFO.project_toml} && git commit -m {commit_message}",
-        hide="stdout", echo=True)
+    run(f"git add {PROJECT_INFO.project_toml} && git commit -m {commit_message}", hide="stdout", echo=True)
     run(f"git tag {next_ver_info.next_tag}", hide="stdout", echo=True)
 
 
 #
 # Utils
+
 
 @dataclass
 class NextVersionInfo:

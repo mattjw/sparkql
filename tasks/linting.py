@@ -6,6 +6,7 @@ from .utils import run, PROJECT_INFO, print_heavy
 #
 # Commands
 
+
 def lint():
     """Apply all linting checks."""
     _run_project_needs_reformatting()
@@ -16,6 +17,7 @@ def lint():
 
 #
 # Utils
+
 
 def _run_pylint(source_dir: str, pylintrc_fpath: str = ".pylintrc"):
     """Run pylint with a given configuration on a given code tree."""
