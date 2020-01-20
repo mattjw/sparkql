@@ -42,7 +42,7 @@ def prepare_release():
         print(f"Aborting\ngit tag for next release ({next_ver_info.next_tag}) already exists")
         exit(1)
 
-    # Bump version project TOML
+    # Bump version in project TOML
     run(f"poetry version {next_ver_info.next_version}")
     update_toml_commitizen_version(next_ver_info.next_version)
 
