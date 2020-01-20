@@ -99,8 +99,8 @@ def get_version_info() -> NextVersionInfo:
     If, according to commits, a new release can happen, then determine what the version number will be.
 
     Returns:
-        A string of the form "0.1.1" there is a new release to generate (based on commit messages), or
-        `None` if the messages indicate that there is nothing to release.
+        A string of the form "0.1.1" if there is a new release to generate (based on commit messages). Returns
+        `None` if the commit history indicates that there is nothing to release.
     """
     result: Result = run("cz bump --dry-run --files-only", warn=True, hide=True)
     cz_output = result.stdout
