@@ -16,7 +16,7 @@ from .utils import run, PROJECT_INFO
 def find_releasable_changes():
     """Identify whether a release can happen; does not modify the project."""
     next_ver_info = get_version_info()
-    if next_ver_info.current_version == next_ver_info.next_version:
+    if next_ver_info.next_version is None:
         print(f"No changes to release. Project is currently on version {next_ver_info.current_version}")
         exit()
     print("Releasable changes identified")
@@ -48,7 +48,7 @@ def prepare_release():
             f"  commitizen is {next_ver_info.current_version}")
         exit(1)
 
-    if next_ver_info.current_version == next_ver_info.next_version:
+    if next_ver_info.next_version is None:
         print("No changes to release")
         exit()
 
