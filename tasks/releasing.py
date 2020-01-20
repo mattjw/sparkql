@@ -42,6 +42,8 @@ def prepare_release():
     # Abandon if git tag already exists
     if git_tag_exists(next_ver_info.next_tag):
         print(f"Aborting! git tag for next release ({next_ver_info.next_tag}) already exists")
+        print("Consider deleting the tag with:")
+        print(f"  git tag -d {next_ver_info.next_tag}")
         exit(1)
 
     # Bump version in project TOML
