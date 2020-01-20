@@ -1,5 +1,8 @@
-from .utils import run, PROJECT_INFO
+from .utils import run
 
+
+#
+# Commands
 
 def typecheck():
     """Typecheck code."""
