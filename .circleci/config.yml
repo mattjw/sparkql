@@ -8,12 +8,12 @@ workflows:
     description: "Complete project workflow: build, verify (test), release."
     jobs:
       - build_verify
-      - release:
-          requires:
-            - build_verify
-          filters:
-            branches:
-              only: master
+#      - release:
+#          requires:
+#            - build_verify
+#          filters:
+#            branches:
+#              only: master
 
 jobs:
 

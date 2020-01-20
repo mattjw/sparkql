@@ -13,10 +13,11 @@ from .utils import run, PROJECT_INFO
 #
 # Commands
 
+
 def find_releasable_changes():
     """Identify whether a release can happen; does not modify the project."""
     next_ver_info = get_version_info()
-    if next_ver_info.current_version == next_ver_info.next_version:
+    if next_ver_info.next_version is None:
         print(f"No changes to release. Project is currently on version {next_ver_info.current_version}")
         exit()
     print("Releasable changes identified")
@@ -28,8 +29,8 @@ def prepare_release():
     """
     Enact release preparation, including updating version numbers and creating a commit and tag.
 
-    If you're ready to make a new release of this library, then you should run this command to update the
-    repository in preparation to build and publish to the package index.
+    If you're ready to make a new release of this library, then you should run this command to update the repository
+    in preparation to build and publish to the package index.
 
     This command will identify if there are any releasable changes since the last release. If so, then
     it will do the following:
@@ -45,10 +46,11 @@ def prepare_release():
         print(
             "Aborting! Something's wrong with the project version. poetry and commitizen do not agree:\n"
             f"  poetry is {get_poetry_version()}\n"
-            f"  commitizen is {next_ver_info.current_version}")
+            f"  commitizen is {next_ver_info.current_version}"
+        )
         exit(1)
 
-    if next_ver_info.current_version == next_ver_info.next_version:
+    if next_ver_info.next_version is None:
         print("No changes to release")
         exit()
 
@@ -68,14 +70,13 @@ def prepare_release():
 
     # Commit and tag
     commit_message = f'"bump: {next_ver_info.current_version} -> {next_ver_info.next_tag}"'
-    run(
-        f"git add {PROJECT_INFO.project_toml} && git commit -m {commit_message}",
-        hide="stdout", echo=True)
+    run(f"git add {PROJECT_INFO.project_toml} && git commit -m {commit_message}", hide="stdout", echo=True)
     run(f"git tag {next_ver_info.next_tag}", hide="stdout", echo=True)
 
 
 #
 # Utils
+
 
 @dataclass
 class NextVersionInfo:
