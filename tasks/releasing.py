@@ -28,8 +28,8 @@ def prepare_release():
     """
     Enact release preparation, including updating version numbers and creating a commit and tag.
 
-    If you're ready to make a new release of this library, then you should run this command to update the
-    repository in preparation to build and publish to the package index.
+    If you're ready to make a new release of this library, then you should run this command to update the repository
+    in preparation to build and publish to the package index.
 
     This command will identify if there are any releasable changes since the last release. If so, then
     it will do the following:
