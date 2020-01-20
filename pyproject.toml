@@ -31,6 +31,7 @@ reformat = "tasks:reformat"
 lint = "tasks:lint"
 typecheck = "tasks:typecheck"
 verify-all = "tasks:verify_all"
+find-releasable-changes = "tasks:find_releasable_changes"
 prepare-release = "tasks:prepare_release"
 
 [tool.black]

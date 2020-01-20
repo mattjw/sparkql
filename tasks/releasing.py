@@ -13,6 +13,17 @@ from .utils import run, PROJECT_INFO
 #
 # Commands
 
+def find_releasable_changes():
+    """Identify whether a release can happen; does not modify the project."""
+    next_ver_info = get_version_info()
+    if next_ver_info.current_version == next_ver_info.next_version:
+        print(f"No changes to release. Project is currently on version {next_ver_info.current_version}")
+        exit()
+    print("Releasable changes identified")
+    print(f"The new release will be a {next_ver_info.increment_type} bump")
+    print(f"The version will bump from {next_ver_info.current_version} to {next_ver_info.next_version}\n")
+
+
 def prepare_release():
     """
     Enact release preparation, including updating version numbers and creating a commit and tag.
