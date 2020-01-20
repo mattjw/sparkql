@@ -4,31 +4,34 @@ version: "2.1"
 workflows:
   version: "2.1"
 
-  non_master_pipeline:
-    description: "Build and test. Applied to all non-master branches."
-    filters:
-      branches:
-        ignore: master
+  pipeline:
+    description: |
+      Complete project pipeline.
+      All branches: build and verify (test).
+      Master branch: Additionally, on manual approval, bump version and publish a release.
+
     jobs:
+      #
+      # Testing (all branches)
       - build_verify
       - check_releasable_changes
 
-  master_pipeline:
-    description: "Build and test. Bump version and release, if manually approved."
-    filters:
-      branches:
-        only: master
-    jobs:
-      - build_verify
-      - check_releasable_changes
+      #
+      # Release pipeline, with manual approval (master only)
       - request_release:
           type: approval
           requires:
             - build_verify
             - check_releasable_changes
+          filters:
+            branches:
+              only: master
       - release:
           requires:
             - request_release
+          filters:
+            branches:
+              only: master
 
 
 jobs:
