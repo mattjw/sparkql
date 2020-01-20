@@ -15,12 +15,17 @@ from .utils import run, PROJECT_INFO
 
 def prepare_release():
     """
-    XXX
+    Enact release preparation, including updating version numbers and creating a commit and tag.
 
-    Note the following side-effects:
-    - Project version number my increment. `pyproject.toml` is updated.
-    - Creation of a new git tag.
-    - Creation of a new commit, implementing the version increment.
+    If you're ready to make a new release of this library, then you should run this command to update the
+    repository in preparation to build and publish to the package index.
+
+    This command will identify if there are any releasable changes since the last release. If so, then
+    it will do the following:
+
+    - Project version number increment. `pyproject.toml` is updated.
+    - Create a new git commit, with the repository updated for the new version.
+    - Create a git tag for this new version.
     """
     next_ver_info = get_version_info()
 
