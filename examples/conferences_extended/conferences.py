@@ -1,4 +1,4 @@
-from sparkql import StructObject, Float, StringField, TimestampField, Array
+from sparkql import StructObject, Float, String, Timestamp, Array
 
 
 class Location(StructObject):
@@ -7,15 +7,15 @@ class Location(StructObject):
 
 
 class Conference(StructObject):
-    name = StringField(False)
-    city = StringField(False)
+    name = String(False)
+    city = String(False)
     city_location = Location(False)
-    country = StringField(False)
-    twitter = StringField()
-    start_date = TimestampField(False)
-    end_date = TimestampField(False)
-    url = StringField()
-    keywords = Array(StringField(False), True)
+    country = String(False)
+    twitter = String()
+    start_date = Timestamp(False)
+    end_date = Timestamp(False)
+    url = String()
+    keywords = Array(String(False), True)
 
 
 prettified_schema = """

@@ -1,19 +1,19 @@
 from pyspark.sql import SparkSession
 
-from sparkql import StructObject, StringField, Float, schema, path_col
+from sparkql import StructObject, String, Float, schema, path_col
 
 
 #
 # A simple schema for conferences and their locations
 
 class City(StructObject):
-    name = StringField(nullable=False)
+    name = String(nullable=False)
     latitude = Float()
     longitude = Float()
 
 
 class Conference(StructObject):
-    name = StringField(nullable=False)
+    name = String(nullable=False)
     city = City()
 
 #

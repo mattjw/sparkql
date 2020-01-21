@@ -8,11 +8,11 @@ from .atomic import (
     Decimal,
     Double,
     Float,
-    StringField,
-    BinaryField,
-    BooleanField,
-    DateField,
-    TimestampField,
+    String,
+    Binary,
+    Boolean,
+    Date,
+    Timestamp,
 )
 from .array import Array
 from .struct import StructObject
@@ -26,11 +26,11 @@ __all__ = [
     "Decimal",
     "Double",
     "Float",
-    "StringField",
-    "BinaryField",
-    "BooleanField",
-    "DateField",
-    "TimestampField",
+    "String",
+    "Binary",
+    "Boolean",
+    "Date",
+    "Timestamp",
     "Array",
     "StructObject",
 ]

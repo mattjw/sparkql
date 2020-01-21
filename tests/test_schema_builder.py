@@ -1,6 +1,6 @@
 from pyspark.sql.types import StructField, StructType, StringType, FloatType, TimestampType, ArrayType
 
-from sparkql import StringField, Array, Float, StructObject, TimestampField, schema
+from sparkql import String, Array, Float, StructObject, Timestamp, schema
 
 
 class TestSparkSchema:
@@ -8,9 +8,9 @@ class TestSparkSchema:
     def test_should_structise_flat_object():
         # given
         class User(StructObject):
-            id = StringField(nullable=False)
+            id = String(nullable=False)
             age = Float()
-            full_name = StringField(name="name")
+            full_name = String(name="name")
 
         # when
         struct = schema(User)
@@ -28,14 +28,14 @@ class TestSparkSchema:
     def test_should_structise_deep_object():
         # given
         class User(StructObject):
-            id = StringField(nullable=False)
+            id = String(nullable=False)
             age = Float()
-            full_name = StringField(name="name")
+            full_name = String(name="name")
 
         class Article(StructObject):
             author = User(name="article_author", nullable=False)
-            title = StringField(nullable=False)
-            date = TimestampField()
+            title = String(nullable=False)
+            date = Timestamp()
 
         # when
         struct = schema(Article)
@@ -63,11 +63,11 @@ class TestSparkSchema:
     def test_should_structise_object_containing_array_of_objects():
         # given
         class Tag(StructObject):
-            id = StringField(nullable=False)
-            name = StringField()
+            id = String(nullable=False)
+            name = String()
 
         class Article(StructObject):
-            id = StringField(nullable=False)
+            id = String(nullable=False)
             tags = Array(Tag(nullable=True))
 
         # when

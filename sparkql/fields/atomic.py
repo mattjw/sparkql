@@ -89,7 +89,7 @@ class Float(FractionalField):
 # DataType -> AtomicType -> non-numeric types
 
 
-class StringField(AtomicField):
+class String(AtomicField):
     """Field for Spark's StringType."""
 
     @property
@@ -97,7 +97,7 @@ class StringField(AtomicField):
         return StringType
 
 
-class BinaryField(AtomicField):
+class Binary(AtomicField):
     """Field for Spark's BinaryType."""
 
     @property
@@ -105,7 +105,7 @@ class BinaryField(AtomicField):
         return BinaryType
 
 
-class BooleanField(AtomicField):
+class Boolean(AtomicField):
     """Field for Spark's BooleanType."""
 
     @property
@@ -113,7 +113,7 @@ class BooleanField(AtomicField):
         return BooleanType
 
 
-class DateField(AtomicField):
+class Date(AtomicField):
     """Field for Spark's DateType."""
 
     @property
@@ -121,7 +121,7 @@ class DateField(AtomicField):
         return DateType
 
 
-class TimestampField(AtomicField):
+class Timestamp(AtomicField):
     """Field for Spark's TimestampType."""
 
     @property
