@@ -1,4 +1,4 @@
-"""Struct object."""
+"""Struct."""
 
 from collections import OrderedDict
 from dataclasses import dataclass
@@ -22,9 +22,9 @@ class StructClassMeta:
 
 
 class Struct(BaseField):
-    """A struct object; shadows StructType in the Spark API."""
+    """A struct; shadows StructType in the Spark API."""
 
-    _struct_object_meta: ClassVar[Optional[StructClassMeta]] = None
+    _struct_meta: ClassVar[Optional[StructClassMeta]] = None
 
     #
     # Handle Spark representations for a Struct object
@@ -37,7 +37,7 @@ class Struct(BaseField):
     def spark_struct_field(self) -> StructField:
         """The Spark StructField for this field."""
         return StructField(
-            name=self.field_name, dataType=self._struct_object_meta.spark_struct, nullable=self.is_nullable
+            name=self.field_name, dataType=self._struct_meta.spark_struct, nullable=self.is_nullable
         )
 
     #
@@ -61,7 +61,7 @@ class Struct(BaseField):
         super().__init_subclass__()  # pytype: disable=attribute-error
 
         # Do not re-extract
-        if cls._struct_object_meta is not None:
+        if cls._struct_meta is not None:
             return
 
         # Ensure a subclass does not break base class functionality
@@ -71,7 +71,7 @@ class Struct(BaseField):
 
         # Extract fields
         fields = cls.__extract_fields()
-        cls._struct_object_meta = StructClassMeta(
+        cls._struct_meta = StructClassMeta(
             fields=fields, spark_struct=Struct.__build_spark_struct(fields.values())
         )
 
@@ -100,6 +100,6 @@ class Struct(BaseField):
             f"  nullable = {self.is_nullable} \n"
             f"  name = {self._resolve_field_name()} <- {[self._name_explicit, self._name_contextual]} \n"
             f"  parent = {self._parent} \n"
-            f"  metadata = {self._struct_object_meta}"
+            f"  metadata = {self._struct_meta}"
             ">"
         )
