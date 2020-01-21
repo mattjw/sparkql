@@ -2,19 +2,19 @@ from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, StringType
 from pyspark.sql import functions as sql_funcs
 
-from sparkql import String, StructObject, Array
+from sparkql import String, Struct, Array
 from sparkql import path
 
 
-class User(StructObject):
+class User(Struct):
     full_name = String()
 
 
-class Article(StructObject):
+class Article(Struct):
     author = User()
 
 
-class Message(StructObject):
+class Message(Struct):
     sender = User()
     recipients = Array(User())
 

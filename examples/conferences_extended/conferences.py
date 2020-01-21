@@ -1,12 +1,12 @@
-from sparkql import StructObject, Float, String, Timestamp, Array
+from sparkql import Struct, Float, String, Timestamp, Array
 
 
-class Location(StructObject):
+class Location(Struct):
     lat = Float(False)
     lon = Float(False)
 
 
-class Conference(StructObject):
+class Conference(Struct):
     name = String(False)
     city = String(False)
     city_location = Location(False)

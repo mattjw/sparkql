@@ -12,22 +12,22 @@ from .base import BaseField
 
 
 @dataclass(frozen=True)
-class StructObjectClassMeta:
+class StructClassMeta:
     """Metadata associated with a struct object; part of the underlying machinery of sparkql."""
 
     fields: Mapping[str, BaseField]
     spark_struct: sql_types.StructType
-    includes: Optional[Sequence["StructObject"]] = None  # ^ TO-DO  https://github.com/mattjw/sparkql/issues/17
-    interfaces: Optional[Sequence["StructObject"]] = None  # ^ TO-DO  https://github.com/mattjw/sparkql/issues/16
+    includes: Optional[Sequence["Struct"]] = None  # ^ TO-DO  https://github.com/mattjw/sparkql/issues/17
+    interfaces: Optional[Sequence["Struct"]] = None  # ^ TO-DO  https://github.com/mattjw/sparkql/issues/16
 
 
-class StructObject(BaseField):
+class Struct(BaseField):
     """A struct object; shadows StructType in the Spark API."""
 
-    _struct_object_meta: ClassVar[Optional[StructObjectClassMeta]] = None
+    _struct_object_meta: ClassVar[Optional[StructClassMeta]] = None
 
     #
-    # Handle Spark representations for a StructObject object
+    # Handle Spark representations for a Struct object
 
     @property
     def _spark_type_class(self) -> Type[DataType]:
@@ -66,13 +66,13 @@ class StructObject(BaseField):
 
         # Ensure a subclass does not break base class functionality
         for child_prop, child_val in cls.__dict__.items():
-            if (child_prop in StructObject.__dict__) and (isinstance(child_val, BaseField)):
+            if (child_prop in Struct.__dict__) and (isinstance(child_val, BaseField)):
                 raise InvalidStructObjectError(f"Field should note override inherited class properties: {child_prop}")
 
         # Extract fields
         fields = cls.__extract_fields()
-        cls._struct_object_meta = StructObjectClassMeta(
-            fields=fields, spark_struct=StructObject.__build_spark_struct(fields.values())
+        cls._struct_object_meta = StructClassMeta(
+            fields=fields, spark_struct=Struct.__build_spark_struct(fields.values())
         )
 
     #

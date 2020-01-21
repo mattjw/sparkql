@@ -19,7 +19,7 @@ from .fields import (
     Date,
     Timestamp,
     Array,
-    StructObject,
+    Struct,
 )
 
 
@@ -42,5 +42,5 @@ __all__ = [
     "Date",
     "Timestamp",
     "Array",
-    "StructObject",
+    "Struct",
 ]

@@ -15,7 +15,7 @@ from .atomic import (
     Timestamp,
 )
 from .array import Array
-from .struct import StructObject
+from .struct import Struct
 
 
 __all__ = [
@@ -32,5 +32,5 @@ __all__ = [
     "Date",
     "Timestamp",
     "Array",
-    "StructObject",
+    "Struct",
 ]

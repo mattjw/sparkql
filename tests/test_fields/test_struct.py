@@ -1,7 +1,7 @@
 import pytest
 
 from sparkql.exceptions import InvalidStructObjectError
-from sparkql import StructObject, String
+from sparkql import Struct, String
 
 
 class TestStructObject:
@@ -10,13 +10,13 @@ class TestStructObject:
         # given, when, then
         with pytest.raises(InvalidStructObjectError):
 
-            class Article(StructObject):
+            class Article(Struct):
                 _spark_type_class = String()
 
     @staticmethod
     def test_should_allow_override_of_functions():
         # given, when, then
-        class Article(StructObject):
+        class Article(Struct):
             @property
             def _spark_type_class(self):
                 return None

@@ -10,4 +10,4 @@ class FieldParentError(Exception):
 
 
 class InvalidStructObjectError(Exception):
-    """Invalid creation of a custom StructObject subclass."""
+    """Invalid creation of a custom Struct subclass."""
