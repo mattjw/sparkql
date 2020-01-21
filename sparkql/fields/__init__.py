@@ -14,7 +14,7 @@ from .atomic import (
     DateField,
     TimestampField,
 )
-from .array import ArrayField
+from .array import Array
 from .struct import StructObject
 
 
@@ -31,6 +31,6 @@ __all__ = [
     "BooleanField",
     "DateField",
     "TimestampField",
-    "ArrayField",
+    "Array",
     "StructObject",
 ]

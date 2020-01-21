@@ -11,15 +11,15 @@ from .base import BaseField
 ArrayElementType = TypeVar("ArrayElementType", bound=BaseField)
 
 
-class ArrayField(Generic[ArrayElementType], BaseField):
+class Array(Generic[ArrayElementType], BaseField):
     """
     Array field; shadows ArrayType in the Spark API.
 
     A spark schema generated with this array field will behave as follows:
-    - Nullability of the `StructField` is given by `ArrayField.nullable`, as per normal.
+    - Nullability of the `StructField` is given by `Array.nullable`, as per normal.
     - `containsNull` of the `ArrayType` is given by the nullability of the element contained
       within this field. In other words, `ArrayType.containsNull` is given by
-      `ArrayField.element.nullable`.
+      `Array.element.nullable`.
 
     Attributes:
         etype: Data type info for the element of this array. Should be an instance of a `BaseField`.

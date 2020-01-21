@@ -1,6 +1,6 @@
 from pyspark.sql.types import StructField, StructType, StringType, FloatType, TimestampType, ArrayType
 
-from sparkql import StringField, ArrayField, FloatField, StructObject, TimestampField, schema
+from sparkql import StringField, Array, FloatField, StructObject, TimestampField, schema
 
 
 class TestSparkSchema:
@@ -68,7 +68,7 @@ class TestSparkSchema:
 
         class Article(StructObject):
             id = StringField(nullable=False)
-            tags = ArrayField(Tag(nullable=True))
+            tags = Array(Tag(nullable=True))
 
         # when
         struct = schema(Article)

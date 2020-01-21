@@ -1,6 +1,6 @@
 import pytest
 
-from sparkql import StringField, ArrayField
+from sparkql import StringField, Array
 
 
 class TestArrayField:
@@ -11,4 +11,4 @@ class TestArrayField:
 
         # when, then
         with pytest.raises(ValueError, match="The element field of an array should not have an explicit name"):
-            ArrayField(element)
+            Array(element)
