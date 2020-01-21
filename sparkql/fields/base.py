@@ -203,7 +203,7 @@ class IntegralField(NumericField):
 
 class FractionalField(NumericField):
     """
-    Integral field type.
+    Fractional field type.
 
     In the Spark API types hierarchy:
 

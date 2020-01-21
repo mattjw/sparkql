@@ -25,7 +25,7 @@ from .base import AtomicField, IntegralField, FractionalField
 # DataType -> AtomicType -> NumericType -> IntegralType
 
 
-class ByteField(IntegralField):
+class Byte(IntegralField):
     """Field for Spark's ByteType."""
 
     @property
@@ -33,7 +33,7 @@ class ByteField(IntegralField):
         return ByteType
 
 
-class IntegerField(IntegralField):
+class Integer(IntegralField):
     """Field for Spark's IntegerType."""
 
     @property
@@ -41,7 +41,7 @@ class IntegerField(IntegralField):
         return IntegerType
 
 
-class LongField(IntegralField):
+class Long(IntegralField):
     """Field for Spark's LongType."""
 
     @property
@@ -49,7 +49,7 @@ class LongField(IntegralField):
         return LongType
 
 
-class ShortField(IntegralField):
+class Short(IntegralField):
     """Field for Spark's ShortType."""
 
     @property
@@ -61,7 +61,7 @@ class ShortField(IntegralField):
 # DataType -> AtomicType -> NumericType -> FractionalType
 
 
-class DecimalField(FractionalField):
+class Decimal(FractionalField):
     """Field for Spark's DecimalType."""
 
     @property
@@ -69,7 +69,7 @@ class DecimalField(FractionalField):
         return DecimalType
 
 
-class DoubleField(FractionalField):
+class Double(FractionalField):
     """Field for Spark's DoubleType."""
 
     @property
@@ -77,7 +77,7 @@ class DoubleField(FractionalField):
         return DoubleType
 
 
-class FloatField(FractionalField):
+class Float(FractionalField):
     """Field for Spark's FloatType."""
 
     @property

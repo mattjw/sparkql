@@ -1,6 +1,6 @@
 from pyspark.sql import SparkSession
 
-from sparkql import StructObject, StringField, FloatField, schema, path_col
+from sparkql import StructObject, StringField, Float, schema, path_col
 
 
 #
@@ -8,8 +8,8 @@ from sparkql import StructObject, StringField, FloatField, schema, path_col
 
 class City(StructObject):
     name = StringField(nullable=False)
-    latitude = FloatField()
-    longitude = FloatField()
+    latitude = Float()
+    longitude = Float()
 
 
 class Conference(StructObject):

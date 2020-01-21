@@ -1,13 +1,13 @@
 """Schema fields."""
 
 from .atomic import (
-    ByteField,
-    IntegerField,
-    LongField,
-    ShortField,
-    DecimalField,
-    DoubleField,
-    FloatField,
+    Byte,
+    Integer,
+    Long,
+    Short,
+    Decimal,
+    Double,
+    Float,
     StringField,
     BinaryField,
     BooleanField,
@@ -19,13 +19,13 @@ from .struct import StructObject
 
 
 __all__ = [
-    "ByteField",
-    "IntegerField",
-    "LongField",
-    "ShortField",
-    "DecimalField",
-    "DoubleField",
-    "FloatField",
+    "Byte",
+    "Integer",
+    "Long",
+    "Short",
+    "Decimal",
+    "Double",
+    "Float",
     "StringField",
     "BinaryField",
     "BooleanField",

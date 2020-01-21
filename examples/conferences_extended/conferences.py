@@ -1,9 +1,9 @@
-from sparkql import StructObject, FloatField, StringField, TimestampField, Array
+from sparkql import StructObject, Float, StringField, TimestampField, Array
 
 
 class Location(StructObject):
-    lat = FloatField(False)
-    lon = FloatField(False)
+    lat = Float(False)
+    lon = Float(False)
 
 
 class Conference(StructObject):

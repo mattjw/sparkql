@@ -1,6 +1,6 @@
 from pyspark.sql.types import StructField, StructType, StringType, FloatType, TimestampType, ArrayType
 
-from sparkql import StringField, Array, FloatField, StructObject, TimestampField, schema
+from sparkql import StringField, Array, Float, StructObject, TimestampField, schema
 
 
 class TestSparkSchema:
@@ -9,7 +9,7 @@ class TestSparkSchema:
         # given
         class User(StructObject):
             id = StringField(nullable=False)
-            age = FloatField()
+            age = Float()
             full_name = StringField(name="name")
 
         # when
@@ -29,7 +29,7 @@ class TestSparkSchema:
         # given
         class User(StructObject):
             id = StringField(nullable=False)
-            age = FloatField()
+            age = Float()
             full_name = StringField(name="name")
 
         class Article(StructObject):
