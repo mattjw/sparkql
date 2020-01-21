@@ -7,7 +7,7 @@ from typing import ClassVar, Sequence, Optional, Mapping, Iterable, Type
 from pyspark.sql import types as sql_types
 from pyspark.sql.types import DataType, StructField
 
-from ..exceptions import InvalidStructObjectError
+from ..exceptions import InvalidStructError
 from .base import BaseField
 
 
@@ -67,7 +67,7 @@ class Struct(BaseField):
         # Ensure a subclass does not break base class functionality
         for child_prop, child_val in cls.__dict__.items():
             if (child_prop in Struct.__dict__) and (isinstance(child_val, BaseField)):
-                raise InvalidStructObjectError(f"Field should note override inherited class properties: {child_prop}")
+                raise InvalidStructError(f"Field should note override inherited class properties: {child_prop}")
 
         # Extract fields
         fields = cls.__extract_fields()

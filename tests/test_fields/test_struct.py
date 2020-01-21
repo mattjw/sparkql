@@ -1,14 +1,14 @@
 import pytest
 
-from sparkql.exceptions import InvalidStructObjectError
+from sparkql.exceptions import InvalidStructError
 from sparkql import Struct, String
 
 
-class TestStructObject:
+class TestStruct:
     @staticmethod
     def test_should_not_permit_field_overrides_of_internal_properties():
         # given, when, then
-        with pytest.raises(InvalidStructObjectError):
+        with pytest.raises(InvalidStructError):
 
             class Article(Struct):
                 _spark_type_class = String()

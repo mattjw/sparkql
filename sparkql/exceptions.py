@@ -9,5 +9,5 @@ class FieldParentError(Exception):
     """A field-to-field-parent management error occurred."""
 
 
-class InvalidStructObjectError(Exception):
+class InvalidStructError(Exception):
     """Invalid creation of a custom Struct subclass."""

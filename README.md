@@ -38,13 +38,13 @@ dframe("city_name", df[CONF_CITY_FIELD][CITY_NAME_FIELD])
 With sparkql, schemas become a lot more literate:
 
 ```python
-class City(StructObject):
-    name = StringField(nullable=False)
-    latitude = FloatField()
-    longitude = FloatField()
+class City(Struct):
+    name = String(nullable=False)
+    latitude = Float()
+    longitude = Float()
 
-class Conference(StructObject):
-    name = StringField(nullable=False)
+class Conference(Struct):
+    name = String(nullable=False)
     city = City()
 
 # ...create a DataFrame...
