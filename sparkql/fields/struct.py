@@ -82,7 +82,7 @@ class Struct(BaseField):
         """
         prop = super().__getattribute__(name)
         if not name.startswith("_") and isinstance(prop, BaseField):
-            return prop.replace_parent(parent=self)
+            return prop._replace_parent(parent=self)
         return prop
 
     #

@@ -53,7 +53,7 @@ class BaseField(ABC):
     def _parent(self) -> Optional["Struct"]:
         return self._parent_struct
 
-    def replace_parent(self, parent: Optional["Struct"] = None) -> "BaseField":
+    def _replace_parent(self, parent: Optional["Struct"] = None) -> "BaseField":
         """Return a copy of this Field with the parent attribute set."""
         field = copy.copy(self)
         if self._parent_struct is not None:
