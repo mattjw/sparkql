@@ -36,9 +36,7 @@ class Struct(BaseField):
     @property
     def spark_struct_field(self) -> StructField:
         """The Spark StructField for this field."""
-        return StructField(
-            name=self.field_name, dataType=self._struct_meta.spark_struct, nullable=self.is_nullable
-        )
+        return StructField(name=self.field_name, dataType=self._struct_meta.spark_struct, nullable=self.is_nullable)
 
     #
     # Hook in to sub-class creation. Ensure fields are pre-processed when a sub-class is declared
@@ -71,9 +69,7 @@ class Struct(BaseField):
 
         # Extract fields
         fields = cls.__extract_fields()
-        cls._struct_meta = StructClassMeta(
-            fields=fields, spark_struct=Struct.__build_spark_struct(fields.values())
-        )
+        cls._struct_meta = StructClassMeta(fields=fields, spark_struct=Struct.__build_spark_struct(fields.values()))
 
     #
     # Handle dot chaining for full path ref to nested fields
