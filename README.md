@@ -32,24 +32,24 @@ CONFERENCE_SCHEMA.add(StructField(CONF_CITY_FIELD, CITY_SCHEMA))
 And then refer to fields like this:
 
 ```python
-dframe("city_name", df[CONF_CITY_FIELD][CITY_NAME_FIELD])
+dframe.withColumn("city_name", df[CONF_CITY_FIELD][CITY_NAME_FIELD])
 ```
 
 With sparkql, schemas become a lot more literate:
 
 ```python
-class City(StructObject):
-    name = StringField(nullable=False)
-    latitude = FloatField()
-    longitude = FloatField()
+class City(Struct):
+    name = String(nullable=False)
+    latitude = Float()
+    longitude = Float()
 
-class Conference(StructObject):
-    name = StringField(nullable=False)
+class Conference(Struct):
+    name = String(nullable=False)
     city = City()
 
 # ...create a DataFrame...
 
-dframe = dframe.withColumn("city_name", path_col(Conference.city.name))
+dframe.withColumn("city_name", path_col(Conference.city.name))
 ```
 
 ## Features

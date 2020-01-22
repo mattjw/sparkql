@@ -1,16 +1,16 @@
 from pyspark.sql.types import StructField, StructType, StringType, FloatType, TimestampType, ArrayType
 
-from sparkql import StringField, ArrayField, FloatField, StructObject, TimestampField, schema
+from sparkql import String, Array, Float, Struct, Timestamp, schema
 
 
 class TestSparkSchema:
     @staticmethod
     def test_should_structise_flat_object():
         # given
-        class User(StructObject):
-            id = StringField(nullable=False)
-            age = FloatField()
-            full_name = StringField(name="name")
+        class User(Struct):
+            id = String(nullable=False)
+            age = Float()
+            full_name = String(name="name")
 
         # when
         struct = schema(User)
@@ -27,15 +27,15 @@ class TestSparkSchema:
     @staticmethod
     def test_should_structise_deep_object():
         # given
-        class User(StructObject):
-            id = StringField(nullable=False)
-            age = FloatField()
-            full_name = StringField(name="name")
+        class User(Struct):
+            id = String(nullable=False)
+            age = Float()
+            full_name = String(name="name")
 
-        class Article(StructObject):
+        class Article(Struct):
             author = User(name="article_author", nullable=False)
-            title = StringField(nullable=False)
-            date = TimestampField()
+            title = String(nullable=False)
+            date = Timestamp()
 
         # when
         struct = schema(Article)
@@ -62,13 +62,13 @@ class TestSparkSchema:
     @staticmethod
     def test_should_structise_object_containing_array_of_objects():
         # given
-        class Tag(StructObject):
-            id = StringField(nullable=False)
-            name = StringField()
+        class Tag(Struct):
+            id = String(nullable=False)
+            name = String()
 
-        class Article(StructObject):
-            id = StringField(nullable=False)
-            tags = ArrayField(Tag(nullable=True))
+        class Article(Struct):
+            id = String(nullable=False)
+            tags = Array(Tag(nullable=True))
 
         # when
         struct = schema(Article)

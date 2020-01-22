@@ -4,9 +4,9 @@ from typing import Union, Type
 
 from pyspark.sql.types import StructType
 
-from .fields.struct import StructObject
+from .fields.struct import Struct
 
 
-def schema(schema_object: Union[StructObject, Type[StructObject]]) -> StructType:
+def schema(schema_object: Union[Struct, Type[Struct]]) -> StructType:
     """Spark schema for a struct object."""
-    return schema_object._struct_object_meta.spark_struct  # pylint: disable=protected-access
+    return schema_object._struct_meta.spark_struct  # pylint: disable=protected-access

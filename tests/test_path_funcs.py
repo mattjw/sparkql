@@ -2,21 +2,21 @@ from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, StringType
 from pyspark.sql import functions as sql_funcs
 
-from sparkql import StringField, StructObject, ArrayField
+from sparkql import String, Struct, Array
 from sparkql import path
 
 
-class User(StructObject):
-    full_name = StringField()
+class User(Struct):
+    full_name = String()
 
 
-class Article(StructObject):
+class Article(Struct):
     author = User()
 
 
-class Message(StructObject):
+class Message(Struct):
     sender = User()
-    recipients = ArrayField(User())
+    recipients = Array(User())
 
 
 class TestPathSeq:

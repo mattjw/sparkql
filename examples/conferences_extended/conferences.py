@@ -1,21 +1,21 @@
-from sparkql import StructObject, FloatField, StringField, TimestampField, ArrayField
+from sparkql import Struct, Float, String, Timestamp, Array
 
 
-class Location(StructObject):
-    lat = FloatField(False)
-    lon = FloatField(False)
+class Location(Struct):
+    lat = Float(False)
+    lon = Float(False)
 
 
-class Conference(StructObject):
-    name = StringField(False)
-    city = StringField(False)
+class Conference(Struct):
+    name = String(False)
+    city = String(False)
     city_location = Location(False)
-    country = StringField(False)
-    twitter = StringField()
-    start_date = TimestampField(False)
-    end_date = TimestampField(False)
-    url = StringField()
-    keywords = ArrayField(StringField(False), True)
+    country = String(False)
+    twitter = String()
+    start_date = Timestamp(False)
+    end_date = Timestamp(False)
+    url = String()
+    keywords = Array(String(False), True)
 
 
 prettified_schema = """

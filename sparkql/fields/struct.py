@@ -1,4 +1,4 @@
-"""Struct object."""
+"""Struct."""
 
 from collections import OrderedDict
 from dataclasses import dataclass
@@ -7,27 +7,27 @@ from typing import ClassVar, Sequence, Optional, Mapping, Iterable, Type
 from pyspark.sql import types as sql_types
 from pyspark.sql.types import DataType, StructField
 
-from ..exceptions import InvalidStructObjectError
+from ..exceptions import InvalidStructError
 from .base import BaseField
 
 
 @dataclass(frozen=True)
-class StructObjectClassMeta:
+class StructClassMeta:
     """Metadata associated with a struct object; part of the underlying machinery of sparkql."""
 
     fields: Mapping[str, BaseField]
     spark_struct: sql_types.StructType
-    includes: Optional[Sequence["StructObject"]] = None  # ^ TO-DO  https://github.com/mattjw/sparkql/issues/17
-    interfaces: Optional[Sequence["StructObject"]] = None  # ^ TO-DO  https://github.com/mattjw/sparkql/issues/16
+    includes: Optional[Sequence["Struct"]] = None  # ^ TO-DO  https://github.com/mattjw/sparkql/issues/17
+    interfaces: Optional[Sequence["Struct"]] = None  # ^ TO-DO  https://github.com/mattjw/sparkql/issues/16
 
 
-class StructObject(BaseField):
-    """A struct object; shadows StructType in the Spark API."""
+class Struct(BaseField):
+    """A struct; shadows StructType in the Spark API."""
 
-    _struct_object_meta: ClassVar[Optional[StructObjectClassMeta]] = None
+    _struct_meta: ClassVar[Optional[StructClassMeta]] = None
 
     #
-    # Handle Spark representations for a StructObject object
+    # Handle Spark representations for a Struct object
 
     @property
     def _spark_type_class(self) -> Type[DataType]:
@@ -36,9 +36,7 @@ class StructObject(BaseField):
     @property
     def spark_struct_field(self) -> StructField:
         """The Spark StructField for this field."""
-        return StructField(
-            name=self.field_name, dataType=self._struct_object_meta.spark_struct, nullable=self.is_nullable
-        )
+        return StructField(name=self.field_name, dataType=self._struct_meta.spark_struct, nullable=self.is_nullable)
 
     #
     # Hook in to sub-class creation. Ensure fields are pre-processed when a sub-class is declared
@@ -61,19 +59,17 @@ class StructObject(BaseField):
         super().__init_subclass__()  # pytype: disable=attribute-error
 
         # Do not re-extract
-        if cls._struct_object_meta is not None:
+        if cls._struct_meta is not None:
             return
 
         # Ensure a subclass does not break base class functionality
         for child_prop, child_val in cls.__dict__.items():
-            if (child_prop in StructObject.__dict__) and (isinstance(child_val, BaseField)):
-                raise InvalidStructObjectError(f"Field should note override inherited class properties: {child_prop}")
+            if (child_prop in Struct.__dict__) and (isinstance(child_val, BaseField)):
+                raise InvalidStructError(f"Field should note override inherited class properties: {child_prop}")
 
         # Extract fields
         fields = cls.__extract_fields()
-        cls._struct_object_meta = StructObjectClassMeta(
-            fields=fields, spark_struct=StructObject.__build_spark_struct(fields.values())
-        )
+        cls._struct_meta = StructClassMeta(fields=fields, spark_struct=Struct.__build_spark_struct(fields.values()))
 
     #
     # Handle dot chaining for full path ref to nested fields
@@ -100,6 +96,6 @@ class StructObject(BaseField):
             f"  nullable = {self.is_nullable} \n"
             f"  name = {self._resolve_field_name()} <- {[self._name_explicit, self._name_contextual]} \n"
             f"  parent = {self._parent} \n"
-            f"  metadata = {self._struct_object_meta}"
+            f"  metadata = {self._struct_meta}"
             ">"
         )

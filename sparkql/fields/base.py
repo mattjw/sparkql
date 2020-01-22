@@ -25,7 +25,7 @@ class BaseField(ABC):
     _nullable: bool = True
     _name_explicit: Optional[str] = None
     _name_contextual: Optional[str] = None
-    _parent_struct_object: Optional["StructObject"] = None
+    _parent_struct: Optional["Struct"] = None
 
     def __init__(self, nullable: bool = True, name: Optional[str] = None):
         """
@@ -50,15 +50,15 @@ class BaseField(ABC):
     # Field path chaining
 
     @property
-    def _parent(self) -> Optional["StructObject"]:
-        return self._parent_struct_object
+    def _parent(self) -> Optional["Struct"]:
+        return self._parent_struct
 
-    def replace_parent(self, parent: Optional["StructObject"] = None) -> "BaseField":
+    def replace_parent(self, parent: Optional["Struct"] = None) -> "BaseField":
         """Return a copy of this Field with the parent attribute set."""
         field = copy.copy(self)
-        if self._parent_struct_object is not None:
+        if self._parent_struct is not None:
             raise FieldParentError("Attempted to set parent field that has already been set")
-        field._parent_struct_object = parent  # pylint: disable=protected-access
+        field._parent_struct = parent  # pylint: disable=protected-access
         return field
 
     #
@@ -203,7 +203,7 @@ class IntegralField(NumericField):
 
 class FractionalField(NumericField):
     """
-    Integral field type.
+    Fractional field type.
 
     In the Spark API types hierarchy:
 
