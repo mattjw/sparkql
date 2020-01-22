@@ -32,7 +32,7 @@ CONFERENCE_SCHEMA.add(StructField(CONF_CITY_FIELD, CITY_SCHEMA))
 And then refer to fields like this:
 
 ```python
-dframe("city_name", df[CONF_CITY_FIELD][CITY_NAME_FIELD])
+dframe.withColumn("city_name", df[CONF_CITY_FIELD][CITY_NAME_FIELD])
 ```
 
 With sparkql, schemas become a lot more literate:
@@ -49,7 +49,7 @@ class Conference(Struct):
 
 # ...create a DataFrame...
 
-dframe = dframe.withColumn("city_name", path_col(Conference.city.name))
+dframe.withColumn("city_name", path_col(Conference.city.name))
 ```
 
 ## Features
