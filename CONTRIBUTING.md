@@ -117,3 +117,4 @@ poetry publish --build --username "${PYPI_USERNAME}" --password "${PYPI_TOKEN}" 
   alternative to the strongly typed version.
 - The members of a `Struct` shall be sparkql fields (derived from 
   `Base`). All other members (e.g., inner workings) will be private.
+  This ensures clean IDE attribute completions.
