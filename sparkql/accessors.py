@@ -1,4 +1,4 @@
-"""Obtain path to a field within a possibly nested hierarchy."""
+"""Accessor functions in order to access field paths, field names, and related field attributes."""
 
 # pylint: disable=protected-access
 
@@ -6,6 +6,7 @@ from typing import Sequence
 
 from pyspark.sql import Column
 from pyspark.sql import functions as sql_funcs
+from pyspark.sql.types import StructField
 
 from .fields.base import BaseField
 
@@ -34,6 +35,11 @@ def path_col(field: BaseField) -> Column:
     return col
 
 
-def field_name(field: BaseField) -> str:
-    """Return field name of `field`."""
+def name(field: BaseField) -> str:
+    """Return field name of field `field`."""
     return field._field_name
+
+
+def struct_field(field: BaseField) -> StructField:
+    """Return the equivalent PySpark StructField of field `field`."""
+    return field._spark_struct_field

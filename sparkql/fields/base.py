@@ -111,7 +111,7 @@ class BaseField(ABC):
 
     @property
     @abstractmethod
-    def spark_struct_field(self) -> StructField:
+    def _spark_struct_field(self) -> StructField:
         """The Spark StructField for this field."""
 
     #
@@ -159,7 +159,7 @@ class AtomicField(BaseField):
         return self._spark_type_class()
 
     @property
-    def spark_struct_field(self) -> StructField:
+    def _spark_struct_field(self) -> StructField:
         """The StructField for this object."""
         return StructField(name=self._field_name, dataType=self.spark_data_type, nullable=self._is_nullable)
 

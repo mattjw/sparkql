@@ -67,14 +67,14 @@ class Array(Generic[ArrayElementType], BaseField):
         return ArrayType
 
     @property
-    def spark_struct_field(self) -> StructField:
+    def _spark_struct_field(self) -> StructField:
         """The Spark StructField for this field."""
         # containsNull => is used to indicate if elements in a ArrayType value can have null values
         return StructField(
             name=self._field_name,
             dataType=ArrayType(
                 # Note that we do not care about the element's field name here:
-                elementType=self.etype.spark_struct_field.dataType,
+                elementType=self.etype._spark_struct_field.dataType,
                 containsNull=self.etype._is_nullable,  # pylint: disable=protected-access
             ),
             nullable=self._is_nullable,

@@ -3,7 +3,7 @@ from pyspark.sql.types import StructType, StructField, StringType
 from pyspark.sql import functions as sql_funcs
 
 from sparkql import String, Struct, Array
-from sparkql import path
+from sparkql import accessors
 
 
 class User(Struct):
@@ -25,7 +25,7 @@ class TestPathSeq:
         # given (see above)
 
         # when
-        path_field_names = path.path_seq(Article.author.full_name)
+        path_field_names = accessors.path_seq(Article.author.full_name)
 
         # then
         assert path_field_names == ["author", "full_name"]
@@ -35,7 +35,7 @@ class TestPathSeq:
         # given (see above)
 
         # when
-        path_field_names = path.path_seq(Message.recipients.etype.full_name)
+        path_field_names = accessors.path_seq(Message.recipients.etype.full_name)
 
         # then
         assert path_field_names == ["recipients", "full_name"]
@@ -47,7 +47,7 @@ class TestPathStr:
         # given (see above)
 
         # when
-        path_field_names = path.path_str(Article.author.full_name)
+        path_field_names = accessors.path_str(Article.author.full_name)
 
         # then
         assert path_field_names == "author.full_name"
@@ -57,7 +57,7 @@ class TestPathStr:
         # given (see above)
 
         # when
-        path_field_names = path.path_str(Message.recipients.etype.full_name)
+        path_field_names = accessors.path_str(Message.recipients.etype.full_name)
 
         # then
         assert path_field_names == "recipients.full_name"
@@ -71,7 +71,7 @@ class TestPathCol:
         # given (see above)
 
         # when
-        col_ref = path.path_col(Article.author.full_name)
+        col_ref = accessors.path_col(Article.author.full_name)
 
         # then
         assert str(col_ref) == str(sql_funcs.col("author")["full_name"])

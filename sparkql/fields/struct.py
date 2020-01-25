@@ -34,7 +34,7 @@ class Struct(BaseField):
         return sql_types.StructType
 
     @property
-    def spark_struct_field(self) -> StructField:
+    def _spark_struct_field(self) -> StructField:
         """The Spark StructField for this field."""
         return StructField(name=self._field_name, dataType=self._struct_meta.spark_struct, nullable=self._is_nullable)
 
@@ -51,7 +51,7 @@ class Struct(BaseField):
     @staticmethod
     def __build_spark_struct(fields: Iterable[BaseField]) -> sql_types.StructType:
         """Build a Spark struct (StructType) for a list of fields."""
-        return sql_types.StructType([field.spark_struct_field for field in fields])
+        return sql_types.StructType([field._spark_struct_field for field in fields])
 
     @classmethod
     def __init_subclass__(cls, **options):  # pylint: disable=unused-argument
