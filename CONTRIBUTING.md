@@ -109,7 +109,11 @@ export PYPI_PASSWORD="MY_PASSWORD_OR_TOKEN"
 poetry publish --build --username "${PYPI_USERNAME}" --password "${PYPI_TOKEN}" --no-interaction
 ```
 
-## Library design philosophy
+## Design philosophy and conventions
 
-- The API should favour strong type inference. Enables IDE completions
-  and strong type checking.
+- The API should favour strong type inference. This enables IDE completions
+  and strong type checking. Weakly typed solutions may be provided as
+  a convenience to those that benefit from them, but only as an
+  alternative to the strongly typed version.
+- The members of a `Struct` shall be sparkql fields (derived from 
+  `Base`). All other members (e.g., inner workings) will be private.
