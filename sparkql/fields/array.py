@@ -54,10 +54,6 @@ class Array(Generic[ArrayElementType], BaseField):
     #
     # Field name management
 
-    @property
-    def _contextual_name(self) -> Optional[str]:
-        return self._INTERNAL_name_contextual__INTERNAL
-
     def _set_contextual_name(self, value: str):
         self._INTERNAL_name_contextual__INTERNAL = value
         # set child to same name as parent; i.e., propagate contextual name downwards:
