@@ -55,7 +55,7 @@ class Array(Generic[ArrayElementType], BaseField):
     # Field name management
 
     def _set_contextual_name(self, value: str):
-        self._INTERNAL_name_contextual__INTERNAL = value
+        super()._set_contextual_name(value)
         # set child to same name as parent; i.e., propagate contextual name downwards:
         self.etype._set_contextual_name(value)  # pylint: disable=protected-access
 
