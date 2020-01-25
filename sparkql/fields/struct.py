@@ -94,7 +94,7 @@ class Struct(BaseField):
             f"<{type(self).__name__} \n"
             f"  spark type = {self._spark_type_class.__name__} \n"
             f"  nullable = {self._is_nullable} \n"
-            f"  name = {self._resolve_field_name()} <- {[self.__name_explicit, self._INTERNAL_name_contextual__INTERNAL]} \n"
+            f"  name = {self._resolve_field_name()} <- {[self.__name_explicit, self.__name_contextual]} \n"
             f"  parent = {self._parent} \n"
             f"  metadata = {self._struct_meta}"
             ">"

@@ -17,14 +17,14 @@ class BaseField(ABC):
 
     # Name management logic:
     # - Explicit name (`__name_explicit`): Set via constructor.
-    # - Contextual name (`_INTERNAL_name_contextual__INTERNAL`): Inferred for the field as it is used in a struct object.
+    # - Contextual name (`__name_contextual`): Inferred for the field as it is used in a struct object.
     #   This will always get set, although not immediately. The struct object that will contain this field
     #   is responsible for setting the contextual name.
     # The explicit name, if provided, will override the contextual name.
 
     __nullable: bool = True
     __name_explicit: Optional[str] = None
-    _INTERNAL_name_contextual__INTERNAL: Optional[str] = None
+    __name_contextual: Optional[str] = None
     _parent_struct: Optional["Struct"] = None
 
     def __init__(self, nullable: bool = True, name: Optional[str] = None):
@@ -66,16 +66,16 @@ class BaseField(ABC):
 
     @property
     def _contextual_name(self) -> Optional[str]:
-        return self._INTERNAL_name_contextual__INTERNAL
+        return self.__name_contextual
 
     def _set_contextual_name(self, value: str):
         # Intentionally not using an implicit setter here
-        if self._INTERNAL_name_contextual__INTERNAL is not None:
+        if self.__name_contextual is not None:
             raise FieldNameError(
                 "Attempted to override a name that has already been set: "
-                f"'{value}' replacing '{self._INTERNAL_name_contextual__INTERNAL}'"
+                f"'{value}' replacing '{self.__name_contextual}'"
             )
-        self._INTERNAL_name_contextual__INTERNAL = value
+        self.__name_contextual = value
 
     @property
     def field_name(self) -> str:
@@ -84,7 +84,7 @@ class BaseField(ABC):
         if name is None:
             raise FieldNameError(
                 "No field name found among: explicit name = {}, inferred name = {}".format(
-                    self.__name_explicit, self._INTERNAL_name_contextual__INTERNAL
+                    self.__name_explicit, self.__name_contextual
                 )
             )
         return name
@@ -93,8 +93,8 @@ class BaseField(ABC):
         """Resolve name for this field, or None if no concrete name set."""
         if self.__name_explicit is not None:
             return self.__name_explicit
-        if self._INTERNAL_name_contextual__INTERNAL is not None:
-            return self._INTERNAL_name_contextual__INTERNAL
+        if self.__name_contextual is not None:
+            return self.__name_contextual
         return None
 
     #
@@ -125,7 +125,7 @@ class BaseField(ABC):
             f"<{type(self).__name__} \n"
             f"  spark type = {self._spark_type_class.__name__} \n"
             f"  nullable = {self._is_nullable} \n"
-            f"  name = {self._resolve_field_name()} <- {[self.__name_explicit, self._INTERNAL_name_contextual__INTERNAL]} \n"
+            f"  name = {self._resolve_field_name()} <- {[self.__name_explicit, self.__name_contextual]} \n"
             f"  parent = {self._parent}"
             ">"
         )
