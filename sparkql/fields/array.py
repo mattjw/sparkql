@@ -56,15 +56,12 @@ class Array(Generic[ArrayElementType], BaseField):
 
     @property
     def _contextual_name(self) -> Optional[str]:
-        return self._name_contextual
+        return self._INTERNAL_name_contextual__INTERNAL
 
-    @_contextual_name.setter
-    def _contextual_name(self, value: str):
-        self._name_contextual = value
-        self.etype._name_contextual = (  # pylint: disable=protected-access
-            # set child to same name as parent
-            value
-        )
+    def _set_contextual_name(self, value: str):
+        self._INTERNAL_name_contextual__INTERNAL = value
+        # set child to same name as parent; i.e., propagate contextual name downwards:
+        self.etype._set_contextual_name(value)  # pylint: disable=protected-access
 
     #
     # Spark type management
