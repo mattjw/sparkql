@@ -71,7 +71,7 @@ class Array(Generic[ArrayElementType], BaseField):
         """The Spark StructField for this field."""
         # containsNull => is used to indicate if elements in a ArrayType value can have null values
         return StructField(
-            name=self.field_name,
+            name=self._field_name,
             dataType=ArrayType(
                 # Note that we do not care about the element's field name here:
                 elementType=self.etype.spark_struct_field.dataType,

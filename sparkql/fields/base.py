@@ -78,7 +78,7 @@ class BaseField(ABC):
         self.__name_contextual = value
 
     @property
-    def field_name(self) -> str:
+    def _field_name(self) -> str:
         """The name for this field."""
         name = self._resolve_field_name()
         if name is None:
@@ -90,7 +90,11 @@ class BaseField(ABC):
         return name
 
     def _resolve_field_name(self) -> Optional[str]:
-        """Resolve name for this field, or None if no concrete name set."""
+        """
+        Resolve name for this field, or None if no concrete name set.
+
+        Should only be used by this class and its subclasses.
+        """
         if self.__name_explicit is not None:
             return self.__name_explicit
         if self.__name_contextual is not None:
@@ -157,7 +161,7 @@ class AtomicField(BaseField):
     @property
     def spark_struct_field(self) -> StructField:
         """The StructField for this object."""
-        return StructField(name=self.field_name, dataType=self.spark_data_type, nullable=self._is_nullable)
+        return StructField(name=self._field_name, dataType=self.spark_data_type, nullable=self._is_nullable)
 
 
 class NumericField(AtomicField):
