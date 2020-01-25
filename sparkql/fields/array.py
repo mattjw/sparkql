@@ -34,8 +34,11 @@ class Array(Generic[ArrayElementType], BaseField):
             raise ValueError(f"Array element must be a field. Found type: {type(element)}")
 
         self.etype = element
-        if element._name_explicit is not None:
-            raise ValueError("The element field of an array should not have an explicit name")
+        if element._resolve_field_name() is not None:
+            raise ValueError(
+                "When using a field as the element field of an array, the field shoud not have a name. "
+                f"The field's name resolved to: {element._resolve_field_name()}"
+            )
             # None of the naming mechanics of this array's element type will be used.
             # The name of the element type will not be used for anything
 
@@ -79,7 +82,7 @@ class Array(Generic[ArrayElementType], BaseField):
             dataType=ArrayType(
                 # Note that we do not care about the element's field name here:
                 elementType=self.etype.spark_struct_field.dataType,
-                containsNull=self.etype.is_nullable,
+                containsNull=self.etype._is_nullable,  # pylint: disable=protected-access
             ),
-            nullable=self.is_nullable,
+            nullable=self._is_nullable,
         )

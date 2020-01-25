@@ -36,7 +36,7 @@ class Struct(BaseField):
     @property
     def spark_struct_field(self) -> StructField:
         """The Spark StructField for this field."""
-        return StructField(name=self.field_name, dataType=self._struct_meta.spark_struct, nullable=self.is_nullable)
+        return StructField(name=self.field_name, dataType=self._struct_meta.spark_struct, nullable=self._is_nullable)
 
     #
     # Hook in to sub-class creation. Ensure fields are pre-processed when a sub-class is declared
@@ -93,8 +93,8 @@ class Struct(BaseField):
         return (
             f"<{type(self).__name__} \n"
             f"  spark type = {self._spark_type_class.__name__} \n"
-            f"  nullable = {self.is_nullable} \n"
-            f"  name = {self._resolve_field_name()} <- {[self._name_explicit, self._name_contextual]} \n"
+            f"  nullable = {self._is_nullable} \n"
+            f"  name = {self._resolve_field_name()} <- {[self.__name_explicit, self._name_contextual]} \n"
             f"  parent = {self._parent} \n"
             f"  metadata = {self._struct_meta}"
             ">"
