@@ -101,10 +101,7 @@ jobs:
             fi
       - run:
           name: Push to PyPI
-          # TODO: Finish CCI automation. See:
-          #       https://circleci.com/blog/automate-your-nuxt-js-app-deployment/
-          #       https://support.circleci.com/hc/en-us/articles/360018860473-How-to-push-a-commit-back-to-the-same-repository-as-part-of-the-CircleCI-job
-          #       The final hurdle is "Please tell me who you are." and/or "The key you are authenticating with has been marked as read only"
+          # Requires a Github Personal Access Token as env var `GITHUB_WRITE_TOKEN`. Must have `repo` scope
           command: |
             poetry run prepare-release
             poetry publish --build --username "${PYPI_USERNAME}" --password "${PYPI_TOKEN}" --no-interaction

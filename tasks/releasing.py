@@ -1,5 +1,5 @@
 """Tools to support building and publishing a release."""
-
+import os
 import re
 from dataclasses import dataclass
 from typing import Optional
@@ -12,6 +12,7 @@ from .utils import run, PROJECT_INFO
 
 GITHUB_COMMITTER_USERNAME = "CI"
 GITHUB_COMMITTER_EMAIL = "mattjw+CI@mattjw.net"
+GITHUB_WRITE_TOKEN_ENV_VAR = "GITHUB_WRITE_TOKEN"
 
 #
 # Commands
@@ -42,6 +43,8 @@ def prepare_release():
     - Create a new git commit, with the repository updated for the new version.
     - Create a git tag for this new version.
     """
+    github_push("master")
+    3/0
     next_ver_info = get_version_info()
 
     # Abandon if version fields do not match
@@ -90,15 +93,36 @@ def prepare_release():
         echo=True,
     )
 
+    print()
     run(f"git pull --no-edit", hide=None, echo=True)  # minimise race condition by re-pulling, conflict still possible
-    run(f"git push origin master", hide=None, echo=True)
+    github_push("master")
 
+    print()
     run(f"git tag {next_ver_info.next_tag}", hide=None, echo=True)
-    run(f"git push origin {next_ver_info.next_tag}", hide=None, echo=True)
+    github_push(next_ver_info.next_tag)
 
 
 #
 # Utils
+
+
+def github_push(branch: str):
+    """Push to branch (or tag) `branch`, using github write token."""
+    origin_url = run("git config --get remote.origin.url", warn=True, hide="stdout").stdout
+    match = re.match(r"git@github.com:(.+.git)", origin_url)
+    if match is None:
+        print(f"Unexpected github origin URL format: {origin_url}")
+        exit(1)
+    remote_url = "@github.com/" + match.group(1)
+    print(f"Using git remote: {remote_url}")
+
+    token = os.getenv(GITHUB_WRITE_TOKEN_ENV_VAR)
+    if token is None:
+        print(f"Could not find Github token in env var '{GITHUB_WRITE_TOKEN_ENV_VAR}'")
+        exit(1)
+
+    print(f"Pushing: {branch}")
+    run(f"git push https://{token}@${remote_url} {branch}", echo=False)
 
 
 @dataclass
