@@ -44,7 +44,6 @@ def prepare_release():
     - Create a git tag for this new version.
     """
     github_push("master")
-    3/0
     next_ver_info = get_version_info()
 
     # Abandon if version fields do not match
