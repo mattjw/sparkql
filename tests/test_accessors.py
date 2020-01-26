@@ -1,5 +1,4 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.types import StructType, StructField, StringType
 from pyspark.sql import functions as sql_funcs
 
 from sparkql import String, Struct, Array
@@ -8,6 +7,7 @@ from sparkql import accessors
 
 class User(Struct):
     full_name = String()
+    bio = String(name="biography")
 
 
 class Article(Struct):
@@ -75,3 +75,39 @@ class TestPathCol:
 
         # then
         assert str(col_ref) == str(sql_funcs.col("author")["full_name"])
+
+
+class TestPathCol:
+    @staticmethod
+    def test_should_return_correct_column_for_nested_schemas(spark_session: SparkSession):
+        # spark_session: Testing of `path_col` has implicit JVM Spark dependency
+
+        # given (see above)
+
+        # when
+        col_ref = accessors.path_col(Article.author.full_name)
+
+        # then
+        assert str(col_ref) == str(sql_funcs.col("author")["full_name"])
+
+
+class TestName:
+    @staticmethod
+    def test_field_name_is_correct_from_explicit_name():
+        # given (see above)
+
+        # when
+        field_name = accessors.name(Article.author.bio)
+
+        # then
+        assert field_name == "biography"
+
+    @staticmethod
+    def test_field_name_is_correct_from_implicit_name():
+        # given (see above)
+
+        # when
+        field_name = accessors.name(Article.author.full_name)
+
+        # then
+        assert field_name == "full_name"
