@@ -1,7 +1,7 @@
 """Base field and abstract fields."""
 
 from abc import ABC, abstractmethod
-from typing import Optional, Type
+from typing import Optional, Type, Any
 import copy
 
 from pyspark.sql import types as sql_type
@@ -116,6 +116,10 @@ class BaseField(ABC):
 
     #
     # Misc.
+
+    @abstractmethod
+    def __eq__(self, other: Any) -> bool:
+        """True if `self` equals `other`."""
 
     def __str__(self):
         """Returns the name of this field."""
