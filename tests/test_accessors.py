@@ -1,13 +1,14 @@
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as sql_funcs
+from pyspark.sql.types import StructField, StringType
 
 from sparkql import String, Struct, Array
 from sparkql import accessors
 
 
 class User(Struct):
-    full_name = String()
-    bio = String(name="biography")
+    full_name = String(nullable=False)
+    bio = String(name="biography", nullable=False)
 
 
 class Article(Struct):
@@ -111,3 +112,15 @@ class TestName:
 
         # then
         assert field_name == "full_name"
+
+
+class TestStructField:
+    @staticmethod
+    def test_struct_field_is_correct():
+        # given (see above)
+
+        # when
+        struct_field = accessors.struct_field(Article.author.bio)
+
+        # then
+        assert struct_field == StructField("biography", StringType(), False)
