@@ -34,9 +34,9 @@ class Struct(BaseField):
         return sql_types.StructType
 
     @property
-    def spark_struct_field(self) -> StructField:
+    def _spark_struct_field(self) -> StructField:
         """The Spark StructField for this field."""
-        return StructField(name=self.field_name, dataType=self._struct_meta.spark_struct, nullable=self.is_nullable)
+        return StructField(name=self._field_name, dataType=self._struct_meta.spark_struct, nullable=self._is_nullable)
 
     #
     # Hook in to sub-class creation. Ensure fields are pre-processed when a sub-class is declared
@@ -45,13 +45,13 @@ class Struct(BaseField):
     def __extract_fields(cls) -> Mapping[str, BaseField]:
         fields = OrderedDict((key, value) for key, value in cls.__dict__.items() if isinstance(value, BaseField))
         for field_name, field in fields.items():
-            field._contextual_name = field_name  # pylint: disable=protected-access
+            field._set_contextual_name(field_name)  # pylint: disable=protected-access
         return fields
 
     @staticmethod
     def __build_spark_struct(fields: Iterable[BaseField]) -> sql_types.StructType:
         """Build a Spark struct (StructType) for a list of fields."""
-        return sql_types.StructType([field.spark_struct_field for field in fields])
+        return sql_types.StructType([field._spark_struct_field for field in fields])  # pylint: disable=protected-access
 
     @classmethod
     def __init_subclass__(cls, **options):  # pylint: disable=unused-argument
@@ -82,7 +82,7 @@ class Struct(BaseField):
         """
         prop = super().__getattribute__(name)
         if not name.startswith("_") and isinstance(prop, BaseField):
-            return prop.replace_parent(parent=self)
+            return prop._replace_parent(parent=self)
         return prop
 
     #
@@ -93,8 +93,8 @@ class Struct(BaseField):
         return (
             f"<{type(self).__name__} \n"
             f"  spark type = {self._spark_type_class.__name__} \n"
-            f"  nullable = {self.is_nullable} \n"
-            f"  name = {self._resolve_field_name()} <- {[self._name_explicit, self._name_contextual]} \n"
+            f"  nullable = {self._is_nullable} \n"
+            f"  name = {self._resolve_field_name()} <- {[self.__name_explicit, self.__name_contextual]} \n"
             f"  parent = {self._parent} \n"
             f"  metadata = {self._struct_meta}"
             ">"

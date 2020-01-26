@@ -34,34 +34,30 @@ class Array(Generic[ArrayElementType], BaseField):
             raise ValueError(f"Array element must be a field. Found type: {type(element)}")
 
         self.etype = element
-        if element._name_explicit is not None:
-            raise ValueError("The element field of an array should not have an explicit name")
+        if element._resolve_field_name() is not None:
+            raise ValueError(
+                "When using a field as the element field of an array, the field shoud not have a name. "
+                f"The field's name resolved to: {element._resolve_field_name()}"
+            )
             # None of the naming mechanics of this array's element type will be used.
             # The name of the element type will not be used for anything
 
     #
     # Field path chaining
 
-    def replace_parent(self, parent: Optional["Struct"] = None) -> "Struct":  # pytype: disable=invalid-annotation
+    def _replace_parent(self, parent: Optional["Struct"] = None) -> "Struct":  # pytype: disable=invalid-annotation
         """Return a copy of this array with the parent attribute set."""
         field = copy.copy(self)
-        field._parent_struct = self.etype.replace_parent(parent=parent)  # pylint: disable=protected-access
+        field._parent_struct = self.etype._replace_parent(parent=parent)  # pylint: disable=protected-access
         return field
 
     #
     # Field name management
 
-    @property
-    def _contextual_name(self) -> Optional[str]:
-        return self._name_contextual
-
-    @_contextual_name.setter
-    def _contextual_name(self, value: str):
-        self._name_contextual = value
-        self.etype._name_contextual = (  # pylint: disable=protected-access
-            # set child to same name as parent
-            value
-        )
+    def _set_contextual_name(self, value: str):
+        super()._set_contextual_name(value)
+        # set child to same name as parent; i.e., propagate contextual name downwards:
+        self.etype._set_contextual_name(value)  # pylint: disable=protected-access
 
     #
     # Spark type management
@@ -71,15 +67,15 @@ class Array(Generic[ArrayElementType], BaseField):
         return ArrayType
 
     @property
-    def spark_struct_field(self) -> StructField:
+    def _spark_struct_field(self) -> StructField:
         """The Spark StructField for this field."""
         # containsNull => is used to indicate if elements in a ArrayType value can have null values
         return StructField(
-            name=self.field_name,
+            name=self._field_name,
             dataType=ArrayType(
                 # Note that we do not care about the element's field name here:
-                elementType=self.etype.spark_struct_field.dataType,
-                containsNull=self.etype.is_nullable,
+                elementType=self.etype._spark_struct_field.dataType,  # pylint: disable=protected-access
+                containsNull=self.etype._is_nullable,  # pylint: disable=protected-access
             ),
-            nullable=self.is_nullable,
+            nullable=self._is_nullable,
         )

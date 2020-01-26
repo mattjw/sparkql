@@ -3,7 +3,7 @@
 __version__ = "0.1.0"
 
 from .schema_builder import schema
-from .path import path_col, path_seq, path_str
+from .accessors import path_col, path_seq, path_str, name, struct_field
 from .formatters import pretty_schema
 from .fields import (
     Byte,
@@ -28,6 +28,8 @@ __all__ = [
     "path_col",
     "path_seq",
     "path_str",
+    "name",
+    "struct_field",
     "pretty_schema",
     "Byte",
     "Integer",

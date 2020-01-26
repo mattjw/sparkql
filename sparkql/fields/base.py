@@ -16,15 +16,15 @@ class BaseField(ABC):
     """Root of the field hierarchy; shadows DataType in the Spark API."""
 
     # Name management logic:
-    # - Explicit name (`_name_explicit`): Set via constructor.
-    # - Contextual name (`_name_contextual`): Inferred for the field as it is used in a struct object.
+    # - Explicit name (`__name_explicit`): Set via constructor.
+    # - Contextual name (`__name_contextual`): Inferred for the field as it is used in a struct object.
     #   This will always get set, although not immediately. The struct object that will contain this field
     #   is responsible for setting the contextual name.
     # The explicit name, if provided, will override the contextual name.
 
-    _nullable: bool = True
-    _name_explicit: Optional[str] = None
-    _name_contextual: Optional[str] = None
+    __nullable: bool = True
+    __name_explicit: Optional[str] = None
+    __name_contextual: Optional[str] = None
     _parent_struct: Optional["Struct"] = None
 
     def __init__(self, nullable: bool = True, name: Optional[str] = None):
@@ -35,16 +35,16 @@ class BaseField(ABC):
             nullable: Is this field nullable.
             name: Field name. If None, field name will be identified via ivar context resolution.
         """
-        self._nullable = nullable
-        self._name_explicit = name
+        self.__nullable = nullable
+        self.__name_explicit = name
 
     #
     # Nullability
 
     @property
-    def is_nullable(self) -> bool:
+    def _is_nullable(self) -> bool:
         """The nullability status of this field."""
-        return self._nullable
+        return self.__nullable
 
     #
     # Field path chaining
@@ -53,7 +53,7 @@ class BaseField(ABC):
     def _parent(self) -> Optional["Struct"]:
         return self._parent_struct
 
-    def replace_parent(self, parent: Optional["Struct"] = None) -> "BaseField":
+    def _replace_parent(self, parent: Optional["Struct"] = None) -> "BaseField":
         """Return a copy of this Field with the parent attribute set."""
         field = copy.copy(self)
         if self._parent_struct is not None:
@@ -66,35 +66,39 @@ class BaseField(ABC):
 
     @property
     def _contextual_name(self) -> Optional[str]:
-        return self._name_contextual
+        return self.__name_contextual
 
-    @_contextual_name.setter
-    def _contextual_name(self, value: str):
-        if self._name_contextual is not None:
+    def _set_contextual_name(self, value: str):
+        # Intentionally not using an implicit setter here
+        if self.__name_contextual is not None:
             raise FieldNameError(
                 "Attempted to override a name that has already been set: "
-                f"'{value}' replacing '{self._name_contextual}'"
+                f"'{value}' replacing '{self.__name_contextual}'"
             )
-        self._name_contextual = value
+        self.__name_contextual = value
 
     @property
-    def field_name(self) -> str:
+    def _field_name(self) -> str:
         """The name for this field."""
         name = self._resolve_field_name()
         if name is None:
             raise FieldNameError(
                 "No field name found among: explicit name = {}, inferred name = {}".format(
-                    self._name_explicit, self._name_contextual
+                    self.__name_explicit, self.__name_contextual
                 )
             )
         return name
 
     def _resolve_field_name(self) -> Optional[str]:
-        """Resolve name for this field, or None if no concrete name set."""
-        if self._name_explicit is not None:
-            return self._name_explicit
-        if self._name_contextual is not None:
-            return self._name_contextual
+        """
+        Resolve name for this field, or None if no concrete name set.
+
+        Should only be used by this class and its subclasses.
+        """
+        if self.__name_explicit is not None:
+            return self.__name_explicit
+        if self.__name_contextual is not None:
+            return self.__name_contextual
         return None
 
     #
@@ -107,7 +111,7 @@ class BaseField(ABC):
 
     @property
     @abstractmethod
-    def spark_struct_field(self) -> StructField:
+    def _spark_struct_field(self) -> StructField:
         """The Spark StructField for this field."""
 
     #
@@ -124,8 +128,8 @@ class BaseField(ABC):
         return (
             f"<{type(self).__name__} \n"
             f"  spark type = {self._spark_type_class.__name__} \n"
-            f"  nullable = {self.is_nullable} \n"
-            f"  name = {self._resolve_field_name()} <- {[self._name_explicit, self._name_contextual]} \n"
+            f"  nullable = {self._is_nullable} \n"
+            f"  name = {self._resolve_field_name()} <- {[self.__name_explicit, self.__name_contextual]} \n"
             f"  parent = {self._parent}"
             ">"
         )
@@ -155,9 +159,9 @@ class AtomicField(BaseField):
         return self._spark_type_class()
 
     @property
-    def spark_struct_field(self) -> StructField:
+    def _spark_struct_field(self) -> StructField:
         """The StructField for this object."""
-        return StructField(name=self.field_name, dataType=self.spark_data_type, nullable=self.is_nullable)
+        return StructField(name=self._field_name, dataType=self.spark_data_type, nullable=self._is_nullable)
 
 
 class NumericField(AtomicField):
