@@ -42,8 +42,8 @@ def prepare_release():
     - Project version number increment. `pyproject.toml` is updated.
     - Create a new git commit, with the repository updated for the new version.
     - Create a git tag for this new version.
+    - Push the new tag; push master
     """
-    github_push("master")
     next_ver_info = get_version_info()
 
     # Abandon if version fields do not match
@@ -80,6 +80,7 @@ def prepare_release():
     # Bump version in project TOML
     print(f"\nUpdating {PROJECT_INFO.project_toml}")
     run(f"poetry version {next_ver_info.next_version}", hide="stdout")
+    update_toml_commitizen_version(next_ver_info.next_version)
 
     # Commit and tag
     commit_message = f"bump: {next_ver_info.current_version} -> {next_ver_info.next_tag}"
