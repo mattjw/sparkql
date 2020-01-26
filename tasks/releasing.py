@@ -10,6 +10,9 @@ import tomlkit
 from .utils import run, PROJECT_INFO
 
 
+GITHUB_COMMITTER_USERNAME = "CI"
+GITHUB_COMMITTER_EMAIL = "mattjw+CI@mattjw.net"
+
 #
 # Commands
 
@@ -80,7 +83,9 @@ def prepare_release():
     commit_message = f"bump: {next_ver_info.current_version} -> {next_ver_info.next_tag}"
     run(f"git add {PROJECT_INFO.project_toml}", hide=None, echo=True)
     run(
-        'git -c "user.name=CI" -c"user.email=mattjw+CI@mattjw.net" ' f'commit -m "{commit_message}"',
+        f'git -c "user.name={GITHUB_COMMITTER_USERNAME}" '
+        + f'-c "user.email={GITHUB_COMMITTER_EMAIL}" '
+        + f'commit -m "{commit_message}"',
         hide=None,
         echo=True,
     )
