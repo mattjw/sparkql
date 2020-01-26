@@ -39,7 +39,7 @@ line-length = 120
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.1.2"  # do not edit manually. will be kept in sync with `tool.poetry`
+version = "0.1.3"  # do not edit manually. will be kept in sync with `tool.poetry`
 tag_format = "v$version"
 
 [build-system]
