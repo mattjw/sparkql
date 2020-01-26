@@ -158,14 +158,14 @@ class AtomicField(BaseField):
         """The class of the Spark type corresponding to this field."""
 
     @property
-    def spark_data_type(self) -> sql_type.DataType:
+    def _spark_data_type(self) -> sql_type.DataType:
         """Corresponding Spark datatype for this class."""
         return self._spark_type_class()
 
     @property
     def _spark_struct_field(self) -> StructField:
         """The StructField for this object."""
-        return StructField(name=self._field_name, dataType=self.spark_data_type, nullable=self._is_nullable)
+        return StructField(name=self._field_name, dataType=self._spark_data_type, nullable=self._is_nullable)
 
 
 class NumericField(AtomicField):
