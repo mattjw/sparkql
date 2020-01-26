@@ -74,7 +74,7 @@ class Array(Generic[ArrayElementType], BaseField):
             name=self._field_name,
             dataType=ArrayType(
                 # Note that we do not care about the element's field name here:
-                elementType=self.etype._spark_struct_field.dataType,
+                elementType=self.etype._spark_struct_field.dataType,  # pylint: disable=protected-access
                 containsNull=self.etype._is_nullable,  # pylint: disable=protected-access
             ),
             nullable=self._is_nullable,

@@ -51,7 +51,7 @@ class Struct(BaseField):
     @staticmethod
     def __build_spark_struct(fields: Iterable[BaseField]) -> sql_types.StructType:
         """Build a Spark struct (StructType) for a list of fields."""
-        return sql_types.StructType([field._spark_struct_field for field in fields])
+        return sql_types.StructType([field._spark_struct_field for field in fields])  # pylint: disable=protected-access
 
     @classmethod
     def __init_subclass__(cls, **options):  # pylint: disable=unused-argument
