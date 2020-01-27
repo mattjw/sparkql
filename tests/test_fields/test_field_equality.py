@@ -3,7 +3,6 @@ import pytest
 from sparkql import Struct, String, Array, Float
 
 
-@pytest.mark.only
 class TestEquality:
 
     #
