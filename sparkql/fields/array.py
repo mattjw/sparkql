@@ -84,8 +84,4 @@ class Array(Generic[ArrayElementType], BaseField):
 
     def __eq__(self, other: Any) -> bool:
         """True if `self` equals `other`."""
-        return (
-            super().__eq__(other)
-            and isinstance(other, Array)
-            and self.etype == other.etype
-        )
+        return super().__eq__(other) and isinstance(other, Array) and self.etype == other.etype

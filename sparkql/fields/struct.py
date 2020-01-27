@@ -102,5 +102,9 @@ class Struct(BaseField):
 
     def __eq__(self, other: Any) -> bool:
         """True if `self` equals `other`."""
-        # TODO: fix before merging
-        return super().__eq__(other) and isinstance(other, Struct)
+        return (
+            super().__eq__(other)
+            and isinstance(other, Struct)
+            and self._struct_meta.fields == other._struct_meta.fields
+            and list(self._struct_meta.fields.keys()) == list(other._struct_meta.fields.keys())
+        )
