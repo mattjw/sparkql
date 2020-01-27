@@ -28,9 +28,10 @@ def _run_pylint(source_dir: str, pylintrc_fpath: str = ".pylintrc"):
 def _run_pycodestyle(source_dir: str):
     """Run pycodestyle with a given configuration on a given code tree."""
     print_heavy(f"\n🔍 PYCODESTYLE '{source_dir}' 🔎\n")
-    run(f"pycodestyle --ignore=E501 --exclude=.svn,CVS,.bzr,.hg,.git,__pycache__,.tox {source_dir}")
+    run(f"pycodestyle --ignore=E501,W503 --exclude=.svn,CVS,.bzr,.hg,.git,__pycache__,.tox {source_dir}")
     # Ignores explained:
     # - E501: Line length is checked by PyLint
+    # - W503: Black's convention is to put line break before binary operator. This is also the (new) Python convention
 
 
 def _run_pydocstyle(source_dir: str):

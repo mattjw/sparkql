@@ -1,7 +1,7 @@
 """Base field and abstract fields."""
 
 from abc import ABC, abstractmethod
-from typing import Optional, Type
+from typing import Optional, Type, Any
 import copy
 
 from pyspark.sql import types as sql_type
@@ -117,6 +117,17 @@ class BaseField(ABC):
     #
     # Misc.
 
+    @abstractmethod
+    def __eq__(self, other: Any) -> bool:
+        """True if `self` equals `other`."""
+        # Subclasses should call this as part of their equality checks
+        return (
+            isinstance(other, BaseField)
+            and self._is_nullable == other._is_nullable
+            and self._resolve_field_name() == other._resolve_field_name()  # may be None == None
+            and self._spark_type_class == other._spark_type_class
+        )
+
     def __str__(self):
         """Returns the name of this field."""
         # stringifying a field as its field adds some convenience for cases where we need the field
@@ -154,14 +165,20 @@ class AtomicField(BaseField):
         """The class of the Spark type corresponding to this field."""
 
     @property
-    def spark_data_type(self) -> sql_type.DataType:
+    def _spark_data_type(self) -> sql_type.DataType:
         """Corresponding Spark datatype for this class."""
         return self._spark_type_class()
 
     @property
     def _spark_struct_field(self) -> StructField:
         """The StructField for this object."""
-        return StructField(name=self._field_name, dataType=self.spark_data_type, nullable=self._is_nullable)
+        return StructField(name=self._field_name, dataType=self._spark_data_type, nullable=self._is_nullable)
+
+    def __eq__(self, other: Any) -> bool:
+        """True if `self` equals `other`."""
+        return (
+            super().__eq__(other) and isinstance(other, AtomicField) and self._spark_data_type == other._spark_data_type
+        )
 
 
 class NumericField(AtomicField):
