@@ -1,7 +1,7 @@
 """Array field."""
 
 import copy
-from typing import Optional, Generic, TypeVar
+from typing import Optional, Generic, TypeVar, Any
 
 from pyspark.sql.types import ArrayType, StructField
 
@@ -79,3 +79,10 @@ class Array(Generic[ArrayElementType], BaseField):
             ),
             nullable=self._is_nullable,
         )
+
+    # Misc
+
+    def __eq__(self, other: Any) -> bool:
+        """True if `self` equals `other`."""
+        # TODO: fix before merging
+        return super().__eq__(other)

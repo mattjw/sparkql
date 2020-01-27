@@ -2,7 +2,7 @@
 
 from collections import OrderedDict
 from dataclasses import dataclass
-from typing import ClassVar, Sequence, Optional, Mapping, Iterable, Type
+from typing import ClassVar, Sequence, Optional, Mapping, Iterable, Type, Any
 
 from pyspark.sql import types as sql_types
 from pyspark.sql.types import DataType, StructField
@@ -99,3 +99,8 @@ class Struct(BaseField):
             f"  metadata = {self._struct_meta}"
             ">"
         )
+
+    def __eq__(self, other: Any) -> bool:
+        """True if `self` equals `other`."""
+        # TODO: fix before merging
+        return super().__eq__(other) and isinstance(other, Struct)

@@ -120,6 +120,13 @@ class BaseField(ABC):
     @abstractmethod
     def __eq__(self, other: Any) -> bool:
         """True if `self` equals `other`."""
+        # Subclasses should call this as part of their equality checks
+        return (
+            isinstance(other, BaseField)
+            and self._is_nullable == other._is_nullable
+            and self._resolve_field_name() == other._resolve_field_name()  # may be None == None
+            and self._spark_type_class == other._spark_type_class
+        )
 
     def __str__(self):
         """Returns the name of this field."""
@@ -166,6 +173,12 @@ class AtomicField(BaseField):
     def _spark_struct_field(self) -> StructField:
         """The StructField for this object."""
         return StructField(name=self._field_name, dataType=self._spark_data_type, nullable=self._is_nullable)
+
+    def __eq__(self, other: Any) -> bool:
+        """True if `self` equals `other`."""
+        return (
+            super().__eq__(other) and isinstance(other, AtomicField) and self._spark_data_type == other._spark_data_type
+        )
 
 
 class NumericField(AtomicField):
