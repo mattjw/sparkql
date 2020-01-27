@@ -11,7 +11,6 @@ license = "MIT"
 python = "~3.6.8"
 pyspark = "=2.4.1"
 dataclasses = { version = "~0.7.0", python=">=3.6, <3.7" }
-pytest-only = "~=1.2.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "~5.3"
@@ -25,6 +24,7 @@ pytest-spark = "~0.5.2"
 termcolor = "~1.1.0"
 commitizen = "~1.14.2"
 tomlkit = "~0.5.8"
+pytest-only = "~=1.2.2"
 
 [tool.poetry.scripts]
 test = "tasks:test"
