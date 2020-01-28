@@ -1,7 +1,5 @@
 """Python Spark SQL DataFrame schema management for sensible humans."""
 
-__version__ = "0.1.0"
-
 from .schema_builder import schema
 from .accessors import path_col, path_seq, path_str, name, struct_field
 from .formatters import pretty_schema
