@@ -2,7 +2,7 @@
 
 from collections import OrderedDict
 from dataclasses import dataclass
-from typing import ClassVar, Sequence, Optional, Mapping, Iterable, Type, Any
+from typing import ClassVar, Optional, Mapping, Iterable, Type, Any, List
 
 from pyspark.sql import types as sql_types
 from pyspark.sql.types import DataType, StructField
@@ -15,10 +15,8 @@ from .base import BaseField
 class StructClassMeta:
     """Metadata associated with a struct object; part of the underlying machinery of sparkql."""
 
-    fields: Mapping[str, BaseField]
-    spark_struct: sql_types.StructType
-    includes: Optional[Sequence["Struct"]] = None  # ^ TO-DO  https://github.com/mattjw/sparkql/issues/17
-    interfaces: Optional[Sequence["Struct"]] = None  # ^ TO-DO  https://github.com/mattjw/sparkql/issues/16
+    spark_struct: sql_types.StructType  # complete Spark StructType for this Struct; incorporates Includes
+    fields: Mapping[str, BaseField]  # all fields, including those obtained via Includes. attrib_name -> field
 
 
 class Struct(BaseField):
@@ -42,10 +40,65 @@ class Struct(BaseField):
     # Hook in to sub-class creation. Ensure fields are pre-processed when a sub-class is declared
 
     @classmethod
+    def __get_includes(cls) -> List["Struct"]:
+        """
+        Get the list of Structs specified in the Includes, if any.
+
+        Returns:
+            List of Struct fields found in the Includes. If no Includes is specified for this Struct (i.e., this`cls`),
+            then return empty list.
+        """
+        if not hasattr(cls, "Includes"):
+            return []
+
+        if not isinstance(cls.Includes, type):
+            raise InvalidStructError(
+                f"The 'Includes' property must only be used as an inner class. Found type {type(cls.Includes)}")
+
+        structs = []
+        for key, value in cls.Includes.__dict__.items():
+            if key.startswith("_"):
+                continue
+            if not isinstance(value, Struct):
+                raise InvalidStructError(
+                    f"Encountered non-struct property in 'Includes' inner class: {key} = {type(value)}")
+            structs.append(value)
+        return structs
+
+    @classmethod
     def __extract_fields(cls) -> Mapping[str, BaseField]:
-        fields = OrderedDict((key, value) for key, value in cls.__dict__.items() if isinstance(value, BaseField))
+        """Build the list of fields for this class, including any Includes fields."""
+        fields = OrderedDict()  # map from attribute name to BaseField (or subclass of) object
+
+        #
+        # Add the declared (i.e., non-Includes) fields
+        for key, value in cls.__dict__.items():
+            if not isinstance(value, BaseField):
+                continue
+            if key.startswith("_"):
+                raise InvalidStructError(f"Fields must not begin with underscore. Found: {key} = {type(value)}")
+            fields[key] = value
+
+        # Set the contextual name (i.e., from the attribute name) for the declared (non-Includes) field
         for field_name, field in fields.items():
             field._set_contextual_name(field_name)  # pylint: disable=protected-access
+
+        print(list(fields.keys()))  # FIXME
+
+        #
+        # Add the fields from Included objects
+        for struct in cls.__get_includes():
+            for key, value in struct._struct_meta.fields.items():
+                if key not in fields:
+                    print("inserting key", key)  # FIXME
+                    fields[key] = value
+                    continue
+                if fields[key] != value:
+                    raise InvalidStructError(
+                        "Attempting to replace a field with an Includes field that is not identical. "
+                        f"Incompatible attribute: {key}")
+
+        print(list(fields.keys()))  # FIXME
         return fields
 
     @staticmethod
