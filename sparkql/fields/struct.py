@@ -133,12 +133,14 @@ class StructInnerHandler:
             incl_fields = included_struct._struct_meta.fields  # pylint: disable=protected-access
             for incl_field_name, incl_field in incl_fields.items():
                 if incl_field_name not in self._fields:
-                    self._fields[incl_field_name] = incl_field
+                    self._fields[incl_field_name] = incl_field  # populate `_fields`
+                    setattr(self.struct_class, incl_field_name, incl_field)  # add included attrib to the struct class
+                    # important bit here. we modify the struct class so that the includes fields are available
+                    # from the struct, as well as (alternatively) via the Includes
                 elif self._fields[incl_field_name] != incl_field:
                     raise InvalidStructError(
                         "Attempting to replace a field with an Includes field of different type. "
-                        f"Incompatible field name: {incl_field_name}"
-                    )
+                        f"Incompatible field name: {incl_field_name}")
 
         # build spark struct
         self._spark_struct = StructInnerHandler._build_spark_struct(self._fields.values())

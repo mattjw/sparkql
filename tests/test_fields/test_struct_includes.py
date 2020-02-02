@@ -25,9 +25,16 @@ class RootStruct(Struct):
         sibling = SiblingStruct()
 
 
+class AnotherRootStruct(Struct):
+    # This class is here so we can test that the same Includes struct can be re-used;
+    # i.e., no side-effect between re-uses of the same struct as a sibling.
+    class Includes:
+        sibling = SiblingStruct()
+
+
 class TestStructIncludes:
     @staticmethod
-    def test_path_from_includes_field_in_includes():
+    def test_should_give_correct_path_when_referring_to_field_via_includes():
         # given (see test cases), when
         field_path = path_str(RootStruct.Includes.sibling.sibling_field)
 
@@ -35,7 +42,7 @@ class TestStructIncludes:
         assert field_path == "sibling_field"
 
     @staticmethod
-    def test_path_from_includes_field_in_root_class():
+    def test_should_give_correct_path_when_referring_to_field_via_root_class():
         # given (see test cases), when
         field_path = path_str(RootStruct.sibling_field)
 
@@ -43,7 +50,7 @@ class TestStructIncludes:
         assert field_path == "sibling_field"
 
     @staticmethod
-    def test_field_from_includes_field_in_includes():
+    def test_should_give_correct_field_object_when_referring_to_field_via_includes():
         # given (see test cases), when
         field = RootStruct.Includes.sibling.sibling_field
 
@@ -51,7 +58,7 @@ class TestStructIncludes:
         assert field == String(name="sibling_field")
 
     @staticmethod
-    def test_field_from_includes_field_in_root_class():
+    def test_should_give_correct_field_object_when_referring_to_field_via_root_class():
         # given (see test cases), when
         field = RootStruct.sibling_field
 
