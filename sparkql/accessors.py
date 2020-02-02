@@ -14,7 +14,9 @@ from .fields.base import BaseField
 def path_seq(field: BaseField) -> Sequence[str]:
     """Items on the path to a field."""
     fields = [field]
+    # print("ACCESSING  path_seq for : ", field, type(field), type(field._parent))  # FIXME
     while fields[0]._parent is not None:
+        # print("ACCESSING  field: ", fields[0], type(fields[0]), "    parent is:", type(fields[0]._parent))  # FIXME
         if fields[0]._field_name is None:
             raise ValueError("Encountered an unset name while traversing tree")
         fields.insert(0, fields[0]._parent)

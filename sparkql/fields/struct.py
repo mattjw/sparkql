@@ -39,7 +39,7 @@ class Struct(BaseField):
         if cls._struct_meta is not None:
             return
 
-        # Ensure a subclass does not break base class functionality
+        # Ensure a subclass does not break any base class functionality
         for child_prop, child_val in cls.__dict__.items():
             if (child_prop in Struct.__dict__) and (isinstance(child_val, BaseField)):
                 raise InvalidStructError(f"Field should note override inherited class properties: {child_prop}")
@@ -50,16 +50,23 @@ class Struct(BaseField):
     #
     # Handle dot chaining for full path ref to nested fields
 
-    def __getattribute__(self, name):
+    def __getattribute__(self, attr_name):
         """
         Customise how field attributes are handled.
 
         Augment the attribute reference chain to ensure that a field's parent is set.
         """
-        prop = super().__getattribute__(name)
-        if not name.startswith("_") and isinstance(prop, BaseField):
-            return prop._replace_parent(parent=self)
-        return prop
+        attr_value = super().__getattribute__(attr_name)
+
+        if attr_name == "_struct_meta":
+            return attr_value
+
+        resolved_field = self._struct_meta.resolve_field(
+            struct_object=self, attr_name=attr_name, attr_value=attr_value)
+        if resolved_field is not None:
+            return resolved_field
+
+        return attr_value
 
     #
     # Other methods
@@ -101,10 +108,14 @@ class StructInnerHandler:
     - Includes fields: Fields pulled in from an Include Struct.
     """
 
+    INCLUDES_CLASS_NAME: ClassVar[str] = "Includes"
+
     struct_class: Type[Struct]
 
     def __post_init__(self):
         # pylint: disable=attribute-defined-outside-init
+
+        print(f"StructInnerHandler received struct class: {self.struct_class} ({type(self.struct_class)})")  # FIXME
 
         # native field name -> field
         self._native_fields = OrderedDict(self._yield_native_fields())
@@ -174,9 +185,9 @@ class StructInnerHandler:
 
     def _get_includes_class(self) -> Optional[Type]:
         """Retrieve the `Includes` inner class, or None if none is provided."""
-        if not hasattr(self.struct_class, "Includes"):
+        if not hasattr(self.struct_class, StructInnerHandler.INCLUDES_CLASS_NAME):
             return None
-        includes_class = getattr(self.struct_class, "Includes")
+        includes_class = getattr(self.struct_class, StructInnerHandler.INCLUDES_CLASS_NAME)
 
         if not isinstance(includes_class, type):
             raise InvalidStructError(
@@ -204,3 +215,41 @@ class StructInnerHandler:
                     f"Encountered non-struct property in 'Includes' inner class: {attr_name} = {type(attr_value)}"
                 )
             yield (attr_name, attr_value)
+
+    #
+    # Resolving of class attributes
+
+    def resolve_field(self, struct_object: "Struct", attr_name: str, attr_value: Any) -> Optional[BaseField]:
+        """
+        Attempt to resolve a `getattribute` call on the Struct, returning a BaseField if applicable.
+
+        This should be used to hook into the Struct's `getattribute` behaviour to customise resolution of
+        fields. Will also check if the `getattribute` call is attempting to resolve a field. If not, returns None.
+
+        Args:
+            struct_object: The instance of the Struct upon which `getattribute` was called.
+            attr_name: The name of the `struct_object` attribute to be resolved.
+            attr_value: The attribute of the `struct_object`.
+        """
+        # print(f"[[ attr_name is = {attr_name} ;;  attr_value is = {type(attr_value)} ]]")  # FIXME
+        if attr_name.startswith("_"):
+            return None
+
+        if attr_name == StructInnerHandler.INCLUDES_CLASS_NAME:
+            # NEED TO DO SOME MAGIC (!!) to customise the Includes requests (!)
+
+            # set props up front(??) just do it at class creation?? makes it easy
+            # because then no need to intercept any calls !
+
+            return None
+
+        if isinstance(attr_value, BaseField):
+            new_field: BaseField = attr_value._replace_parent(parent=struct_object)  # pylint: disable=protected-access
+            # print(f"BUILDING set parent for property {attr_name} ({type(attr_value)}) to be {self.struct_class}")
+            # print("<< BUILDING ")
+            # print("new field = ", new_field, "parent = ", new_field._parent)
+            # print(new_field._info())
+            # print(">>")  # FIXME
+            return new_field
+
+        return None
