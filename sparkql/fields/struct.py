@@ -1,8 +1,7 @@
 """Struct."""
-
 from collections import OrderedDict
 from dataclasses import dataclass
-from typing import ClassVar, Optional, Mapping, Iterable, Type, Any, List
+from typing import ClassVar, Optional, Mapping, Iterable, Type, Any, Generator, Tuple
 
 from pyspark.sql import types as sql_types
 from pyspark.sql.types import DataType, StructField
@@ -11,18 +10,10 @@ from ..exceptions import InvalidStructError
 from .base import BaseField
 
 
-@dataclass(frozen=True)
-class StructClassMeta:
-    """Metadata associated with a struct object; part of the underlying machinery of sparkql."""
-
-    spark_struct: sql_types.StructType  # complete Spark StructType for this Struct; incorporates Includes
-    fields: Mapping[str, BaseField]  # all fields, including those obtained via Includes. attrib_name -> field
-
-
 class Struct(BaseField):
     """A struct; shadows StructType in the Spark API."""
 
-    _struct_meta: ClassVar[Optional[StructClassMeta]] = None
+    _struct_meta: ClassVar[Optional["StructInnerHandler"]] = None
 
     #
     # Handle Spark representations for a Struct object
@@ -40,73 +31,6 @@ class Struct(BaseField):
     # Hook in to sub-class creation. Ensure fields are pre-processed when a sub-class is declared
 
     @classmethod
-    def __get_includes(cls) -> List["Struct"]:
-        """
-        Get the list of Structs specified in the Includes, if any.
-
-        Returns:
-            List of Struct fields found in the Includes. If no Includes is specified for this Struct (i.e., this`cls`),
-            then return empty list.
-        """
-        if not hasattr(cls, "Includes"):
-            return []
-
-        if not isinstance(cls.Includes, type):
-            raise InvalidStructError(
-                f"The 'Includes' property must only be used as an inner class. Found type {type(cls.Includes)}")
-
-        structs = []
-        for key, value in cls.Includes.__dict__.items():
-            if key.startswith("_"):
-                continue
-            if not isinstance(value, Struct):
-                raise InvalidStructError(
-                    f"Encountered non-struct property in 'Includes' inner class: {key} = {type(value)}")
-            structs.append(value)
-        return structs
-
-    @classmethod
-    def __extract_fields(cls) -> Mapping[str, BaseField]:
-        """Build the list of fields for this class, including any Includes fields."""
-        fields = OrderedDict()  # map from attribute name to BaseField (or subclass of) object
-
-        #
-        # Add the declared (i.e., non-Includes) fields
-        for key, value in cls.__dict__.items():
-            if not isinstance(value, BaseField):
-                continue
-            if key.startswith("_"):
-                raise InvalidStructError(f"Fields must not begin with underscore. Found: {key} = {type(value)}")
-            fields[key] = value
-
-        # Set the contextual name (i.e., from the attribute name) for the declared (non-Includes) field
-        for field_name, field in fields.items():
-            field._set_contextual_name(field_name)  # pylint: disable=protected-access
-
-        print(list(fields.keys()))  # FIXME
-
-        #
-        # Add the fields from Included objects
-        for struct in cls.__get_includes():
-            for key, value in struct._struct_meta.fields.items():
-                if key not in fields:
-                    print("inserting key", key)  # FIXME
-                    fields[key] = value
-                    continue
-                if fields[key] != value:
-                    raise InvalidStructError(
-                        "Attempting to replace a field with an Includes field that is not identical. "
-                        f"Incompatible attribute: {key}")
-
-        print(list(fields.keys()))  # FIXME
-        return fields
-
-    @staticmethod
-    def __build_spark_struct(fields: Iterable[BaseField]) -> sql_types.StructType:
-        """Build a Spark struct (StructType) for a list of fields."""
-        return sql_types.StructType([field._spark_struct_field for field in fields])  # pylint: disable=protected-access
-
-    @classmethod
     def __init_subclass__(cls, **options):  # pylint: disable=unused-argument
         """Hook in to the subclassing of this base class; process fields when sub-classing occurs."""
         super().__init_subclass__()  # pytype: disable=attribute-error
@@ -121,8 +45,7 @@ class Struct(BaseField):
                 raise InvalidStructError(f"Field should note override inherited class properties: {child_prop}")
 
         # Extract fields
-        fields = cls.__extract_fields()
-        cls._struct_meta = StructClassMeta(fields=fields, spark_struct=Struct.__build_spark_struct(fields.values()))
+        cls._struct_meta = StructInnerHandler(cls)
 
     #
     # Handle dot chaining for full path ref to nested fields
@@ -161,3 +84,123 @@ class Struct(BaseField):
             and self._struct_meta.fields == other._struct_meta.fields
             and list(self._struct_meta.fields.keys()) == list(other._struct_meta.fields.keys())
         )
+
+
+@dataclass
+class StructInnerHandler:
+    """
+    Management and retrieval of a Struct's fields (including Includes handling), and other magic.
+
+    Definitions...
+
+    - Root Struct: The Struct being managed by this Handler.
+    - Native fields: Fields explicitly declared in the Struct.
+    - Include class: The inner class that can be (optionally) specified within a Struct class. Found at
+      `Struct.Includes`.
+    - Include Struct: One of (possibly many) Structs specified in the root struct's Includes.
+    - Includes fields: Fields pulled in from an Include Struct.
+    """
+
+    struct_class: Type[Struct]
+
+    def __post_init__(self):
+        # pylint: disable=attribute-defined-outside-init
+
+        # native field name -> field
+        self._native_fields = OrderedDict(self._yield_native_fields())
+        for field_name, field in self._native_fields.items():
+            field._set_contextual_name(field_name)  # pylint: disable=protected-access
+
+        # includes field name -> Struct field
+        self._include_structs = OrderedDict(self._yield_included_structs())
+
+        # build canonical list of fields (combined native and includes)
+        # field name -> field
+        self._fields = OrderedDict(self._native_fields)
+
+        for included_struct in self._include_structs.values():
+            incl_fields = included_struct._struct_meta.fields  # pylint: disable=protected-access
+            for incl_field_name, incl_field in incl_fields.items():
+                if incl_field_name not in self._fields:
+                    self._fields[incl_field_name] = incl_field
+                elif self._fields[incl_field_name] != incl_field:
+                    raise InvalidStructError(
+                        "Attempting to replace a field with an Includes field of different type. "
+                        f"Incompatible field name: {incl_field_name}"
+                    )
+
+        # build spark struct
+        self._spark_struct = StructInnerHandler._build_spark_struct(self._fields.values())
+
+    @property
+    def fields(self) -> Mapping[str, BaseField]:
+        """
+        All fields for the Struct, including both native fields and imported from `Includes` Structs.
+
+        Returns:
+            Mapping from field name to field.
+        """
+        return self._fields
+
+    @property
+    def spark_struct(self) -> sql_types.StructType:
+        """Complete Spark StructType for the Struct; incorporates Includes."""
+        return self._spark_struct
+
+    @staticmethod
+    def _build_spark_struct(fields: Iterable[BaseField]) -> sql_types.StructType:
+        """Build a Spark struct (StructType) for a list of fields."""
+        return sql_types.StructType([field._spark_struct_field for field in fields])  # pylint: disable=protected-access
+
+    #
+    # Extraction and processing of the Struct class
+
+    def _yield_native_fields(self) -> Generator[Tuple[str, Struct], None, None]:
+        """
+        Get the native fields specified for this Struct class, if any.
+
+        Yields:
+            A `(str, BaseField)` pair for each field found in this class. Each pair consists of the attribute name and
+            the field.
+        """
+        for attr_name, attr_value in self.struct_class.__dict__.items():
+            if not isinstance(attr_value, BaseField):
+                continue
+            if attr_name.startswith("_"):
+                raise InvalidStructError(
+                    f"Fields must not begin with an underscore. Found: {attr_name} = {type(attr_value)}"
+                )
+            yield (attr_name, attr_value)
+
+    def _get_includes_class(self) -> Optional[Type]:
+        """Retrieve the `Includes` inner class, or None if none is provided."""
+        if not hasattr(self.struct_class, "Includes"):
+            return None
+        includes_class = getattr(self.struct_class, "Includes")
+
+        if not isinstance(includes_class, type):
+            raise InvalidStructError(
+                "The 'Includes' property of a Struct must only be used as an inner class. "
+                f"Found type {type(includes_class)}"
+            )
+        return includes_class
+
+    def _yield_included_structs(self) -> Generator[Tuple[str, Struct], None, None]:
+        """
+        Get the Structs specified in the Includes, if any.
+
+        Yields:
+            A `(str, Struct)` pair for each Struct field found in the class's Includes.
+            Each pair consists of the attribute name and the Struct.
+            If Includes is not provided or Includes is empty, no yield.
+        """
+        if self._get_includes_class() is None:
+            return
+        for attr_name, attr_value in self._get_includes_class().__dict__.items():
+            if attr_name.startswith("_"):
+                continue
+            if not isinstance(attr_value, Struct):
+                raise InvalidStructError(
+                    f"Encountered non-struct property in 'Includes' inner class: {attr_name} = {type(attr_value)}"
+                )
+            yield (attr_name, attr_value)
