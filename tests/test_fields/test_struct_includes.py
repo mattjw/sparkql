@@ -7,12 +7,61 @@ Partner to `test_struct.py`.
 from pyspark.sql.types import StructType, StructField, StringType
 
 from sparkql.exceptions import InvalidStructError
-from sparkql import Struct, String, schema, Integer
+from sparkql import Struct, String, schema, Integer, path_str
 
 import pytest
 
 
+#
+# Test path and field handling
+
+class SiblingStruct(Struct):
+    sibling_field = String()
+
+
+class RootStruct(Struct):
+    class Includes:
+        sibling = SiblingStruct()
+
+
 class TestStructIncludes:
+    @staticmethod
+    def test_path_from_includes_field_in_includes():
+        # given (see test cases), when
+        field_path = path_str(RootStruct.Includes.sibling.sibling_field)
+
+        # then
+        assert field_path == "sibling_field"
+
+    @staticmethod
+    def test_path_from_includes_field_in_root_class():
+        # given (see test cases), when
+        field_path = path_str(RootStruct.sibling_field)
+
+        # then
+        assert field_path == "sibling_field"
+
+    @staticmethod
+    def test_field_from_includes_field_in_includes():
+        # given (see test cases), when
+        field = RootStruct.Includes.sibling.sibling_field
+
+        # then
+        assert field == String(name="sibling_field")
+
+    @staticmethod
+    def test_field_from_includes_field_in_root_class():
+        # given (see test cases), when
+        field = RootStruct.sibling_field
+
+        # then
+        assert field == String(name="sibling_field")
+
+
+#
+# Other tests
+
+class TestStructIncludesSchemaBuilding:
     @staticmethod
     def test_should_combine_disjoint_includes():
         # given
