@@ -15,6 +15,7 @@ import pytest
 #
 # Test path and field handling
 
+
 class SiblingStruct(Struct):
     sibling_field = String()
 
@@ -60,6 +61,7 @@ class TestStructIncludes:
 
 #
 # Other tests
+
 
 class TestStructIncludesSchemaBuilding:
     @staticmethod
