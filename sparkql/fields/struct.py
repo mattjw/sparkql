@@ -1,4 +1,5 @@
 """Struct."""
+
 from collections import OrderedDict
 from dataclasses import dataclass
 from inspect import isclass
@@ -34,19 +35,41 @@ class Struct(BaseField):
     @classmethod
     def __init_subclass__(cls, **options):  # pylint: disable=unused-argument
         """Hook in to the subclassing of this base class; process fields when sub-classing occurs."""
-        super().__init_subclass__()  # pytype: disable=attribute-error
+        super().__init_subclass__(**options)  # pytype: disable=attribute-error
 
         # Do not re-extract
-        if cls._struct_meta is not None:
-            return
+        # if cls._struct_meta is not None:  # FIXME
+        #     return
 
         # Ensure a subclass does not break any base class functionality
         for child_prop, child_val in cls.__dict__.items():
             if (child_prop in Struct.__dict__) and (isinstance(child_val, BaseField)):
                 raise InvalidStructError(f"Field should not override inherited class properties: {child_prop}")
 
-        # Extract fields
-        cls._struct_meta = StructInnerHandler(cls)
+        # Extract fields for this class
+        struct_meta = StructInnerHandler(cls)
+
+        # Obtain parent class's `_struct_meta`, if any
+        if (len(cls.__mro__) >= 2) and (hasattr(cls.__mro__[1], "_struct_meta")):
+            parent_struct_meta: StructInnerHandler = getattr(cls.__mro__[1], "_struct_meta")
+            struct_meta = parent_struct_meta.with(struct_meta)
+
+        cls._struct_meta = struct_meta
+
+        return
+        # fiddling
+        print("found fields: ", cls._struct_meta, cls._struct_meta.fields)
+        print("__dict__: ", cls.__dict__)
+        print(type(super()))
+        print("dir = ", dir(super()))
+        try:
+            print("super:", super()._struct_meta)
+        except:
+            print("error")
+
+        print("iterate up the tree")
+        for base in cls.__mro__[0:]:
+            print("getattr = ", getattr(base, "_struct_meta", "default"))
 
     #
     # Handle dot chaining for full path ref to nested fields
@@ -121,14 +144,11 @@ class StructInnerHandler:
         for field_name, field in self._native_fields.items():
             field._set_contextual_name(field_name)  # pylint: disable=protected-access
 
-        # list of Structs whose fields are incorporated into the Root Struct
-        self._include_structs = list(self._yield_included_structs())
-
         # build canonical list of fields (combined native and includes)
         # field name -> field
         self._fields = OrderedDict(self._native_fields)
 
-        for included_struct in self._include_structs:
+        for included_struct in self._yield_included_structs():
             incl_fields = included_struct._struct_meta.fields  # pylint: disable=protected-access
             for incl_field_name, incl_field in incl_fields.items():
                 if incl_field_name not in self._fields:
@@ -143,6 +163,10 @@ class StructInnerHandler:
 
         # build spark struct
         self._spark_struct = StructInnerHandler._build_spark_struct(self._fields.values())
+
+    def with_another(self, handler: "StructInnerHandler"):
+        """Combine this handler with another handler, by appending new fields to his handler."""
+        # TODO
 
     @property
     def fields(self) -> Mapping[str, BaseField]:
