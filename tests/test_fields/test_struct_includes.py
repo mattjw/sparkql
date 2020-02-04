@@ -21,8 +21,8 @@ class CousinStruct(Struct):
 
 
 class SiblingAStruct(Struct):
-    class Includes:
-        cousin = CousinStruct()
+    class Meta:
+        includes = [CousinStruct]
 
     sibling_a_field = String()
 
@@ -32,9 +32,8 @@ class SiblingBStruct(Struct):
 
 
 class RootStruct(Struct):
-    class Includes:
-        sibling_a = SiblingAStruct()
-        sibling_b = SiblingBStruct()
+    class Meta:
+        includes = [SiblingAStruct, SiblingBStruct]
 
 
 class TestStructIncludes:
