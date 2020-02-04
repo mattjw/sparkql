@@ -11,7 +11,8 @@ Python Spark SQL DataFrame schema management for sensible humans.
 sparkql takes the pain out of working with DataFrame schemas in PySpark. It's
 particularly useful when you have structured data.
 
-In plain old PySpark, you might find that you write schemas like this:
+In plain old PySpark, you might find that you write schemas
+[like this](./examples/conferences_comparison/plain_schema.py):
 
 ```python
 CITY_SCHEMA = StructType()
@@ -35,7 +36,8 @@ And then plain old PySpark makes you deal with nested fields like this:
 dframe.withColumn("city_name", df[CONF_CITY_FIELD][CITY_NAME_FIELD])
 ```
 
-Instead, with `sparkql`, schemas become a lot more literate:
+Instead, with `sparkql`, schemas become a lot
+[more literate](./examples/conferences_comparison/sparkql_schema.py):
 
 ```python
 class City(Struct):
@@ -55,6 +57,10 @@ dframe.withColumn("city_name", path_col(Conference.city.name))
 ```
 
 ## Features
+
+### Composite schemas
+
+You can incorporate incorporate 
 
 ### Prettified Spark schema strings
 
