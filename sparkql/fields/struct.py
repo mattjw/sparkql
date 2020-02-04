@@ -30,6 +30,12 @@ class Struct(BaseField):
     #
     # Hook in to sub-class creation. Ensure fields are pre-processed when a sub-class is declared
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Replace Includes on instance creation
+        self.Includes = _InstanceIncludes(self, self._struct_meta._include_structs)
+
     @classmethod
     def __init_subclass__(cls, **options):  # pylint: disable=unused-argument
         """Hook in to the subclassing of this base class; process fields when sub-classing occurs."""
@@ -42,10 +48,13 @@ class Struct(BaseField):
         # Ensure a subclass does not break any base class functionality
         for child_prop, child_val in cls.__dict__.items():
             if (child_prop in Struct.__dict__) and (isinstance(child_val, BaseField)):
-                raise InvalidStructError(f"Field should note override inherited class properties: {child_prop}")
+                raise InvalidStructError(f"Field should not override inherited class properties: {child_prop}")
 
         # Extract fields
         cls._struct_meta = StructInnerHandler(cls)
+
+        # Statically replace Includes; i.e., replace Includes when subclassing happens
+        cls.Includes = _StaticIncludes(cls, cls._struct_meta._include_structs)
 
     #
     # Handle dot chaining for full path ref to nested fields
@@ -64,6 +73,7 @@ class Struct(BaseField):
         resolved_field = self._struct_meta.resolve_field(
             struct_object=self, attr_name=attr_name, attr_value=attr_value)
         if resolved_field is not None:
+            print("Struct:  attr name = ", attr_name)
             return resolved_field
 
         return attr_value
@@ -237,14 +247,6 @@ class StructInnerHandler:
         if attr_name.startswith("_"):
             return None
 
-        if attr_name == StructInnerHandler.INCLUDES_CLASS_NAME:
-            # NEED TO DO SOME MAGIC (!!) to customise the Includes requests (!)
-
-            # set props up front(??) just do it at class creation?? makes it easy
-            # because then no need to intercept any calls !
-
-            return None
-
         if isinstance(attr_value, BaseField):
             new_field: BaseField = attr_value._replace_parent(parent=struct_object)  # pylint: disable=protected-access
             # print(f"BUILDING set parent for property {attr_name} ({type(attr_value)}) to be {self.struct_class}")
@@ -255,3 +257,52 @@ class StructInnerHandler:
             return new_field
 
         return None
+
+
+class _InstanceIncludes:
+    """Substitutes for an inner Includes class; replaces Includes for an instance of a sub-class of Struct."""
+
+    def __init__(self, source_struct: "Struct", include_structs: Mapping[str, "Struct"]):
+        """
+
+        Args:
+            source_struct: The instance of Struct that this _Includes belongs to.
+            include_structs: Structs declared in `source_struct`'s Includes.
+        """
+        self._source_struct = source_struct
+        self._include_structs = include_structs
+
+        # the inner Includes class should imitate `_parent`, for property chaining
+        self._parent = self._source_struct
+
+    def __getattribute__(self, attr_name: str):
+        print("_InstanceIncludes:  attr name = ", attr_name)
+        include_structs = super().__getattribute__("_include_structs")
+
+        if attr_name in include_structs:
+            struct: Struct = include_structs[attr_name]
+            return struct._replace_parent(self)  # pylint: disable=protected-access
+
+        return super().__getattribute__(attr_name)
+
+
+class _StaticIncludes:
+    """Substitutes for an inner Includes class; replaces Includes statically (on the sub-class's class)."""
+
+    def __init__(self, source_struct_class: Type["Struct"], include_structs: Mapping[str, "Struct"]):
+        self._source_struct_class = source_struct_class
+        self._include_structs = include_structs
+
+        # the inner Includes class should imitate `_parent`, for property chaining
+        self._parent = self._source_struct_class
+
+    def __getattribute__(self, attr_name: str):
+        print("_StaticIncludes:  attr name = ", attr_name)
+        source_struct_class = super().__getattribute__("_source_struct_class")
+        include_structs = super().__getattribute__("_include_structs")
+
+        if attr_name in include_structs:
+            struct: Struct = include_structs[attr_name]
+            return struct._replace_parent(source_struct_class)  # pylint: disable=protected-access
+
+        return super().__getattribute__(attr_name)
