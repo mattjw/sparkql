@@ -65,9 +65,6 @@ class TestPrettySchema:
         # when
         prettified = pretty_schema(struct)
 
-        print("struct:     ", struct)
-        print("prettified: ", prettified)
-
         # then
         assert prettified == expected_pretty_schema
 
@@ -83,9 +80,6 @@ class TestPrettySchema:
         # when
         prettified = pretty_schema(struct)
         deprettified = re.sub(r"\n(\s*)", "", prettified)
-
-        print("spark builtin: ", spark_builtin_stringified)
-        print("deprettified:  ", deprettified)
 
         # then
         assert spark_builtin_stringified == deprettified
