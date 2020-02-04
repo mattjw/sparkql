@@ -132,7 +132,7 @@ class StructInnerHandler:
                 if incl_field_name not in self._fields:
                     self._fields[incl_field_name] = incl_field  # populate `_fields`
                     setattr(self.struct_class, incl_field_name, incl_field)  # add included attrib to the struct class
-                    # important bit here. we modify the struct class so that the includes fields are available
+                    # important step here. we modify the struct class so that the includes fields are available
                     # from the struct, as well as (alternatively) via the Includes
                 elif self._fields[incl_field_name] != incl_field:
                     raise InvalidStructError(
