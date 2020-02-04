@@ -1,7 +1,8 @@
 """Struct."""
 from collections import OrderedDict
 from dataclasses import dataclass
-from typing import ClassVar, Optional, Mapping, Iterable, Type, Any, Generator, Tuple
+from inspect import isclass
+from typing import ClassVar, Optional, Mapping, Iterable, Type, Any, Generator, Tuple, Sequence
 
 from pyspark.sql import types as sql_types
 from pyspark.sql.types import DataType, StructField
@@ -95,19 +96,20 @@ class Struct(BaseField):
 @dataclass
 class StructInnerHandler:
     """
-    Management and retrieval of a Struct's fields (including Includes handling), and other magic.
+    Management and retrieval of a Struct's fields (including Meta inner class handling), and other magic.
 
     Definitions...
 
-    - Root Struct: The Struct being managed by this Handler.
+    - Root Struct: The sub-class of Struct being managed by this Handler.
     - Native fields: Fields explicitly declared in the Struct.
-    - Include class: The inner class that can be (optionally) specified within a Struct class. Found at
-      `Struct.Includes`.
-    - Include Struct: One of (possibly many) Structs specified in the root struct's Includes.
-    - Includes fields: Fields pulled in from an Include Struct.
+    - Meta class: The inner class that can be (optionally) specified within a Struct sub-class. Found at
+      `Struct.Meta`.
+    - Include Struct: One of (possibly many) Structs specified in the root struct's `Meta.includes`.
+    - Includes fields: Fields pulled in from `Meta.includes`.
     """
 
-    INCLUDES_CLASS_NAME: ClassVar[str] = "Includes"
+    META_INNER_CLASS_NAME: ClassVar[str] = "Meta"
+    INCLUDES_FIELD_NAME: ClassVar[str] = "includes"
 
     struct_class: Type[Struct]
 
@@ -119,24 +121,23 @@ class StructInnerHandler:
         for field_name, field in self._native_fields.items():
             field._set_contextual_name(field_name)  # pylint: disable=protected-access
 
-        # includes field name -> Struct field
-        self._include_structs = OrderedDict(self._yield_included_structs())
+        # list of Structs whose fields are incorporated into the Root Struct
+        self._include_structs = list(self._yield_included_structs())
 
         # build canonical list of fields (combined native and includes)
         # field name -> field
         self._fields = OrderedDict(self._native_fields)
 
-        for included_struct in self._include_structs.values():
+        for included_struct in self._include_structs:
             incl_fields = included_struct._struct_meta.fields  # pylint: disable=protected-access
             for incl_field_name, incl_field in incl_fields.items():
                 if incl_field_name not in self._fields:
                     self._fields[incl_field_name] = incl_field  # populate `_fields`
-                    setattr(self.struct_class, incl_field_name, incl_field)  # add included attrib to the struct class
-                    # important step here. we modify the struct class so that the includes fields are available
-                    # from the struct, as well as (alternatively) via the Includes
+                    # Modify the root struct so that includes fields are available:
+                    setattr(self.struct_class, incl_field_name, incl_field)
                 elif self._fields[incl_field_name] != incl_field:
                     raise InvalidStructError(
-                        "Attempting to replace a field with an Includes field of different type. "
+                        "Attempting to replace a field with an 'includes' field of different type. "
                         f"Incompatible field name: {incl_field_name}"
                     )
 
@@ -146,7 +147,7 @@ class StructInnerHandler:
     @property
     def fields(self) -> Mapping[str, BaseField]:
         """
-        All fields for the Struct, including both native fields and imported from `Includes` Structs.
+        All fields for the Struct, including both native fields and imported from Include Structs.
 
         Returns:
             Mapping from field name to field.
@@ -155,7 +156,7 @@ class StructInnerHandler:
 
     @property
     def spark_struct(self) -> sql_types.StructType:
-        """Complete Spark StructType for the Struct; incorporates Includes."""
+        """Complete Spark StructType for the Struct; incorporates Include Structs."""
         return self._spark_struct
 
     @staticmethod
@@ -183,40 +184,51 @@ class StructInnerHandler:
                 )
             yield (attr_name, attr_value)
 
-    def _get_includes_class(self) -> Optional[Type]:
-        """Retrieve the `Includes` inner class, or None if none is provided."""
-        if not hasattr(self.struct_class, StructInnerHandler.INCLUDES_CLASS_NAME):  # pytype: disable=wrong-arg-types
+    def _get_inner_meta_class(self) -> Optional[Type]:
+        """Retrieve the `Meta` inner class, or None if none is provided."""
+        if not hasattr(self.struct_class, self.META_INNER_CLASS_NAME):
             return None
-        includes_class = getattr(
-            self.struct_class, StructInnerHandler.INCLUDES_CLASS_NAME  # pytype: disable=wrong-arg-types
-        )
+        inner_meta_class = getattr(self.struct_class, self.META_INNER_CLASS_NAME)
 
-        if not isinstance(includes_class, type):
+        if not isinstance(inner_meta_class, type):
             raise InvalidStructError(
-                "The 'Includes' property of a Struct must only be used as an inner class. "
-                f"Found type {type(includes_class)}"
+                f"The '{StructInnerHandler.META_INNER_CLASS_NAME}' property of a Struct must only be used as an "
+                f"inner class. Found type {type(inner_meta_class)}"
             )
-        return includes_class
+        return inner_meta_class
 
-    def _yield_included_structs(self) -> Generator[Tuple[str, Struct], None, None]:
+    def _yield_included_structs(self) -> Generator[Struct, None, None]:
         """
-        Get the Structs specified in the Includes, if any.
+        Get the Structs specified in the `Meta.includes`, if any.
+
+        A class specified in `Meta.includes` is converted to an instance of the class before returning.
 
         Yields:
-            A `(str, Struct)` pair for each Struct field found in the class's Includes.
-            Each pair consists of the attribute name and the Struct.
-            If Includes is not provided or Includes is empty, no yield.
+            A Struct object. Note that this is an instance of the Struct, not the class.
+            If `Meta` or `Meta.includes` are not provided, no yield.
         """
-        if self._get_includes_class() is None:
+        if self._get_inner_meta_class() is None:
             return
-        for attr_name, attr_value in self._get_includes_class().__dict__.items():
-            if attr_name.startswith("_"):
-                continue
-            if not isinstance(attr_value, Struct):
+
+        include_struct_classes = getattr(self._get_inner_meta_class(), StructInnerHandler.INCLUDES_FIELD_NAME, None)
+        if include_struct_classes is None:
+            return
+
+        for index, include_struct_class in enumerate(include_struct_classes):
+            if not isclass(include_struct_class):
                 raise InvalidStructError(
-                    f"Encountered non-struct property in 'Includes' inner class: {attr_name} = {type(attr_value)}"
+                    "Encountered non-class item in 'includes' list of 'Meta' inner class. "
+                    f"Item at index {index} is {include_struct_class}"
                 )
-            yield (attr_name, attr_value)
+
+            include_struct = include_struct_class()
+            if not isinstance(include_struct, Struct):
+                raise InvalidStructError(
+                    "Encountered item in 'includes' list of 'Meta' inner class that is not a Struct or Struct "
+                    f"subclass. Item at index {index} is {include_struct_class}"
+                )
+
+            yield include_struct
 
     #
     # Resolving of class attributes

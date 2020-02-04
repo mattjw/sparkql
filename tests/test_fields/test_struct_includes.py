@@ -66,9 +66,8 @@ class TestStructIncludesSchemaBuilding:
 
         # when
         class CompositeObject(Struct):
-            class Includes:
-                an_object = AnObject()
-                another_object = AnotherObject()
+            class Meta:
+                includes = [AnObject, AnotherObject]
 
             native_field = String()
 
@@ -94,9 +93,8 @@ class TestStructIncludesSchemaBuilding:
 
         # when
         class CompositeObject(Struct):
-            class Includes:
-                an_object = AnObject()
-                another_object = AnotherObject()
+            class Meta:
+                includes = [AnObject, AnotherObject]
 
         composite_schema = schema(CompositeObject)
 
@@ -114,10 +112,9 @@ class TestStructIncludesSchemaBuilding:
 
         # when, expect
         with pytest.raises(
-            InvalidStructError, match="Attempting to replace a field with an Includes field of different type"
+            InvalidStructError, match="Attempting to replace a field with an 'includes' field of different type"
         ):
 
             class CompositeObject(Struct):
-                class Includes:
-                    an_object = AnObject()
-                    another_object = AnotherObject()
+                class Meta:
+                    includes = [AnObject, AnotherObject]
