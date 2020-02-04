@@ -102,7 +102,7 @@ class TestStructIncludesSchemaBuilding:
         assert composite_schema == StructType([StructField("field_z", StringType())])
 
     @staticmethod
-    def test_should_reject_incompatible_includes():
+    def test_should_reject_incompatible_includes_fields():
         # given
         class AnObject(Struct):
             field_z = String()
@@ -118,3 +118,26 @@ class TestStructIncludesSchemaBuilding:
             class CompositeObject(Struct):
                 class Meta:
                     includes = [AnObject, AnotherObject]
+
+    @staticmethod
+    def test_should_reject_non_class_in_includes():
+        # given, when, expect
+        with pytest.raises(
+            InvalidStructError, match="Encountered non-class item in 'includes' list of 'Meta' inner class"
+        ):
+
+            class CompositeObject(Struct):
+                class Meta:
+                    includes = [""]
+
+    @staticmethod
+    def test_class_must_be_struct_or_struct_subclass():
+        # given, when, expect
+        with pytest.raises(
+            InvalidStructError,
+            match="Encountered item in 'includes' list of 'Meta' inner class that is not a Struct or Struct subclass",
+        ):
+
+            class CompositeObject(Struct):
+                class Meta:
+                    includes = [str]

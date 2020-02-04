@@ -218,7 +218,7 @@ class StructInnerHandler:
             if not isclass(include_struct_class):
                 raise InvalidStructError(
                     "Encountered non-class item in 'includes' list of 'Meta' inner class. "
-                    f"Item at index {index} is {include_struct_class}"
+                    f"Item at index {index}: '{include_struct_class}' with type {type(include_struct_class)}"
                 )
 
             include_struct = include_struct_class()
