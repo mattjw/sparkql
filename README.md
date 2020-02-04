@@ -29,13 +29,13 @@ CONF_CITY_FIELD = "city"
 CONFERENCE_SCHEMA.add(StructField(CONF_CITY_FIELD, CITY_SCHEMA))
 ```
 
-And then refer to fields like this:
+And then plain old PySpark makes you deal with nested fields like this:
 
 ```python
 dframe.withColumn("city_name", df[CONF_CITY_FIELD][CITY_NAME_FIELD])
 ```
 
-With sparkql, schemas become a lot more literate:
+Instead, with `sparkql`, schemas become a lot more literate:
 
 ```python
 class City(Struct):
@@ -46,9 +46,11 @@ class City(Struct):
 class Conference(Struct):
     name = String(nullable=False)
     city = City()
+```
 
-# ...create a DataFrame...
+As does dealing with nested fields:
 
+```python
 dframe.withColumn("city_name", path_col(Conference.city.name))
 ```
 
