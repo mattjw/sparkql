@@ -34,15 +34,7 @@ class AnotherRootStruct(Struct):
 
 class TestStructIncludes:
     @staticmethod
-    def test_should_give_correct_path_when_referring_to_field_via_includes():
-        # given (see test cases), when
-        field_path = path_str(RootStruct.Includes.sibling.sibling_field)
-
-        # then
-        assert field_path == "sibling_field"
-
-    @staticmethod
-    def test_should_give_correct_path_when_referring_to_field_via_root_class():
+    def test_should_give_correct_path_when_referring_to_field_via_source_class():
         # given (see test cases), when
         field_path = path_str(RootStruct.sibling_field)
 
@@ -50,15 +42,7 @@ class TestStructIncludes:
         assert field_path == "sibling_field"
 
     @staticmethod
-    def test_should_give_correct_field_object_when_referring_to_field_via_includes():
-        # given (see test cases), when
-        field = RootStruct.Includes.sibling.sibling_field
-
-        # then
-        assert field == String(name="sibling_field")
-
-    @staticmethod
-    def test_should_give_correct_field_object_when_referring_to_field_via_root_class():
+    def test_should_give_correct_field_object_when_referring_to_field_via_source_class():
         # given (see test cases), when
         field = RootStruct.sibling_field
 
