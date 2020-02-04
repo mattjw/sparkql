@@ -7,7 +7,7 @@ Partner to `test_struct.py`.
 from pyspark.sql.types import StructType, StructField, StringType
 
 from sparkql.exceptions import InvalidStructError
-from sparkql import Struct, String, schema, Integer, path_str
+from sparkql import Struct, String, schema, Integer, path_str, Float
 
 import pytest
 
@@ -16,38 +16,39 @@ import pytest
 # Test path and field handling
 
 
-class SiblingStruct(Struct):
-    sibling_field = String()
+class CousinStruct(Struct):
+    cousin_field = String()
+
+
+class SiblingAStruct(Struct):
+    class Includes:
+        cousin = CousinStruct()
+
+    sibling_a_field = String()
+
+
+class SiblingBStruct(Struct):
+    sibling_b_field = Float()
 
 
 class RootStruct(Struct):
     class Includes:
-        sibling = SiblingStruct()
-
-
-class AnotherRootStruct(Struct):
-    # This class is here so we can test that the same Includes struct can be re-used;
-    # i.e., no side-effect between re-uses of the same struct as a sibling.
-    class Includes:
-        sibling = SiblingStruct()
+        sibling_a = SiblingAStruct()
+        sibling_b = SiblingBStruct()
 
 
 class TestStructIncludes:
     @staticmethod
     def test_should_give_correct_path_when_referring_to_field_via_source_class():
-        # given (see test cases), when
-        field_path = path_str(RootStruct.sibling_field)
-
-        # then
-        assert field_path == "sibling_field"
+        assert path_str(RootStruct.sibling_a_field) == "sibling_a_field"
+        assert path_str(RootStruct.sibling_b_field) == "sibling_b_field"
+        assert path_str(RootStruct.cousin_field) == "cousin_field"
 
     @staticmethod
     def test_should_give_correct_field_object_when_referring_to_field_via_source_class():
-        # given (see test cases), when
-        field = RootStruct.sibling_field
-
-        # then
-        assert field == String(name="sibling_field")
+        assert RootStruct.sibling_a_field == String(name="sibling_a_field")
+        assert RootStruct.sibling_b_field == Float(name="sibling_b_field")
+        assert RootStruct.cousin_field == String(name="cousin_field")
 
 
 #

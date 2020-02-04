@@ -61,10 +61,8 @@ class Struct(BaseField):
         if attr_name == "_struct_meta":
             return attr_value
 
-        resolved_field = self._struct_meta.resolve_field(
-            struct_object=self, attr_name=attr_name, attr_value=attr_value)
+        resolved_field = self._struct_meta.resolve_field(struct_object=self, attr_name=attr_name, attr_value=attr_value)
         if resolved_field is not None:
-            print("Struct:  attr name = ", attr_name)
             return resolved_field
 
         return attr_value
@@ -116,8 +114,6 @@ class StructInnerHandler:
     def __post_init__(self):
         # pylint: disable=attribute-defined-outside-init
 
-        print(f"StructInnerHandler received struct class: {self.struct_class} ({type(self.struct_class)})")  # FIXME
-
         # native field name -> field
         self._native_fields = OrderedDict(self._yield_native_fields())
         for field_name, field in self._native_fields.items():
@@ -141,7 +137,8 @@ class StructInnerHandler:
                 elif self._fields[incl_field_name] != incl_field:
                     raise InvalidStructError(
                         "Attempting to replace a field with an Includes field of different type. "
-                        f"Incompatible field name: {incl_field_name}")
+                        f"Incompatible field name: {incl_field_name}"
+                    )
 
         # build spark struct
         self._spark_struct = StructInnerHandler._build_spark_struct(self._fields.values())
@@ -188,9 +185,11 @@ class StructInnerHandler:
 
     def _get_includes_class(self) -> Optional[Type]:
         """Retrieve the `Includes` inner class, or None if none is provided."""
-        if not hasattr(self.struct_class, StructInnerHandler.INCLUDES_CLASS_NAME):
+        if not hasattr(self.struct_class, StructInnerHandler.INCLUDES_CLASS_NAME):  # pytype: disable=wrong-arg-types
             return None
-        includes_class = getattr(self.struct_class, StructInnerHandler.INCLUDES_CLASS_NAME)
+        includes_class = getattr(
+            self.struct_class, StructInnerHandler.INCLUDES_CLASS_NAME  # pytype: disable=wrong-arg-types
+        )
 
         if not isinstance(includes_class, type):
             raise InvalidStructError(
@@ -221,7 +220,7 @@ class StructInnerHandler:
 
     #
     # Resolving of class attributes
-
+    # pylint: disable=no-self-use
     def resolve_field(self, struct_object: "Struct", attr_name: str, attr_value: Any) -> Optional[BaseField]:
         """
         Attempt to resolve a `getattribute` call on the Struct, returning a BaseField if applicable.
@@ -234,7 +233,6 @@ class StructInnerHandler:
             attr_name: The name of the `struct_object` attribute to be resolved.
             attr_value: The attribute of the `struct_object`.
         """
-        # print(f"[[ attr_name is = {attr_name} ;;  attr_value is = {type(attr_value)} ]]")  # FIXME
         if attr_name.startswith("_"):
             return None
 
