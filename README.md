@@ -11,7 +11,8 @@ Python Spark SQL DataFrame schema management for sensible humans.
 sparkql takes the pain out of working with DataFrame schemas in PySpark. It's
 particularly useful when you have structured data.
 
-In plain old PySpark, you might find that you write schemas like this:
+In plain old PySpark, you might find that you write schemas
+[like this](./examples/conferences_comparison/plain_schema.py):
 
 ```python
 CITY_SCHEMA = StructType()
@@ -29,13 +30,14 @@ CONF_CITY_FIELD = "city"
 CONFERENCE_SCHEMA.add(StructField(CONF_CITY_FIELD, CITY_SCHEMA))
 ```
 
-And then refer to fields like this:
+And then plain old PySpark makes you deal with nested fields like this:
 
 ```python
 dframe.withColumn("city_name", df[CONF_CITY_FIELD][CITY_NAME_FIELD])
 ```
 
-With sparkql, schemas become a lot more literate:
+Instead, with `sparkql`, schemas become a lot
+[more literate](./examples/conferences_comparison/sparkql_schema.py):
 
 ```python
 class City(Struct):
@@ -46,13 +48,65 @@ class City(Struct):
 class Conference(Struct):
     name = String(nullable=False)
     city = City()
+```
 
-# ...create a DataFrame...
+As does dealing with nested fields:
 
+```python
 dframe.withColumn("city_name", path_col(Conference.city.name))
 ```
 
 ## Features
+
+### Composite schemas
+
+Structs can be re-used to build composite schemas with _inheritance_ or _includes_.
+
+#### Using inheritance
+
+For [example](./examples/composite_schemas/inheritance.py), the following:
+
+```python
+class BaseEvent(Struct):
+    correlation_id = String(nullable=False)
+    event_time = Timestamp(nullable=False)
+
+class RegistrationEvent(BaseEvent):
+    user_id = String(nullable=False)
+```
+
+will produce the `RegistrationEvent` schema:
+
+```text
+StructType(List(
+    StructField(correlation_id,StringType,false),
+    StructField(event_time,TimestampType,false),
+    StructField(user_id,StringType,false)))
+```
+
+#### Using an `includes` declaration
+
+For [example](./examples/composite_schemas/includes.py), the following:
+
+```python
+class EventMetadata(Struct):
+    correlation_id = String(nullable=False)
+    event_time = Timestamp(nullable=False)
+
+class RegistrationEvent(Struct):
+    class Meta:
+        includes = [EventMetadata]
+    user_id = String(nullable=False)
+```
+
+will produce the `RegistrationEvent` schema:
+
+```text
+StructType(List(
+    StructField(user_id,StringType,false),
+    StructField(correlation_id,StringType,false),
+    StructField(event_time,TimestampType,false)))
+```
 
 ### Prettified Spark schema strings
 

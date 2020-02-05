@@ -1,5 +1,5 @@
 """
-Suite of tests for the Struct.Includes feature.
+Suite of tests for the `Struct.Meta.includes` feature.
 
 Partner to `test_struct.py`.
 """
@@ -21,8 +21,8 @@ class CousinStruct(Struct):
 
 
 class SiblingAStruct(Struct):
-    class Includes:
-        cousin = CousinStruct()
+    class Meta:
+        includes = [CousinStruct]
 
     sibling_a_field = String()
 
@@ -32,9 +32,8 @@ class SiblingBStruct(Struct):
 
 
 class RootStruct(Struct):
-    class Includes:
-        sibling_a = SiblingAStruct()
-        sibling_b = SiblingBStruct()
+    class Meta:
+        includes = [SiblingAStruct, SiblingBStruct]
 
 
 class TestStructIncludes:
@@ -67,9 +66,8 @@ class TestStructIncludesSchemaBuilding:
 
         # when
         class CompositeObject(Struct):
-            class Includes:
-                an_object = AnObject()
-                another_object = AnotherObject()
+            class Meta:
+                includes = [AnObject, AnotherObject]
 
             native_field = String()
 
@@ -95,9 +93,8 @@ class TestStructIncludesSchemaBuilding:
 
         # when
         class CompositeObject(Struct):
-            class Includes:
-                an_object = AnObject()
-                another_object = AnotherObject()
+            class Meta:
+                includes = [AnObject, AnotherObject]
 
         composite_schema = schema(CompositeObject)
 
@@ -105,7 +102,7 @@ class TestStructIncludesSchemaBuilding:
         assert composite_schema == StructType([StructField("field_z", StringType())])
 
     @staticmethod
-    def test_should_reject_incompatible_includes():
+    def test_should_reject_incompatible_includes_fields():
         # given
         class AnObject(Struct):
             field_z = String()
@@ -115,10 +112,32 @@ class TestStructIncludesSchemaBuilding:
 
         # when, expect
         with pytest.raises(
-            InvalidStructError, match="Attempting to replace a field with an Includes field of different type"
+            InvalidStructError, match="Attempting to replace a field with an 'includes' field of different type"
         ):
 
             class CompositeObject(Struct):
-                class Includes:
-                    an_object = AnObject()
-                    another_object = AnotherObject()
+                class Meta:
+                    includes = [AnObject, AnotherObject]
+
+    @staticmethod
+    def test_should_reject_non_class_in_includes():
+        # given, when, expect
+        with pytest.raises(
+            InvalidStructError, match="Encountered non-class item in 'includes' list of 'Meta' inner class"
+        ):
+
+            class CompositeObject(Struct):
+                class Meta:
+                    includes = [""]
+
+    @staticmethod
+    def test_class_must_be_struct_or_struct_subclass():
+        # given, when, expect
+        with pytest.raises(
+            InvalidStructError,
+            match="Encountered item in 'includes' list of 'Meta' inner class that is not a Struct or Struct subclass",
+        ):
+
+            class CompositeObject(Struct):
+                class Meta:
+                    includes = [str]

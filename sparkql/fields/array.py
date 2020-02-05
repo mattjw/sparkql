@@ -45,7 +45,9 @@ class Array(Generic[ArrayElementType], BaseField):
     #
     # Field path chaining
 
-    def _replace_parent(self, parent: Optional["Struct"] = None) -> "Struct":  # pytype: disable=invalid-annotation
+    def _replace_parent(
+        self, parent: Optional["Struct"] = None  # pytype: disable=invalid-annotation,name-error
+    ) -> "Struct":  # pytype: disable=invalid-annotation,name-error
         """Return a copy of this array with the parent attribute set."""
         field = copy.copy(self)
         field._parent_struct = self.etype._replace_parent(parent=parent)  # pylint: disable=protected-access
