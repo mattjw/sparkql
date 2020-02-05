@@ -62,15 +62,51 @@ dframe.withColumn("city_name", path_col(Conference.city.name))
 
 Structs can be re-used to build composite schemas with _inheritance_ or _includes_.
 
-```python
+#### Using inheritance
 
+For [example](./examples/composite_schemas/inheritance.py), the following:
+
+```python
+class BaseEvent(Struct):
+    correlation_id = String(nullable=False)
+    event_time = Timestamp(nullable=False)
+
+class RegistrationEvent(BaseEvent):
+    user_id = String(nullable=False)
 ```
 
-via inheritance
+will produce the `RegistrationEvent` schema:
 
-or via includes
+```text
+StructType(List(
+    StructField(correlation_id,StringType,false),
+    StructField(event_time,TimestampType,false),
+    StructField(user_id,StringType,false)))
+```
 
+#### Using an `includes` declaration
 
+For [example](./examples/composite_schemas/includes.py), the following:
+
+```python
+class EventMetadata(Struct):
+    correlation_id = String(nullable=False)
+    event_time = Timestamp(nullable=False)
+
+class RegistrationEvent(Struct):
+    class Meta:
+        includes = [EventMetadata]
+    user_id = String(nullable=False)
+```
+
+will produce the `RegistrationEvent` schema:
+
+```text
+StructType(List(
+    StructField(user_id,StringType,false),
+    StructField(correlation_id,StringType,false),
+    StructField(event_time,TimestampType,false)))
+```
 
 ### Prettified Spark schema strings
 
