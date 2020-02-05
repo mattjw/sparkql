@@ -25,7 +25,7 @@ class BaseField(ABC):
     __nullable: bool = True
     __name_explicit: Optional[str] = None
     __name_contextual: Optional[str] = None
-    _parent_struct: Optional["Struct"] = None
+    _parent_struct: Optional["Struct"] = None  # pytype: disable=name-error
 
     def __init__(self, nullable: bool = True, name: Optional[str] = None):
         """
@@ -50,10 +50,10 @@ class BaseField(ABC):
     # Field path chaining
 
     @property
-    def _parent(self) -> Optional["Struct"]:
+    def _parent(self) -> Optional["Struct"]:  # pytype: disable=name-error
         return self._parent_struct
 
-    def _replace_parent(self, parent: Optional["Struct"] = None) -> "BaseField":
+    def _replace_parent(self, parent: Optional["Struct"] = None) -> "BaseField":  # pytype: disable=name-error
         """Return a copy of this Field with the parent attribute set."""
         field = copy.copy(self)
         if self._parent_struct is not None:
