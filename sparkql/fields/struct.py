@@ -39,10 +39,6 @@ class Struct(BaseField):
         """Hook in to the subclassing of this base class; process fields when sub-classing occurs."""
         super().__init_subclass__(**options)  # pytype: disable=attribute-error
 
-        # Do not re-extract
-        # if cls._struct_metadata is not None:  # WORK IN PROGRESS
-        #     return
-
         # Ensure a subclass does not break any base class functionality
         for child_prop, child_val in cls.__dict__.items():
             if (child_prop in Struct.__dict__) and (isinstance(child_val, BaseField)):
