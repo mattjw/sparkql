@@ -60,7 +60,17 @@ dframe.withColumn("city_name", path_col(Conference.city.name))
 
 ### Composite schemas
 
-You can incorporate incorporate 
+Structs can be re-used to build composite schemas with _inheritance_ or _includes_.
+
+```python
+
+```
+
+via inheritance
+
+or via includes
+
+
 
 ### Prettified Spark schema strings
 
