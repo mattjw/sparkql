@@ -9,12 +9,6 @@ class EventMetadata(Struct):
     event_time = Timestamp(nullable=False)
 
 
-class PurchaseEvent(Struct):
-    class Meta:
-        includes = [EventMetadata]
-    item_id = String(nullable=False)
-
-
 class RegistrationEvent(Struct):
     class Meta:
         includes = [EventMetadata]
@@ -22,14 +16,7 @@ class RegistrationEvent(Struct):
 
 
 #
-# Here's what the schemas look like
-
-prettified_purchase_event_schema = """
-StructType(List(
-    StructField(item_id,StringType,false),
-    StructField(correlation_id,StringType,false),
-    StructField(event_time,TimestampType,false)))
-"""
+# Here's what the schema looks like
 
 prettified_registration_event_schema = """
 StructType(List(
