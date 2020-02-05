@@ -44,7 +44,7 @@ class Struct(BaseField):
             if (child_prop in Struct.__dict__) and (isinstance(child_val, BaseField)):
                 raise InvalidStructError(f"Field should not override inherited class properties: {child_prop}")
 
-        # Extract fields for this class
+        # Extract internal metadata for this class, including parsing the fields
         cls._struct_metadata = _StructInnerMetadata.from_struct_class(cls)
 
     #
