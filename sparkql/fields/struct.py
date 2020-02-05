@@ -215,11 +215,11 @@ class _FieldsExtractor:
 
     def _get_inner_meta_class(self) -> Optional[Type]:
         """Retrieve the `Meta` inner class, or None if none is provided."""
-        if not hasattr(
-                self.struct_class, _FieldsExtractor.META_INNER_CLASS_NAME):  # pytype: disable=wrong-arg-types
+        if not hasattr(self.struct_class, _FieldsExtractor.META_INNER_CLASS_NAME):  # pytype: disable=wrong-arg-types
             return None
         inner_meta_class = getattr(
-            self.struct_class, _FieldsExtractor.META_INNER_CLASS_NAME)  # pytype: disable=wrong-arg-types
+            self.struct_class, _FieldsExtractor.META_INNER_CLASS_NAME
+        )  # pytype: disable=wrong-arg-types
 
         if not isinstance(inner_meta_class, type):
             raise InvalidStructError(
@@ -243,7 +243,8 @@ class _FieldsExtractor:
             return
 
         include_struct_classes = getattr(
-            self._get_inner_meta_class(), _FieldsExtractor.INCLUDES_FIELD_NAME, None)  # pytype: disable=wrong-arg-types
+            self._get_inner_meta_class(), _FieldsExtractor.INCLUDES_FIELD_NAME, None
+        )  # pytype: disable=wrong-arg-types
         if include_struct_classes is None:
             return
 

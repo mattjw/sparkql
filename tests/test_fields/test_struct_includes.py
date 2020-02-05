@@ -1,5 +1,5 @@
 """
-Suite of tests for the Struct.Includes feature.
+Suite of tests for the `Struct.Meta.includes` feature.
 
 Partner to `test_struct.py`.
 """
