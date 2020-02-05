@@ -3,7 +3,7 @@
 from collections import OrderedDict
 from dataclasses import dataclass
 from inspect import isclass
-from typing import ClassVar, Optional, Mapping, Type, Any, Generator, Tuple
+from typing import ClassVar, Optional, Mapping, Type, Any, Generator, Tuple, MutableMapping
 
 from pyspark.sql import types as sql_types
 from pyspark.sql.types import DataType, StructField
@@ -50,31 +50,6 @@ class Struct(BaseField):
 
         # Extract fields for this class
         cls._struct_metadata = _StructInnerMetadata.from_struct_class(cls)
-
-        #
-        # WORK IN PROGRESS
-        #
-        # # Obtain parent class's `_struct_metadata`, if any
-        # if (len(cls.__mro__) >= 2) and (hasattr(cls.__mro__[1], "_struct_metadata")):
-        #     parent_struct_meta: _StructInnerMetadata = getattr(cls.__mro__[1], "_struct_metadata")
-        #     struct_meta = parent_struct_meta.with(struct_meta)
-        #
-        # cls._struct_metadata = struct_meta
-        #
-        # return
-        # # fiddling
-        # print("found fields: ", cls._struct_metadata, cls._struct_metadata.fields)
-        # print("__dict__: ", cls.__dict__)
-        # print(type(super()))
-        # print("dir = ", dir(super()))
-        # try:
-        #     print("super:", super()._struct_meta)
-        # except:
-        #     print("error")
-        #
-        # print("iterate up the tree")
-        # for base in cls.__mro__[0:]:
-        #     print("getattr = ", getattr(base, "_struct_metadata", "default"))
 
     #
     # Handle dot chaining for full path ref to nested fields
@@ -169,7 +144,7 @@ class _StructInnerMetadata:
 @dataclass
 class _FieldsExtractor:
     """
-    Extracts a Struct's fields (including Meta inner class handling) from its class.
+    Extracts a Struct's fields from its class, also handling inner Meta, super class, and so on.
 
     Definitions...
 
@@ -190,15 +165,19 @@ class _FieldsExtractor:
         """Extract the fields."""
         # pylint: disable=attribute-defined-outside-init
 
+        # Extract and hand native fields
         # native field name -> field
         self._native_fields = OrderedDict(self._yield_native_fields())
         for field_name, field in self._native_fields.items():
             field._set_contextual_name(field_name)  # pylint: disable=protected-access
 
-        # build canonical list of fields (combined native and includes)
-        # field name -> field
-        self._fields = OrderedDict(self._native_fields)
+        # Start with super class fields, if any
+        self._fields = OrderedDict(self._get_super_class_fields())
 
+        # Add native fields
+        self._fields = self._safe_combine_fields(self._fields, self._native_fields)
+
+        # Add includes fields (if any)
         for included_struct in self._yield_included_structs():
             incl_fields = included_struct._struct_metadata.fields  # pylint: disable=protected-access
             for incl_field_name, incl_field in incl_fields.items():
@@ -209,7 +188,7 @@ class _FieldsExtractor:
                 elif self._fields[incl_field_name] != incl_field:
                     raise InvalidStructError(
                         "Attempting to replace a field with an 'includes' field of different type. "
-                        f"Incompatible field name: {incl_field_name}"
+                        f"From includes class: {type(included_struct)}. Incompatible field name: {incl_field_name}"
                     )
 
         return self._fields
@@ -236,13 +215,16 @@ class _FieldsExtractor:
 
     def _get_inner_meta_class(self) -> Optional[Type]:
         """Retrieve the `Meta` inner class, or None if none is provided."""
-        if not hasattr(self.struct_class, self.META_INNER_CLASS_NAME):
+        if not hasattr(
+                self.struct_class, _FieldsExtractor.META_INNER_CLASS_NAME):  # pytype: disable=wrong-arg-types
             return None
-        inner_meta_class = getattr(self.struct_class, self.META_INNER_CLASS_NAME)
+        inner_meta_class = getattr(
+            self.struct_class, _FieldsExtractor.META_INNER_CLASS_NAME)  # pytype: disable=wrong-arg-types
 
         if not isinstance(inner_meta_class, type):
             raise InvalidStructError(
-                f"The '{_FieldsExtractor.META_INNER_CLASS_NAME}' property of a Struct must only be used as an "
+                f"The '{_FieldsExtractor.META_INNER_CLASS_NAME}' "  # pytype: disable=wrong-arg-types
+                "property of a Struct must only be used as an "
                 f"inner class. Found type {type(inner_meta_class)}"
             )
         return inner_meta_class
@@ -260,7 +242,8 @@ class _FieldsExtractor:
         if self._get_inner_meta_class() is None:
             return
 
-        include_struct_classes = getattr(self._get_inner_meta_class(), _FieldsExtractor.INCLUDES_FIELD_NAME, None)
+        include_struct_classes = getattr(
+            self._get_inner_meta_class(), _FieldsExtractor.INCLUDES_FIELD_NAME, None)  # pytype: disable=wrong-arg-types
         if include_struct_classes is None:
             return
 
@@ -279,3 +262,61 @@ class _FieldsExtractor:
                 )
 
             yield include_struct
+
+    #
+    # Handle inheritance from super class
+
+    def _get_super_class(self) -> Optional[Type]:
+        """Obtain super class; or None if somehow no super class."""
+        root_class = self.struct_class
+        if len(root_class.__mro__) <= 1:
+            return None
+        return root_class.__mro__[1]
+
+    def _get_super_struct_metadata(self) -> Optional[_StructInnerMetadata]:
+        """Obtain super class's inner metadata; or None if none found."""
+        super_class = self._get_super_class()
+        if super_class is None or not hasattr(super_class, "_struct_metadata"):
+            return None
+        if super_class is Struct:
+            # we know that the Struct class (i.e., the base for all custom Structs)
+            return None
+
+        super_struct_metadata = getattr(super_class, "_struct_metadata")
+        if not isinstance(super_struct_metadata, _StructInnerMetadata):
+            raise InvalidStructError(
+                "Inner struct metadata of super class was not of correct type. "
+                f"Encountered {type(super_struct_metadata)}"
+            )
+
+        return super_struct_metadata
+
+    def _get_super_class_fields(self) -> Mapping[str, BaseField]:
+        """Returns fields (mapping of attr_name -> field) from the super class; or empty if none found."""
+        super_metadata = self._get_super_struct_metadata()
+        if super_metadata is None:
+            return OrderedDict()
+        return OrderedDict(super_metadata.fields)
+
+    #
+    # Helpers
+
+    @staticmethod
+    def _safe_combine_fields(
+        fields_a: Mapping[str, BaseField], fields_b: Mapping[str, BaseField]
+    ) -> MutableMapping[str, BaseField]:
+        """
+        Add fields from `fields_b` into `fields_a`, returning a new copy.
+
+        Only new fields are added. Checks that duplicate fields are identical.
+        """
+        combined = OrderedDict(fields_a)
+        for key, value_b in fields_b.items():
+            if key not in combined:
+                combined[key] = value_b
+            elif combined[key] != value_b:
+                raise InvalidStructError(
+                    f"Attempting to replace field '{key}' with field of different type: "
+                    f"{type(fields_a[key])} vs {type(fields_b[key])}"
+                )
+        return combined
