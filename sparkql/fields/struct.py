@@ -3,7 +3,7 @@
 from collections import OrderedDict
 from dataclasses import dataclass
 from inspect import isclass
-from typing import ClassVar, Optional, Mapping, Iterable, Type, Any, Generator, Tuple, Sequence
+from typing import ClassVar, Optional, Mapping, Type, Any, Generator, Tuple
 
 from pyspark.sql import types as sql_types
 from pyspark.sql.types import DataType, StructField
@@ -15,7 +15,7 @@ from .base import BaseField
 class Struct(BaseField):
     """A struct; shadows StructType in the Spark API."""
 
-    _struct_meta: ClassVar[Optional["StructInnerHandler"]] = None
+    _struct_metadata: ClassVar[Optional["_StructInnerMetadata"]] = None
 
     #
     # Handle Spark representations for a Struct object
@@ -27,7 +27,9 @@ class Struct(BaseField):
     @property
     def _spark_struct_field(self) -> StructField:
         """The Spark StructField for this field."""
-        return StructField(name=self._field_name, dataType=self._struct_meta.spark_struct, nullable=self._is_nullable)
+        return StructField(
+            name=self._field_name, dataType=self._struct_metadata.spark_struct, nullable=self._is_nullable
+        )
 
     #
     # Hook in to sub-class creation. Ensure fields are pre-processed when a sub-class is declared
@@ -38,7 +40,7 @@ class Struct(BaseField):
         super().__init_subclass__(**options)  # pytype: disable=attribute-error
 
         # Do not re-extract
-        # if cls._struct_meta is not None:  # FIXME
+        # if cls._struct_metadata is not None:  # WORK IN PROGRESS
         #     return
 
         # Ensure a subclass does not break any base class functionality
@@ -47,29 +49,32 @@ class Struct(BaseField):
                 raise InvalidStructError(f"Field should not override inherited class properties: {child_prop}")
 
         # Extract fields for this class
-        struct_meta = StructInnerHandler(cls)
+        cls._struct_metadata = _StructInnerMetadata.from_struct_class(cls)
 
-        # Obtain parent class's `_struct_meta`, if any
-        if (len(cls.__mro__) >= 2) and (hasattr(cls.__mro__[1], "_struct_meta")):
-            parent_struct_meta: StructInnerHandler = getattr(cls.__mro__[1], "_struct_meta")
-            struct_meta = parent_struct_meta.with(struct_meta)
-
-        cls._struct_meta = struct_meta
-
-        return
-        # fiddling
-        print("found fields: ", cls._struct_meta, cls._struct_meta.fields)
-        print("__dict__: ", cls.__dict__)
-        print(type(super()))
-        print("dir = ", dir(super()))
-        try:
-            print("super:", super()._struct_meta)
-        except:
-            print("error")
-
-        print("iterate up the tree")
-        for base in cls.__mro__[0:]:
-            print("getattr = ", getattr(base, "_struct_meta", "default"))
+        #
+        # WORK IN PROGRESS
+        #
+        # # Obtain parent class's `_struct_metadata`, if any
+        # if (len(cls.__mro__) >= 2) and (hasattr(cls.__mro__[1], "_struct_metadata")):
+        #     parent_struct_meta: _StructInnerMetadata = getattr(cls.__mro__[1], "_struct_metadata")
+        #     struct_meta = parent_struct_meta.with(struct_meta)
+        #
+        # cls._struct_metadata = struct_meta
+        #
+        # return
+        # # fiddling
+        # print("found fields: ", cls._struct_metadata, cls._struct_metadata.fields)
+        # print("__dict__: ", cls.__dict__)
+        # print(type(super()))
+        # print("dir = ", dir(super()))
+        # try:
+        #     print("super:", super()._struct_meta)
+        # except:
+        #     print("error")
+        #
+        # print("iterate up the tree")
+        # for base in cls.__mro__[0:]:
+        #     print("getattr = ", getattr(base, "_struct_metadata", "default"))
 
     #
     # Handle dot chaining for full path ref to nested fields
@@ -82,10 +87,12 @@ class Struct(BaseField):
         """
         attr_value = super().__getattribute__(attr_name)
 
-        if attr_name == "_struct_meta":
+        if attr_name == "_struct_metadata":
             return attr_value
 
-        resolved_field = self._struct_meta.resolve_field(struct_object=self, attr_name=attr_name, attr_value=attr_value)
+        resolved_field = self._struct_metadata.resolve_field(
+            struct_object=self, attr_name=attr_name, attr_value=attr_value
+        )
         if resolved_field is not None:
             return resolved_field
 
@@ -102,7 +109,7 @@ class Struct(BaseField):
             f"  nullable = {self._is_nullable} \n"
             f"  name = {self._resolve_field_name()} <- {[self.__name_explicit, self.__name_contextual]} \n"
             f"  parent = {self._parent} \n"
-            f"  metadata = {self._struct_meta}"
+            f"  metadata = {self._struct_metadata}"
             ">"
         )
 
@@ -111,15 +118,58 @@ class Struct(BaseField):
         return (
             super().__eq__(other)
             and isinstance(other, Struct)
-            and self._struct_meta.fields == other._struct_meta.fields
-            and list(self._struct_meta.fields.keys()) == list(other._struct_meta.fields.keys())
+            and self._struct_metadata.fields == other._struct_metadata.fields
+            and list(self._struct_metadata.fields.keys()) == list(other._struct_metadata.fields.keys())
         )
 
 
+@dataclass(frozen=True)
+class _StructInnerMetadata:
+    """Inner metadata object for Struct classes; hides complexity of field handling."""
+
+    fields: Mapping[str, BaseField]
+    # ^ All fields for the Struct, including both native fields and imported from includes
+
+    @staticmethod
+    def from_struct_class(struct_class: Type["Struct"]) -> "_StructInnerMetadata":
+        """Build instance from a struct class."""
+        return _StructInnerMetadata(fields=_FieldsExtractor(struct_class).extract())
+
+    @property
+    def spark_struct(self) -> sql_types.StructType:
+        """Complete Spark StructType for the sparkql Struct."""
+        return sql_types.StructType(
+            [field._spark_struct_field for field in self.fields.values()]  # pylint: disable=protected-access
+        )
+
+    # Resolving of class attributes
+    @staticmethod
+    def resolve_field(struct_object: "Struct", attr_name: str, attr_value: Any) -> Optional[BaseField]:
+        """
+        Attempt to resolve a `getattribute` call on the Struct, returning a BaseField if applicable.
+
+        This should be used to hook into the Struct's `getattribute` behaviour to customise resolution of
+        fields. Will also check if the `getattribute` call is attempting to resolve a field. If not, returns None.
+
+        Args:
+            struct_object: The instance of the Struct upon which `getattribute` was called.
+            attr_name: The name of the `struct_object` attribute to be resolved.
+            attr_value: The attribute of the `struct_object`.
+        """
+        if attr_name.startswith("_"):
+            return None
+
+        if isinstance(attr_value, BaseField):
+            new_field: BaseField = attr_value._replace_parent(parent=struct_object)  # pylint: disable=protected-access
+            return new_field
+
+        return None
+
+
 @dataclass
-class StructInnerHandler:
+class _FieldsExtractor:
     """
-    Management and retrieval of a Struct's fields (including Meta inner class handling), and other magic.
+    Extracts a Struct's fields (including Meta inner class handling) from its class.
 
     Definitions...
 
@@ -136,7 +186,8 @@ class StructInnerHandler:
 
     struct_class: Type[Struct]
 
-    def __post_init__(self):
+    def extract(self) -> Mapping[str, BaseField]:
+        """Extract the fields."""
         # pylint: disable=attribute-defined-outside-init
 
         # native field name -> field
@@ -149,7 +200,7 @@ class StructInnerHandler:
         self._fields = OrderedDict(self._native_fields)
 
         for included_struct in self._yield_included_structs():
-            incl_fields = included_struct._struct_meta.fields  # pylint: disable=protected-access
+            incl_fields = included_struct._struct_metadata.fields  # pylint: disable=protected-access
             for incl_field_name, incl_field in incl_fields.items():
                 if incl_field_name not in self._fields:
                     self._fields[incl_field_name] = incl_field  # populate `_fields`
@@ -161,32 +212,7 @@ class StructInnerHandler:
                         f"Incompatible field name: {incl_field_name}"
                     )
 
-        # build spark struct
-        self._spark_struct = StructInnerHandler._build_spark_struct(self._fields.values())
-
-    def with_another(self, handler: "StructInnerHandler"):
-        """Combine this handler with another handler, by appending new fields to his handler."""
-        # TODO
-
-    @property
-    def fields(self) -> Mapping[str, BaseField]:
-        """
-        All fields for the Struct, including both native fields and imported from Include Structs.
-
-        Returns:
-            Mapping from field name to field.
-        """
         return self._fields
-
-    @property
-    def spark_struct(self) -> sql_types.StructType:
-        """Complete Spark StructType for the Struct; incorporates Include Structs."""
-        return self._spark_struct
-
-    @staticmethod
-    def _build_spark_struct(fields: Iterable[BaseField]) -> sql_types.StructType:
-        """Build a Spark struct (StructType) for a list of fields."""
-        return sql_types.StructType([field._spark_struct_field for field in fields])  # pylint: disable=protected-access
 
     #
     # Extraction and processing of the Struct class
@@ -216,7 +242,7 @@ class StructInnerHandler:
 
         if not isinstance(inner_meta_class, type):
             raise InvalidStructError(
-                f"The '{StructInnerHandler.META_INNER_CLASS_NAME}' property of a Struct must only be used as an "
+                f"The '{_FieldsExtractor.META_INNER_CLASS_NAME}' property of a Struct must only be used as an "
                 f"inner class. Found type {type(inner_meta_class)}"
             )
         return inner_meta_class
@@ -234,7 +260,7 @@ class StructInnerHandler:
         if self._get_inner_meta_class() is None:
             return
 
-        include_struct_classes = getattr(self._get_inner_meta_class(), StructInnerHandler.INCLUDES_FIELD_NAME, None)
+        include_struct_classes = getattr(self._get_inner_meta_class(), _FieldsExtractor.INCLUDES_FIELD_NAME, None)
         if include_struct_classes is None:
             return
 
@@ -253,27 +279,3 @@ class StructInnerHandler:
                 )
 
             yield include_struct
-
-    #
-    # Resolving of class attributes
-    # pylint: disable=no-self-use
-    def resolve_field(self, struct_object: "Struct", attr_name: str, attr_value: Any) -> Optional[BaseField]:
-        """
-        Attempt to resolve a `getattribute` call on the Struct, returning a BaseField if applicable.
-
-        This should be used to hook into the Struct's `getattribute` behaviour to customise resolution of
-        fields. Will also check if the `getattribute` call is attempting to resolve a field. If not, returns None.
-
-        Args:
-            struct_object: The instance of the Struct upon which `getattribute` was called.
-            attr_name: The name of the `struct_object` attribute to be resolved.
-            attr_value: The attribute of the `struct_object`.
-        """
-        if attr_name.startswith("_"):
-            return None
-
-        if isinstance(attr_value, BaseField):
-            new_field: BaseField = attr_value._replace_parent(parent=struct_object)  # pylint: disable=protected-access
-            return new_field
-
-        return None
