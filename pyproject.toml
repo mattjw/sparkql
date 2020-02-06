@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sparkql"
-version = "0.1.4"  # do not edit manually. will be kept in sync with `tool.commitizen`
+version = "0.1.4"  # do not edit manually. kept in sync with `tool.commitizen` config via automation
 description = "sparkql: Apache Spark SQL DataFrame schema management for sensible humans"
 authors = ["Matt J Williams <mattjw@mattjw.net>"]
 repository = "https://github.com/mattjw/sparkql"
@@ -8,9 +8,9 @@ readme = "README.md"
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "~3.6.8"
-pyspark = "=2.4.1"
-dataclasses = { version = "~0.7.0", python=">=3.6, <3.7" }
+python = "~3.6 || ~3.7"
+pyspark = "^2.4.1"
+dataclasses = { version = "~0.7.0", python="~3.6" }  # The dataclass module is not in the stdlib in Python 3.6
 
 [tool.poetry.dev-dependencies]
 pytest = "~5.3"
@@ -40,7 +40,7 @@ line-length = 120
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.1.4"  # do not edit manually. will be kept in sync with `tool.poetry`
+version = "0.1.4"  # do not edit manually. kept in sync with `tool.poetry` config via automation
 tag_format = "v$version"
 
 [build-system]
