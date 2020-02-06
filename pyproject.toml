@@ -8,11 +8,9 @@ readme = "README.md"
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "~3.6 || ~3.7"
 pyspark = "^2.4.1"
-
-# The dataclass module is not in the stdlib in Python 3.6
-dataclasses = { version = "~0.7.0", python="~3.6" }
+dataclasses = { version = "~0.7.0", python="~3.6" }  # The dataclass module is not in the stdlib in Python 3.6
 
 [tool.poetry.dev-dependencies]
 pytest = "~5.3"
