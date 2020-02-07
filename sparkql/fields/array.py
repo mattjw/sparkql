@@ -25,7 +25,7 @@ class Array(Generic[ArrayElementType], BaseField):
         etype: Data type info for the element of this array. Should be an instance of a `BaseField`.
     """
 
-    etype: ArrayElementType  # pytype: disable=not-supported-yet
+    elem: ArrayElementType  # pytype: disable=not-supported-yet
 
     def __init__(self, element: ArrayElementType, nullable: bool = True, name: Optional[str] = None):
         super().__init__(nullable, name)
@@ -33,7 +33,7 @@ class Array(Generic[ArrayElementType], BaseField):
         if not isinstance(element, BaseField):
             raise ValueError(f"Array element must be a field. Found type: {type(element)}")
 
-        self.etype = element
+        self.elem = element
         if element._resolve_field_name() is not None:
             raise ValueError(
                 "When using a field as the element field of an array, the field shoud not have a name. "
@@ -50,7 +50,7 @@ class Array(Generic[ArrayElementType], BaseField):
     ) -> "Struct":  # pytype: disable=invalid-annotation,name-error
         """Return a copy of this array with the parent attribute set."""
         field = copy.copy(self)
-        field._parent_struct = self.etype._replace_parent(parent=parent)  # pylint: disable=protected-access
+        field._parent_struct = self.elem._replace_parent(parent=parent)  # pylint: disable=protected-access
         return field
 
     #
@@ -59,10 +59,10 @@ class Array(Generic[ArrayElementType], BaseField):
     def _set_contextual_name(self, value: str):
         super()._set_contextual_name(value)
         # set child to same name as parent; i.e., propagate contextual name downwards:
-        self.etype._set_contextual_name(value)  # pylint: disable=protected-access
+        self.elem._set_contextual_name(value)  # pylint: disable=protected-access
 
     #
-    # Pass through to the element, for users who don't want to use the `.etype` field
+    # Pass through to the element, for users who don't want to use the `.elem` field
 
     def __getattribute__(self, attr_name: str):
         """Custom get attirubte behaviour."""
@@ -77,7 +77,7 @@ class Array(Generic[ArrayElementType], BaseField):
         if attr_value is not None:
             return attr_value
 
-        return getattr(super().__getattribute__("etype"), attr_name)
+        return getattr(super().__getattribute__("elem"), attr_name)
 
     #
     # Spark type management
@@ -94,8 +94,8 @@ class Array(Generic[ArrayElementType], BaseField):
             name=self._field_name,
             dataType=ArrayType(
                 # Note that we do not care about the element's field name here:
-                elementType=self.etype._spark_struct_field.dataType,  # pylint: disable=protected-access
-                containsNull=self.etype._is_nullable,  # pylint: disable=protected-access
+                elementType=self.elem._spark_struct_field.dataType,  # pylint: disable=protected-access
+                containsNull=self.elem._is_nullable,  # pylint: disable=protected-access
             ),
             nullable=self._is_nullable,
         )
@@ -104,4 +104,4 @@ class Array(Generic[ArrayElementType], BaseField):
 
     def __eq__(self, other: Any) -> bool:
         """True if `self` equals `other`."""
-        return super().__eq__(other) and isinstance(other, Array) and self.etype == other.etype
+        return super().__eq__(other) and isinstance(other, Array) and self.elem == other.elem
