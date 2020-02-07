@@ -62,6 +62,24 @@ class Array(Generic[ArrayElementType], BaseField):
         self.etype._set_contextual_name(value)  # pylint: disable=protected-access
 
     #
+    # Pass through to the element, for users who don't want to use the `.etype` field
+
+    def __getattribute__(self, attr_name: str):
+        """Custom get attirubte behaviour."""
+        if attr_name.startswith("_"):
+            return super().__getattribute__(attr_name)
+
+        try:
+            attr_value = super().__getattribute__(attr_name)
+        except AttributeError:
+            attr_value = None
+
+        if attr_value is not None:
+            return attr_value
+
+        return getattr(super().__getattribute__("etype"), attr_name)
+
+    #
     # Spark type management
 
     @property

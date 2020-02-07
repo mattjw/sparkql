@@ -15,9 +15,12 @@ def path_seq(field: BaseField) -> Sequence[str]:
     """Items on the path to a field."""
     fields = [field]
     while fields[0]._parent is not None:
-        if fields[0]._field_name is None:
-            raise ValueError("Encountered an unset name while traversing tree")
         fields.insert(0, fields[0]._parent)
+
+    for field in fields:
+        if field._resolve_field_name() is None:
+            raise ValueError("Encountered an unset name while traversing path. " f"Path is: {_pretty_path(fields)}")
+
     return [f._field_name for f in fields]
 
 
@@ -43,3 +46,8 @@ def name(field: BaseField) -> str:
 def struct_field(field: BaseField) -> StructField:
     """Return the equivalent PySpark StructField of field `field`."""
     return field._spark_struct_field
+
+
+def _pretty_path(path: Sequence[BaseField]):
+    """Build pretty string of path, for debug and/or error purposes."""
+    return "< " + " -> ".join(f"'{field._resolve_field_name()}' ({type(field).__name__})" for field in path) + " >"
