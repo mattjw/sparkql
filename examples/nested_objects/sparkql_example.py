@@ -28,6 +28,9 @@ author_city_str = path_str(Article.author.address.city)
 comment_usernames_str = path_str(Article.comments.e.author.username)
 "comments.author.username"
 
+comment_usernames_str = path_str(Article.comments.author.username)
+"comments.author.username"
+
 comment_messages_str = path_str(Article.comments.message)
 "comments.message"
 

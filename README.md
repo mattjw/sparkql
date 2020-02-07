@@ -58,7 +58,34 @@ dframe.withColumn("city_name", path_col(Conference.city.name))
 
 ## Features
 
-### Field names, field paths, and nested objects
+### Automated field naming
+
+By default, field names are inferred from the attribute name in the
+struct they are declared.
+
+For example, given the struct
+
+```python
+class Geolocation(Struct):
+    latitude = Float()
+    longitude = Float()
+```
+
+the concrete name of the `Geolocation.latitude` field is `latitude`.
+
+Names also be overridden by explicitly specifying the field name as an
+argument to the field
+
+```python
+class Geolocation(Struct):
+    latitude = Float("lat")
+    longitude = Float("lon")
+```
+
+which would mean the concrete name of the `Geolocation.latitude` field
+is `lat`.
+
+### Field paths, and nested objects
 
 Referencing fields in nested data can be a chore. `sparkql` simplifies this
 with path referencing.
@@ -90,30 +117,26 @@ class Article(Struct):
 
 We can use `path_str` to turn a path into a Spark-understandable string:
 
+```python
+author_city_str = path_str(Article.author.address.city)
+"author.address.city"
 ```
 
+For paths that include an array, two approaches are provided:
+
+```python
+comment_usernames_str = path_str(Article.comments.e.author.username)
+"comments.author.username"
+
+comment_usernames_str = path_str(Article.comments.author.username)
+"comments.author.username"
 ```
 
-
-- `path_str`: A string
-- 
-
-```bash
-
-```
-
-TODO
-
-you can also override the name with an explicit name
-
-arrays
-
-Field paths for nested objects
-
-TODO FIXME
-
-strongly encourage using strongly typed things
-makes refactoring much better, and IDE hints
+Both give the same result. However, the former (`e`) is more
+type-oriented. The `e` attribute corresponds to the array's element
+field. Although this looks strange at first, it has the advantage of
+being inspectable by IDEs and other tools, allowing goodness such as
+IDE auto-completion and IDE-assisted refactoring.
 
 ### Composite schemas
 

@@ -25,7 +25,7 @@ class Array(Generic[ArrayElementType], BaseField):
         etype: Data type info for the element of this array. Should be an instance of a `BaseField`.
     """
 
-    e: ArrayElementType  # pytype: disable=not-supported-yet
+    e: ArrayElementType  # pytype: disable=not-supported-yet  # pylint: disable=invalid-name
 
     def __init__(self, element: ArrayElementType, nullable: bool = True, name: Optional[str] = None):
         super().__init__(nullable, name)
@@ -33,7 +33,7 @@ class Array(Generic[ArrayElementType], BaseField):
         if not isinstance(element, BaseField):
             raise ValueError(f"Array element must be a field. Found type: {type(element)}")
 
-        self.e = element
+        self.e = element  # pylint: disable=invalid-name
         if element._resolve_field_name() is not None:
             raise ValueError(
                 "When using a field as the element field of an array, the field shoud not have a name. "

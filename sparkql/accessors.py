@@ -17,8 +17,8 @@ def path_seq(field: BaseField) -> Sequence[str]:
     while fields[0]._parent is not None:
         fields.insert(0, fields[0]._parent)
 
-    for field in fields:
-        if field._resolve_field_name() is None:
+    for check_field in fields:
+        if check_field._resolve_field_name() is None:
             raise ValueError("Encountered an unset name while traversing path. " f"Path is: {_pretty_path(fields)}")
 
     return [f._field_name for f in fields]
