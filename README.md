@@ -139,6 +139,10 @@ field. Although this looks strange at first, it has the advantage of
 being inspectable by IDEs and other tools, allowing goodness such as
 IDE auto-completion and IDE-assisted refactoring.
 
+`path_col` is the counterpart to `path_str` and returns a Spark `Column`
+object for the path, allowing it to be used in all places where Spark
+requires a column.
+
 ### Composite schemas
 
 Structs can be re-used to build composite schemas with _inheritance_ or _includes_.
