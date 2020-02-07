@@ -4,6 +4,24 @@ version: "2.1"
 workflows:
   version: "2.1"
 
+  release:
+    description: |
+      Release
+    jobs:
+      #
+      # Testing (all branches)
+      - build_verify
+
+      #
+      # Release pipeline, with manual approval (master only)
+      - request_release:
+          type: approval
+          requires:
+            - build_verify
+          filters:
+            branches:
+              only: master
+
   pipeline:
     description: |
       Complete project pipeline.
