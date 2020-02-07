@@ -1,11 +1,11 @@
 import pytest
 
-from sparkql import String, Array
+from sparkql import String, Array, path_str, Struct, Float
 
 
 class TestArrayField:
     @staticmethod
-    def test_should_not_allow_element_with_explicit_name():
+    def should_not_allow_element_with_explicit_name():
         # given
         element = String(name="explicit_name")
 
@@ -14,3 +14,35 @@ class TestArrayField:
             ValueError, match="When using a field as the element field of an array, the field shoud not have a name."
         ):
             Array(element)
+
+    @staticmethod
+    def should_enable_path_via_explicit_element_field():
+        # given
+        class ComplexElementStruct(Struct):
+            string_field = String()
+            float_field = Float()
+
+        class OuterObject(Struct):
+            sequence = Array(ComplexElementStruct())
+
+        # when
+        path = path_str(OuterObject.sequence.etype.string_field)
+
+        # then
+        assert path == "sequence.string_field"
+
+    @staticmethod
+    def should_enable_path_via_passthrough():
+        # given
+        class ComplexElementStruct(Struct):
+            string_field = String()
+            float_field = Float()
+
+        class OuterObject(Struct):
+            sequence = Array(ComplexElementStruct())
+
+        # when
+        path = path_str(OuterObject.sequence.string_field)
+
+        # then
+        assert path == "sequence.string_field"
