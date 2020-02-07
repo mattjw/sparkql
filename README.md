@@ -58,13 +58,17 @@ dframe.withColumn("city_name", path_col(Conference.city.name))
 
 ## Features
 
-### Automatic field naming
+### Field names, field paths, and nested objects
+
+```bash
+
+```
 
 TODO
 
 you can also override the name with an explicit name
 
-### Field paths for nested objects
+Field paths for nested objects
 
 TODO FIXME
 
