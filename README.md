@@ -58,6 +58,16 @@ dframe.withColumn("city_name", path_col(Conference.city.name))
 
 ## Features
 
+### Automatic field naming
+
+TODO
+
+you can also override the name with an explicit name
+
+### Field paths for nested objects
+
+TODO FIXME
+
 ### Composite schemas
 
 Structs can be re-used to build composite schemas with _inheritance_ or _includes_.
