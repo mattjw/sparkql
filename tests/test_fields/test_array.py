@@ -26,7 +26,7 @@ class TestArrayField:
             sequence = Array(ComplexElementStruct())
 
         # when
-        path = path_str(OuterObject.sequence.elem.string_field)
+        path = path_str(OuterObject.sequence.e.string_field)
 
         # then
         assert path == "sequence.string_field"
