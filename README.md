@@ -6,9 +6,9 @@
 
 Python Spark SQL DataFrame schema management for sensible humans.
 
-## Why use `sparkql`✨
+## Why use `sparkql`
 
-`sparkql`✨ takes the pain out of working with DataFrame schemas in PySpark.
+`sparkql` takes the pain out of working with DataFrame schemas in PySpark.
 In general, it makes schema definition more Pythonic, and it's
 particularly useful you're dealing with structured data.
 
@@ -37,7 +37,7 @@ And then plain old PySpark makes you deal with nested fields like this:
 dframe.withColumn("city_name", df[CONF_CITY_FIELD][CITY_NAME_FIELD])
 ```
 
-Instead, with `sparkql`✨, schemas become a lot
+Instead, with `sparkql`, schemas become a lot
 [more literate](./examples/conferences_comparison/sparkql_schema.py):
 
 ```python
@@ -88,7 +88,7 @@ is `lat`.
 
 ### Field paths, and nested objects
 
-Referencing fields in nested data can be a chore. `sparkql`✨ simplifies this
+Referencing fields in nested data can be a chore. `sparkql` simplifies this
 with path referencing.
 
 [For example](./examples/nested_objects/sparkql_example.py), if we have a
