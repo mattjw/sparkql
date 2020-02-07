@@ -6,7 +6,7 @@
 
 Python Spark SQL DataFrame schema management for sensible humans.
 
-## Why use `sparkql`
+## Why use sparkql
 
 `sparkql` takes the pain out of working with DataFrame schemas in PySpark.
 In general, it makes schema definition more Pythonic, and it's
