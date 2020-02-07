@@ -60,6 +60,44 @@ dframe.withColumn("city_name", path_col(Conference.city.name))
 
 ### Field names, field paths, and nested objects
 
+Referencing fields in nested data can be a chore. `sparkql` simplifies this
+with path referencing.
+
+[For example](./examples/nested_objects/sparkql_example.py), if we have a
+schema with nested objects:
+
+```python
+class Address(Struct):
+    post_code = String()
+    city = String()
+
+
+class User(Struct):
+    username = String(nullable=False)
+    address = Address()
+
+
+class Comment(Struct):
+    message = String()
+    author = User(nullable=False)
+
+
+class Article(Struct):
+    title = String(nullable=False)
+    author = User(nullable=False)
+    comments = Array(Comment())
+```
+
+We can use `path_str` to turn a path into a Spark-understandable string:
+
+```
+
+```
+
+
+- `path_str`: A string
+- 
+
 ```bash
 
 ```
@@ -68,9 +106,14 @@ TODO
 
 you can also override the name with an explicit name
 
+arrays
+
 Field paths for nested objects
 
 TODO FIXME
+
+strongly encourage using strongly typed things
+makes refactoring much better, and IDE hints
 
 ### Composite schemas
 
