@@ -145,7 +145,9 @@ requires a column.
 
 ### Composite schemas
 
-Structs can be re-used to build composite schemas with _inheritance_ or _includes_.
+Structs can be re-used to build composite schemas with _inheritance_ or
+_includes_. A struct can also be required to implement one or more
+interfaces (other structs) using _implements_.
 
 #### Using inheritance
 
@@ -192,6 +194,16 @@ StructType(List(
     StructField(correlation_id,StringType,false),
     StructField(event_time,TimestampType,false)))
 ```
+
+#### Using an `implements` declaration
+
+`implements` is similar to `includes`, but does not automatically
+incorporate the fields of specified structs. Instead, it is up to
+the implementor to ensure that the required fields are declared in
+the struct.
+
+Failing to implement a field from an `implements` struct will result in
+an error.
 
 ### Prettified Spark schema strings
 
