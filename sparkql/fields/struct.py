@@ -8,7 +8,7 @@ from typing import ClassVar, Optional, Mapping, Type, Any, Generator, Tuple, Mut
 from pyspark.sql import types as sql_types
 from pyspark.sql.types import DataType, StructField
 
-from ..exceptions import InvalidStructError
+from ..exceptions import InvalidStructError, StructImplementationError
 from .base import BaseField
 
 
@@ -46,6 +46,9 @@ class Struct(BaseField):
 
         # Extract internal metadata for this class, including parsing the fields
         cls._struct_metadata = _StructInnerMetadata.from_struct_class(cls)
+
+        # Validate the "implements" (if any)
+        _Validator(cls).validate()
 
     #
     # Handle dot chaining for full path ref to nested fields
@@ -293,6 +296,8 @@ class _Validator:
     Assumes that the inner metadata of the class has been extracted.
     """
 
+    IMPLEMENTS_FIELD_NAME: ClassVar[str] = "implements"
+
     struct_class: Type[Struct]
 
     def validate(self):
@@ -300,9 +305,32 @@ class _Validator:
         Validate that the meets "implements" requirements, if specified.
 
         Raises:
-            FIXME
+            StructImplementationError:
+                If class does not correctly implement any required structs.
         """
+        root_struct_metadata: _StructInnerMetadata = self.struct_class._struct_metadata
+        if root_struct_metadata is None:  # pylint: disable=protected-access
+            raise ValueError(
+                f"Struct class {self.struct_class} has not had its inner metadata extracted")
 
+        for required_struct in self._yield_implements_structs():
+            req_fields = required_struct._struct_metadata.fields  # pylint: disable=protected-access
+            for req_field_name, req_field in req_fields.items():
+                if req_field_name not in root_struct_metadata.fields:
+                    raise StructImplementationError(
+                        f"Struct '{self.struct_class.__name__}' does not implement field '{req_field_name}' required by "
+                        f"struct '{type(required_struct).__name__}'")
+                if req_field != root_struct_metadata.fields[req_field_name]:
+                    raise StructImplementationError(
+                        f"Struct '{self.struct_class.__name__}' implements field '{req_field_name}' "
+                        f"(required by struct '{type(required_struct).__name__}') but field is not compatible. "
+                        f"Required {req_field._short_info()} "
+                        f"but found {root_struct_metadata.fields[req_field_name]._short_info()}")
+
+    def _yield_implements_structs(self) -> Generator[Struct, None, None]:
+        """Get the Structs specified in the `Meta.implements`, if any."""
+        for struct in _yield_structs_from_meta(self.struct_class, self.IMPLEMENTS_FIELD_NAME):
+            yield struct
 
 
 def _get_inner_meta_class(struct_class: Type[Struct]) -> Optional[Type]:

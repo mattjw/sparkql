@@ -11,3 +11,7 @@ class FieldParentError(Exception):
 
 class InvalidStructError(Exception):
     """Invalid creation of a custom Struct subclass."""
+
+
+class StructImplementationError(InvalidStructError):
+    """A custom Struct subclass fails to correctly implement required fields."""
