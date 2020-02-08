@@ -8,8 +8,9 @@ Python Spark SQL DataFrame schema management for sensible humans.
 
 ## Why use sparkql
 
-sparkql takes the pain out of working with DataFrame schemas in PySpark. It's
-particularly useful when you have structured data.
+`sparkql` takes the pain out of working with DataFrame schemas in PySpark.
+In general, it makes schema definition more Pythonic, and it's
+particularly useful you're dealing with structured data.
 
 In plain old PySpark, you might find that you write schemas
 [like this](./examples/conferences_comparison/plain_schema.py):
@@ -57,6 +58,90 @@ dframe.withColumn("city_name", path_col(Conference.city.name))
 ```
 
 ## Features
+
+### Automated field naming
+
+By default, field names are inferred from the attribute name in the
+struct they are declared.
+
+For example, given the struct
+
+```python
+class Geolocation(Struct):
+    latitude = Float()
+    longitude = Float()
+```
+
+the concrete name of the `Geolocation.latitude` field is `latitude`.
+
+Names also be overridden by explicitly specifying the field name as an
+argument to the field
+
+```python
+class Geolocation(Struct):
+    latitude = Float("lat")
+    longitude = Float("lon")
+```
+
+which would mean the concrete name of the `Geolocation.latitude` field
+is `lat`.
+
+### Field paths, and nested objects
+
+Referencing fields in nested data can be a chore. `sparkql` simplifies this
+with path referencing.
+
+[For example](./examples/nested_objects/sparkql_example.py), if we have a
+schema with nested objects:
+
+```python
+class Address(Struct):
+    post_code = String()
+    city = String()
+
+
+class User(Struct):
+    username = String(nullable=False)
+    address = Address()
+
+
+class Comment(Struct):
+    message = String()
+    author = User(nullable=False)
+
+
+class Article(Struct):
+    title = String(nullable=False)
+    author = User(nullable=False)
+    comments = Array(Comment())
+```
+
+We can use `path_str` to turn a path into a Spark-understandable string:
+
+```python
+author_city_str = path_str(Article.author.address.city)
+"author.address.city"
+```
+
+For paths that include an array, two approaches are provided:
+
+```python
+comment_usernames_str = path_str(Article.comments.e.author.username)
+"comments.author.username"
+
+comment_usernames_str = path_str(Article.comments.author.username)
+"comments.author.username"
+```
+
+Both give the same result. However, the former (`e`) is more
+type-oriented. The `e` attribute corresponds to the array's element
+field. Although this looks strange at first, it has the advantage of
+being inspectable by IDEs and other tools, allowing goodness such as
+IDE auto-completion and IDE-assisted refactoring.
+
+`path_col` is the counterpart to `path_str` and returns a Spark `Column`
+object for the path, allowing it to be used in all places where Spark
+requires a column.
 
 ### Composite schemas
 
@@ -132,5 +217,5 @@ StructType(List(
 
 ## Contributing
 
-Developers who'd like to contribute to this project should refer to
-[CONTRIBUTING.md](./CONTRIBUTING.md).
+Contributions are very welcome. Developers who'd like to contribute to
+this project should refer to [CONTRIBUTING.md](./CONTRIBUTING.md).
