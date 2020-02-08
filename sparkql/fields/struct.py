@@ -137,6 +137,11 @@ class _StructInnerMetadata:
         return None
 
 
+#
+# Supporting functionality
+
+_META_INNER_CLASS_NAME = "Meta"
+
 @dataclass
 class _FieldsExtractor:
     """
@@ -152,7 +157,6 @@ class _FieldsExtractor:
     - Includes fields: Fields pulled in from `Meta.includes`.
     """
 
-    META_INNER_CLASS_NAME: ClassVar[str] = "Meta"
     INCLUDES_FIELD_NAME: ClassVar[str] = "includes"
 
     struct_class: Type[Struct]
@@ -209,22 +213,6 @@ class _FieldsExtractor:
                 )
             yield (attr_name, attr_value)
 
-    def _get_inner_meta_class(self) -> Optional[Type]:
-        """Retrieve the `Meta` inner class, or None if none is provided."""
-        if not hasattr(self.struct_class, _FieldsExtractor.META_INNER_CLASS_NAME):  # pytype: disable=wrong-arg-types
-            return None
-        inner_meta_class = getattr(
-            self.struct_class, _FieldsExtractor.META_INNER_CLASS_NAME  # pytype: disable=wrong-arg-types
-        )
-
-        if not isinstance(inner_meta_class, type):
-            raise InvalidStructError(
-                f"The '{_FieldsExtractor.META_INNER_CLASS_NAME}' "  # pytype: disable=wrong-arg-types
-                "property of a Struct must only be used as an "
-                f"inner class. Found type {type(inner_meta_class)}"
-            )
-        return inner_meta_class
-
     def _yield_included_structs(self) -> Generator[Struct, None, None]:
         """
         Get the Structs specified in the `Meta.includes`, if any.
@@ -235,11 +223,12 @@ class _FieldsExtractor:
             A Struct object. Note that this is an instance of the Struct, not the class.
             If `Meta` or `Meta.includes` are not provided, no yield.
         """
-        if self._get_inner_meta_class() is None:
+        inner_meta_class = _get_inner_meta_class(self.struct_class)
+        if inner_meta_class is None:
             return
 
         include_struct_classes = getattr(
-            self._get_inner_meta_class(), _FieldsExtractor.INCLUDES_FIELD_NAME, None  # pytype: disable=wrong-arg-types
+            inner_meta_class, _FieldsExtractor.INCLUDES_FIELD_NAME, None  # pytype: disable=wrong-arg-types
         )
         if include_struct_classes is None:
             return
@@ -317,3 +306,38 @@ class _FieldsExtractor:
                     f"{type(fields_a[key])} vs {type(fields_b[key])}"
                 )
         return combined
+
+
+@dataclass
+class _Validator:
+    """
+    Validate the "implements" requirement of a struct, if any provided.
+
+    Assumes that the inner metadata of the class has been extracted.
+    """
+
+    struct_class: Type[Struct]
+
+    def validate(self):
+        """
+        Validate that the meets "implements" requirements, if specified.
+
+        Raises:
+            FIXME
+        """
+        pass
+
+
+def _get_inner_meta_class(struct_class: Type[Struct]) -> Optional[Type]:
+    """Retrieve the `Meta` inner class of a Struct class, or None if none is provided."""
+    if not hasattr(struct_class, _META_INNER_CLASS_NAME):  # pytype: disable=wrong-arg-types
+        return None
+    inner_meta_class = getattr(struct_class, _META_INNER_CLASS_NAME)
+
+    if not isinstance(inner_meta_class, type):
+        raise InvalidStructError(
+            f"The '{_META_INNER_CLASS_NAME}' "
+            "property of a Struct must only be used as an "
+            f"inner class. Found type {type(inner_meta_class)}"
+        )
+    return inner_meta_class
