@@ -4,56 +4,39 @@ version: "2.1"
 workflows:
   version: "2.1"
 
-  release:
+  release_workflow:
     description: |
-      Release
+      Release all releasable changes, if any, on manual approval. Bump version and publish a release.
     jobs:
-      #
-      # Testing (all branches)
-      - build_verify
-
-      #
-      # Release pipeline, with manual approval (master only)
       - request_release:
           type: approval
-          requires:
-            - build_verify
           filters:
             branches:
               only: master
-
-  pipeline:
-    description: |
-      Complete project pipeline.
-      All branches: build and verify (test).
-      Master branch: Additionally, on manual approval, bump version and publish a release.
-
-    jobs:
-      #
-      # Testing (all branches)
-      - build_verify
-
-      #
-      # Release pipeline, with manual approval (master only)
-      - request_release:
-          type: approval
-          requires:
-            - build_verify
-          filters:
-            branches:
-              only: master
-      - release:
+      - build_verify:
           requires:
             - request_release
           filters:
             branches:
               only: master
+      - release:
+          requires:
+            - build_verify
+          filters:
+            branches:
+              only: master
+
+  ci_pipeline:
+    description: |
+      CI for all branches. Executes a build and verify (including testing, linting, and so on).
+    jobs:
+      - build_verify
 
 
 jobs:
 
   build_verify:
-    description: "Build project and run all tests and checks."
+    description: "Build the project and run all tests and checks."
 
     docker:
       - image: docker.pkg.github.com/mattjw/docker-images/circleci-python-java8:py3.6.8
