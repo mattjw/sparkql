@@ -223,31 +223,8 @@ class _FieldsExtractor:
             A Struct object. Note that this is an instance of the Struct, not the class.
             If `Meta` or `Meta.includes` are not provided, no yield.
         """
-        inner_meta_class = _get_inner_meta_class(self.struct_class)
-        if inner_meta_class is None:
-            return
-
-        include_struct_classes = getattr(
-            inner_meta_class, _FieldsExtractor.INCLUDES_FIELD_NAME, None  # pytype: disable=wrong-arg-types
-        )
-        if include_struct_classes is None:
-            return
-
-        for index, include_struct_class in enumerate(include_struct_classes):
-            if not isclass(include_struct_class):
-                raise InvalidStructError(
-                    "Encountered non-class item in 'includes' list of 'Meta' inner class. "
-                    f"Item at index {index}: '{include_struct_class}' with type {type(include_struct_class)}"
-                )
-
-            include_struct = include_struct_class()
-            if not isinstance(include_struct, Struct):
-                raise InvalidStructError(
-                    "Encountered item in 'includes' list of 'Meta' inner class that is not a Struct or Struct "
-                    f"subclass. Item at index {index} is {include_struct_class}"
-                )
-
-            yield include_struct
+        for struct in _yield_structs_from_meta(self.struct_class, self.INCLUDES_FIELD_NAME):
+            yield struct
 
     #
     # Handle inheritance from super class
@@ -325,7 +302,7 @@ class _Validator:
         Raises:
             FIXME
         """
-        pass
+
 
 
 def _get_inner_meta_class(struct_class: Type[Struct]) -> Optional[Type]:
@@ -341,3 +318,39 @@ def _get_inner_meta_class(struct_class: Type[Struct]) -> Optional[Type]:
             f"inner class. Found type {type(inner_meta_class)}"
         )
     return inner_meta_class
+
+
+def _yield_structs_from_meta(
+        struct_class: Type[Struct], attribute_name: str) -> Generator[Struct, None, None]:
+    """
+    Get a list of structs located at an attribute of the Meta inner class, if any.
+
+    A class specified in the list of Structs is converted to an instance of the class before returning.
+
+    Yields:
+        A Struct object. Note that this is an instance of the Struct, not the class.
+        If `Meta` or the attribute `attribute_name` of `Meta` are not present, no yield.
+    """
+    inner_meta_class = _get_inner_meta_class(struct_class)
+    if inner_meta_class is None:
+        return
+
+    struct_classes = getattr(inner_meta_class, attribute_name, None)
+    if struct_classes is None:
+        return
+
+    for index, struct_class in enumerate(struct_classes):
+        if not isclass(struct_class):
+            raise InvalidStructError(
+                f"Encountered non-class item in '{attribute_name}' list of 'Meta' inner class. "
+                f"Item at index {index}: '{struct_class}' with type {type(struct_class)}"
+            )
+
+        struct_instance = struct_class()
+        if not isinstance(struct_instance, Struct):
+            raise InvalidStructError(
+                "Encountered item in 'includes' list of 'Meta' inner class that is not a Struct or Struct "
+                f"subclass. Item at index {index} is {struct_class}"
+            )
+
+        yield struct_instance
