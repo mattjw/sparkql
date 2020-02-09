@@ -86,7 +86,7 @@ class Geolocation(Struct):
 which would mean the concrete name of the `Geolocation.latitude` field
 is `lat`.
 
-### Field paths, and nested objects
+### Field paths and nested objects
 
 Referencing fields in nested data can be a chore. `sparkql` simplifies this
 with path referencing.
@@ -137,7 +137,8 @@ Both give the same result. However, the former (`e`) is more
 type-oriented. The `e` attribute corresponds to the array's element
 field. Although this looks strange at first, it has the advantage of
 being inspectable by IDEs and other tools, allowing goodness such as
-IDE auto-completion and IDE-assisted refactoring.
+IDE auto-completion, automated refactoring, and identifying errors
+before runtime.
 
 `path_col` is the counterpart to `path_str` and returns a Spark `Column`
 object for the path, allowing it to be used in all places where Spark
