@@ -131,7 +131,8 @@ publish, the following instructions explain how to make a new release.
 
 A CircleCI workflow named `release_workflow` is executed on each
 merge to `master`. To make a release, approve the `request_release`
-hold step via the CircleCI interface.
+hold step via the
+[CircleCI interface](https://circleci.com/gh/mattjw/workflows/sparkql/tree/master).
 
 ### Making a new releease by hand
 
