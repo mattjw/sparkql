@@ -145,6 +145,7 @@ class _StructInnerMetadata:
 
 _META_INNER_CLASS_NAME = "Meta"
 
+
 @dataclass
 class _FieldsExtractor:
     """
@@ -310,8 +311,7 @@ class _Validator:
         """
         root_struct_metadata: _StructInnerMetadata = self.struct_class._struct_metadata
         if root_struct_metadata is None:  # pylint: disable=protected-access
-            raise ValueError(
-                f"Struct class {self.struct_class} has not had its inner metadata extracted")
+            raise ValueError(f"Struct class {self.struct_class} has not had its inner metadata extracted")
 
         for required_struct in self._yield_implements_structs():
             req_fields = required_struct._struct_metadata.fields  # pylint: disable=protected-access
@@ -319,13 +319,15 @@ class _Validator:
                 if req_field_name not in root_struct_metadata.fields:
                     raise StructImplementationError(
                         f"Struct '{self.struct_class.__name__}' does not implement field '{req_field_name}' required by "
-                        f"struct '{type(required_struct).__name__}'")
+                        f"struct '{type(required_struct).__name__}'"
+                    )
                 if req_field != root_struct_metadata.fields[req_field_name]:
                     raise StructImplementationError(
                         f"Struct '{self.struct_class.__name__}' implements field '{req_field_name}' "
                         f"(required by struct '{type(required_struct).__name__}') but field is not compatible. "
                         f"Required {req_field._short_info()} "
-                        f"but found {root_struct_metadata.fields[req_field_name]._short_info()}")
+                        f"but found {root_struct_metadata.fields[req_field_name]._short_info()}"
+                    )
 
     def _yield_implements_structs(self) -> Generator[Struct, None, None]:
         """Get the Structs specified in the `Meta.implements`, if any."""
@@ -348,8 +350,7 @@ def _get_inner_meta_class(struct_class: Type[Struct]) -> Optional[Type]:
     return inner_meta_class
 
 
-def _yield_structs_from_meta(
-        struct_class: Type[Struct], attribute_name: str) -> Generator[Struct, None, None]:
+def _yield_structs_from_meta(struct_class: Type[Struct], attribute_name: str) -> Generator[Struct, None, None]:
     """
     Get a list of structs located at an attribute of the Meta inner class, if any.
 
