@@ -1,4 +1,4 @@
-from .utils import run, PROJECT_INFO, print_heavy
+from .utils import run, PROJECT_INFO, print_heavy, prepare_reports_dir
 
 
 #
@@ -7,4 +7,10 @@ from .utils import run, PROJECT_INFO, print_heavy
 
 def test():
     print_heavy(f"\n🔍 TESTING 🔎\n")
-    run(f"pytest -vv -c {PROJECT_INFO.tests_directory}/.pytest.ini")
+    prepare_reports_dir()
+    run(f"""
+        export COVERAGE_FILE={PROJECT_INFO.reports_directory / ".coverage"};
+        pytest -vv --cov={PROJECT_INFO.source_directory} -c {PROJECT_INFO.tests_directory}/.pytest.ini""")
+    run(f"""
+        export COVERAGE_FILE={PROJECT_INFO.reports_directory / ".coverage"};
+        poetry run coverage html -d {PROJECT_INFO.reports_directory / "htmlcov"}""")
