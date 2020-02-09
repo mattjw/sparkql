@@ -18,3 +18,8 @@ def test():
         export COVERAGE_FILE={PROJECT_INFO.reports_directory / ".coverage"};
         poetry run coverage html -d {PROJECT_INFO.reports_directory / "htmlcov"}"""
     )
+    run(
+        f"""
+            export COVERAGE_FILE={PROJECT_INFO.reports_directory / ".coverage"};
+            poetry run coverage xml -o {PROJECT_INFO.reports_directory / "coverage.xml"}"""
+    )

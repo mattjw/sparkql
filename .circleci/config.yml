@@ -83,6 +83,9 @@ jobs:
       - store_artifacts:
           path: reports/htmlcov
 
+      - store_artifacts:
+          path: reports/coverage.xml
+
       # Check for releasable changes (if any) (for convenience)
       - run:
           name: Check for releasable changes (if any)
