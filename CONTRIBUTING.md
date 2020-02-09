@@ -58,11 +58,11 @@ Type hints are strongly encouraged, and are checked during CI.
 This library uses [Semantic Versioning](https://semver.org/) (semver).
 
 To track changes to the library (major, minor, patch), this library
-uses an abridged version of
+uses a version of
 [Conventional Commits](https://woile.github.io/commitizen/tutorials/writing_commits/#conventional-commits):
 
-- The change is a PATCH change if the message begins with `fix:`.
-- The change is a MINOR change if the message begins with `feat:`.
+- The change is a PATCH change if the message title begins with `fix:`.
+- The change is a MINOR change if the message title begins with `feat:`.
 - The change is a MAJOR change if the message includes `BREAKING CHANGE`.
 - If the commit history does not match any of the above, no new
   release will happen.
@@ -70,16 +70,61 @@ uses an abridged version of
 `commitizen` is used to identify releasable changes and the resulting
 version bump.
 
-A note on squashed commits: If commit histories are squashed before
+A note on squashed or rebased commits: If commit histories are squashed before
 merge/rebase, the resulting commit message must be compliant with
 these conventions. If using the Github UI to merge, the `fix:`/`feat:`
-lines must be put in the commit title field.
+lines must be put in the commit title field, and/or `BREAKING CHANGE`
+put in the commit message body.
+
+## Change types (`CHANGE_TYPE`)
+
+As stated above, the following change types are used to indicate a
+version change:
+
+- `feat`: Introduces a new feature to the codebase (this correlates
+  with MINOR in semantic versioning).
+- `fix`: Patches a bug in the codebase (this correlates with PATCH
+  in semantic versioning).
+
+In addition, this project adopts the
+[Angular](https://github.com/angular/angular/blob/22b96b9/CONTRIBUTING.md#type)
+change types:
+
+- `build`: Changes that affect the build system or external
+  dependencies.
+- `ci`: Changes to CI configuration files and scripts.
+- `docs`: Documentation only changes.
+- `perf`: A code change that improves performance.
+- `refactor`: A code change that neither fixes a bug nor adds a feature.
+- `style`: Changes that do not affect the meaning of the code
+  (white-space, formatting, etc).
+- `test`: Adding missing tests or correcting existing tests.
+
+## Branch naming
+
+Branches should be named:
+
+```
+<CHANGE_TYPE>/<CHANGE_SUMMARY>
+```
+
+For example:
+
+- `fix/broken-arg-type`
+- `docs/diagram-for-inheritance`
 
 ## Creating a new release
 
 If you have accumulated releasable changes that you would like to
-publish, the following instructions explain how to make a new release
-by hand.
+publish, the following instructions explain how to make a new release.
+
+### Making a new release via CI
+
+A CircleCI workflow named `release_workflow` is executed on each
+merge to `master`. To make a release, approve the `request_release`
+hold step via the CircleCI interface.
+
+### Making a new releease by hand
 
 First, ensure you are on an up-to-date `master` branch. 
 
