@@ -82,7 +82,7 @@ jobs:
           command: |
             poetry run verify-all
 
-      # Upload code coverage artifacts
+      # Store/upload code coverage artifacts
       - store_artifacts:
           path: reports/htmlcov
 
@@ -90,6 +90,7 @@ jobs:
           path: reports/coverage.xml
 
       - codecov/upload:
+          # see https://codecov.io/gh/mattjw/sparkql
           file: reports/coverage.xml
 
       # Check for releasable changes (if any) (for convenience)
