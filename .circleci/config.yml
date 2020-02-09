@@ -1,5 +1,7 @@
 version: "2.1"
 
+orbs:
+  codecov: codecov/codecov@1.0.5  # https://codecov.io/gh/mattjw/sparkql
 
 workflows:
   version: "2.1"
@@ -76,9 +78,20 @@ jobs:
 
       # Run all checks
       - run:
-          name: Run tests
+          name: Run checks and tests
           command: |
             poetry run verify-all
+
+      # Store/upload code coverage artifacts
+      - store_artifacts:
+          path: reports/htmlcov
+
+      - store_artifacts:
+          path: reports/coverage.xml
+
+      - codecov/upload:
+          # see https://codecov.io/gh/mattjw/sparkql
+          file: reports/coverage.xml
 
       # Check for releasable changes (if any) (for convenience)
       - run:

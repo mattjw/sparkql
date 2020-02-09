@@ -53,6 +53,15 @@ Additional lint checks are handled by a few linting tools, including
 
 Type hints are strongly encouraged, and are checked during CI.
 
+## Code coverage
+
+Coverage reports are uploaded to `codecov.io`
+[here](https://codecov.io/gh/mattjw/sparkql). The `test` task
+generates coverage reports to the `reports` directory. CI will
+deposit built reports on CircleCI, and also upload them to `codecov.io`.
+The badge is configured
+[here](https://codecov.io/gh/mattjw/sparkql/settings/badge).
+
 ## Versioning and tracking changes
 
 This library uses [Semantic Versioning](https://semver.org/) (semver).

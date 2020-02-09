@@ -1,4 +1,5 @@
 """Tasks utils."""
+from pathlib import Path
 
 from invoke import run as invoke_run
 from invoke import UnexpectedExit, Result
@@ -33,10 +34,15 @@ def run(cmd, pty=None, env=None, *args, **kwargs):
 class ProjectInfo:
     """Information about this project."""
 
-    source_directory: str = "sparkql/"  # top of source code tree
-    tests_directory: str = "tests/"
-    tasks_directory: str = "tasks/"
-    project_toml: str = "pyproject.toml"
+    source_directory: Path = Path("sparkql/")  # top of source code tree
+    tests_directory: Path = Path("tests/")
+    tasks_directory: Path = Path("tasks/")
+    project_toml: Path = Path("pyproject.toml")
+    reports_directory: Path = Path("reports/")
 
 
 PROJECT_INFO = ProjectInfo()
+
+
+def prepare_reports_dir():
+    PROJECT_INFO.reports_directory.mkdir(parents=True, exist_ok=True)
