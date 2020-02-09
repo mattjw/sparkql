@@ -13,7 +13,7 @@ In general, it makes schema definition more Pythonic, and it's
 particularly useful you're dealing with structured data.
 
 In plain old PySpark, you might find that you write schemas
-[like this](./examples/conferences_comparison/plain_schema.py):
+[like this](https://github.com/mattjw/sparkql/tree/master/examples/conferences_comparison/plain_schema.py):
 
 ```python
 CITY_SCHEMA = StructType()
@@ -38,7 +38,7 @@ dframe.withColumn("city_name", df[CONF_CITY_FIELD][CITY_NAME_FIELD])
 ```
 
 Instead, with `sparkql`, schemas become a lot
-[more literate](./examples/conferences_comparison/sparkql_schema.py):
+[more literate](https://github.com/mattjw/sparkql/tree/master/examples/conferences_comparison/sparkql_schema.py):
 
 ```python
 class City(Struct):
@@ -91,7 +91,7 @@ is `lat`.
 Referencing fields in nested data can be a chore. `sparkql` simplifies this
 with path referencing.
 
-[For example](./examples/nested_objects/sparkql_example.py), if we have a
+[For example](https://github.com/mattjw/sparkql/tree/master/examples/nested_objects/sparkql_example.py), if we have a
 schema with nested objects:
 
 ```python
@@ -145,13 +145,19 @@ requires a column.
 
 ### Composite schemas
 
-Structs can be re-used to build composite schemas with _inheritance_ or
-_includes_. A struct can also be required to implement one or more
-interfaces (other structs) using _implements_.
+It is sometimes useful to be able to re-use the fields of one struct
+in another struct. `sparkql` provides a few features to enable this:
+
+- _inheritance_: A subclass inherits the fields of a base struct class.
+- _includes_: Incorporate fields from another struct.
+- _implements_: Enforce that a struct must implement the fields of
+  another struct.
+
+See the following examples for a better explanation.
 
 #### Using inheritance
 
-For [example](./examples/composite_schemas/inheritance.py), the following:
+For [example](https://github.com/mattjw/sparkql/tree/master/examples/composite_schemas/inheritance.py), the following:
 
 ```python
 class BaseEvent(Struct):
@@ -162,7 +168,7 @@ class RegistrationEvent(BaseEvent):
     user_id = String(nullable=False)
 ```
 
-will produce the `RegistrationEvent` schema:
+will produce the following `RegistrationEvent` schema:
 
 ```text
 StructType(List(
@@ -173,7 +179,7 @@ StructType(List(
 
 #### Using an `includes` declaration
 
-For [example](./examples/composite_schemas/includes.py), the following:
+For [example](https://github.com/mattjw/sparkql/tree/master/examples/composite_schemas/includes.py), the following:
 
 ```python
 class EventMetadata(Struct):
@@ -205,7 +211,7 @@ the struct.
 Failing to implement a field from an `implements` struct will result in
 a `StructImplementationError` error.
 
-[For example](./examples/composite_schemas/implements.py):
+[For example](https://github.com/mattjw/sparkql/tree/master/examples/composite_schemas/implements.py):
 
 ```
 class LogEntryMetadata(Struct):
