@@ -228,7 +228,8 @@ class _FieldsExtractor:
             If `Meta` or `Meta.includes` are not provided, no yield.
         """
         for struct in _yield_structs_from_meta(
-                self.struct_class, self.INCLUDES_FIELD_NAME):  # pytype: disable=wrong-arg-types
+            self.struct_class, self.INCLUDES_FIELD_NAME  # pytype: disable=wrong-arg-types
+        ):
             yield struct
 
     #
@@ -316,7 +317,9 @@ class _Validator:
 
         for required_struct in self._yield_implements_structs():
 
-            req_fields = required_struct._struct_metadata.fields  # pylint: disable=protected-access  # pytype: disable=attribute-error
+            req_fields = (
+                required_struct._struct_metadata.fields  # pylint: disable=protected-access  # pytype: disable=attribute-error
+            )
             for req_field_name, req_field in req_fields.items():
                 if req_field_name not in root_struct_metadata.fields:  # pytype: disable=attribute-error
                     raise StructImplementationError(
@@ -336,7 +339,8 @@ class _Validator:
     def _yield_implements_structs(self) -> Generator[Struct, None, None]:
         """Get the Structs specified in the `Meta.implements`, if any."""
         for struct in _yield_structs_from_meta(
-                self.struct_class, self.IMPLEMENTS_FIELD_NAME):  # pytype: disable=wrong-arg-types
+            self.struct_class, self.IMPLEMENTS_FIELD_NAME  # pytype: disable=wrong-arg-types
+        ):
             yield struct
 
 
