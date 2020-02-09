@@ -8,29 +8,33 @@ workflows:
     description: |
       Release all releasable changes, if any, on manual approval. Bump version and publish a release.
     jobs:
-      - request_release:
-          type: approval
+      - build_verify:
           filters:
             branches:
               only: master
-      - build_verify:
+      - request_release:
+          type: approval
           requires:
-            - request_release
+            - build_verify
           filters:
             branches:
               only: master
       - release:
           requires:
             - build_verify
+            - request_release
           filters:
             branches:
               only: master
 
   ci_workflow:
     description: |
-      CI for all branches. Executes a build and verify (including testing, linting, and so on).
+      CI for all non-master branches. Executes a build and verify (including testing, linting, and so on).
     jobs:
-      - build_verify
+      - build_verify:
+          filters:
+            branches:
+              ignore: master
 
 
 jobs:
@@ -75,6 +79,12 @@ jobs:
           name: Run tests
           command: |
             poetry run verify-all
+
+      # Check for releasable changes (if any) (for convenience)
+      - run:
+          name: Check for releasable changes (if any)
+          command: |
+            poetry run find-releasable-changes
 
 
   release:
