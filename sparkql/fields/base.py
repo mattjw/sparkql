@@ -145,6 +145,10 @@ class BaseField(ABC):
             ">"
         )
 
+    def _short_info(self):
+        """Short info string for use in error messages."""
+        return f"<{type(self).__name__}: nullable={self._is_nullable}>"
+
 
 class AtomicField(BaseField):
     """

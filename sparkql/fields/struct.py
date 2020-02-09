@@ -8,7 +8,7 @@ from typing import ClassVar, Optional, Mapping, Type, Any, Generator, Tuple, Mut
 from pyspark.sql import types as sql_types
 from pyspark.sql.types import DataType, StructField
 
-from ..exceptions import InvalidStructError
+from ..exceptions import InvalidStructError, StructImplementationError
 from .base import BaseField
 
 
@@ -46,6 +46,9 @@ class Struct(BaseField):
 
         # Extract internal metadata for this class, including parsing the fields
         cls._struct_metadata = _StructInnerMetadata.from_struct_class(cls)
+
+        # Validate the "implements" (if any)
+        _Validator(cls).validate()
 
     #
     # Handle dot chaining for full path ref to nested fields
@@ -137,6 +140,12 @@ class _StructInnerMetadata:
         return None
 
 
+#
+# Supporting functionality
+
+_META_INNER_CLASS_NAME = "Meta"
+
+
 @dataclass
 class _FieldsExtractor:
     """
@@ -152,7 +161,6 @@ class _FieldsExtractor:
     - Includes fields: Fields pulled in from `Meta.includes`.
     """
 
-    META_INNER_CLASS_NAME: ClassVar[str] = "Meta"
     INCLUDES_FIELD_NAME: ClassVar[str] = "includes"
 
     struct_class: Type[Struct]
@@ -209,22 +217,6 @@ class _FieldsExtractor:
                 )
             yield (attr_name, attr_value)
 
-    def _get_inner_meta_class(self) -> Optional[Type]:
-        """Retrieve the `Meta` inner class, or None if none is provided."""
-        if not hasattr(self.struct_class, _FieldsExtractor.META_INNER_CLASS_NAME):  # pytype: disable=wrong-arg-types
-            return None
-        inner_meta_class = getattr(
-            self.struct_class, _FieldsExtractor.META_INNER_CLASS_NAME  # pytype: disable=wrong-arg-types
-        )
-
-        if not isinstance(inner_meta_class, type):
-            raise InvalidStructError(
-                f"The '{_FieldsExtractor.META_INNER_CLASS_NAME}' "  # pytype: disable=wrong-arg-types
-                "property of a Struct must only be used as an "
-                f"inner class. Found type {type(inner_meta_class)}"
-            )
-        return inner_meta_class
-
     def _yield_included_structs(self) -> Generator[Struct, None, None]:
         """
         Get the Structs specified in the `Meta.includes`, if any.
@@ -235,30 +227,10 @@ class _FieldsExtractor:
             A Struct object. Note that this is an instance of the Struct, not the class.
             If `Meta` or `Meta.includes` are not provided, no yield.
         """
-        if self._get_inner_meta_class() is None:
-            return
-
-        include_struct_classes = getattr(
-            self._get_inner_meta_class(), _FieldsExtractor.INCLUDES_FIELD_NAME, None  # pytype: disable=wrong-arg-types
-        )
-        if include_struct_classes is None:
-            return
-
-        for index, include_struct_class in enumerate(include_struct_classes):
-            if not isclass(include_struct_class):
-                raise InvalidStructError(
-                    "Encountered non-class item in 'includes' list of 'Meta' inner class. "
-                    f"Item at index {index}: '{include_struct_class}' with type {type(include_struct_class)}"
-                )
-
-            include_struct = include_struct_class()
-            if not isinstance(include_struct, Struct):
-                raise InvalidStructError(
-                    "Encountered item in 'includes' list of 'Meta' inner class that is not a Struct or Struct "
-                    f"subclass. Item at index {index} is {include_struct_class}"
-                )
-
-            yield include_struct
+        for struct in _yield_structs_from_meta(
+            self.struct_class, self.INCLUDES_FIELD_NAME  # pytype: disable=wrong-arg-types
+        ):
+            yield struct
 
     #
     # Handle inheritance from super class
@@ -317,3 +289,106 @@ class _FieldsExtractor:
                     f"{type(fields_a[key])} vs {type(fields_b[key])}"
                 )
         return combined
+
+
+@dataclass
+class _Validator:
+    """
+    Validate the "implements" requirement of a struct, if any provided.
+
+    Assumes that the inner metadata of the class has been extracted.
+    """
+
+    IMPLEMENTS_FIELD_NAME: ClassVar[str] = "implements"
+
+    struct_class: Type[Struct]
+
+    def validate(self):
+        """
+        Validate that the meets "implements" requirements, if specified.
+
+        Raises:
+            StructImplementationError:
+                If class does not correctly implement any required structs.
+        """
+        root_struct_metadata: _StructInnerMetadata = self.struct_class._struct_metadata  # pylint: disable=protected-access
+        if root_struct_metadata is None:  # pylint: disable=protected-access
+            raise ValueError(f"Struct class {self.struct_class} has not had its inner metadata extracted")
+
+        for required_struct in self._yield_implements_structs():
+
+            req_fields = (
+                required_struct._struct_metadata.fields  # pylint: disable=protected-access  # pytype: disable=attribute-error
+            )
+            for req_field_name, req_field in req_fields.items():
+                if req_field_name not in root_struct_metadata.fields:  # pytype: disable=attribute-error
+                    raise StructImplementationError(
+                        f"Struct '{self.struct_class.__name__}' does not implement field '{req_field_name}' "
+                        f"required by struct '{type(required_struct).__name__}'"
+                    )
+                if req_field != root_struct_metadata.fields[req_field_name]:  # pytype: disable=attribute-error
+                    # pylint: disable=protected-access
+                    raise StructImplementationError(
+                        f"Struct '{self.struct_class.__name__}' "  # pytype: disable=attribute-error
+                        f"implements field '{req_field_name}' "
+                        f"(required by struct '{type(required_struct).__name__}') but field is not compatible. "
+                        f"Required {req_field._short_info()} "
+                        f"but found {root_struct_metadata.fields[req_field_name]._short_info()}"
+                    )
+
+    def _yield_implements_structs(self) -> Generator[Struct, None, None]:
+        """Get the Structs specified in the `Meta.implements`, if any."""
+        for struct in _yield_structs_from_meta(
+            self.struct_class, self.IMPLEMENTS_FIELD_NAME  # pytype: disable=wrong-arg-types
+        ):
+            yield struct
+
+
+def _get_inner_meta_class(struct_class: Type[Struct]) -> Optional[Type]:
+    """Retrieve the `Meta` inner class of a Struct class, or None if none is provided."""
+    if not hasattr(struct_class, _META_INNER_CLASS_NAME):  # pytype: disable=wrong-arg-types
+        return None
+    inner_meta_class = getattr(struct_class, _META_INNER_CLASS_NAME)
+
+    if not isinstance(inner_meta_class, type):
+        raise InvalidStructError(
+            f"The '{_META_INNER_CLASS_NAME}' "
+            "property of a Struct must only be used as an "
+            f"inner class. Found type {type(inner_meta_class)}"
+        )
+    return inner_meta_class
+
+
+def _yield_structs_from_meta(source_struct_class: Type[Struct], attribute_name: str) -> Generator[Struct, None, None]:
+    """
+    Get a list of structs located at an attribute of the Meta inner class, if any.
+
+    A class specified in the list of Structs is converted to an instance of the class before returning.
+
+    Yields:
+        A Struct object. Note that this is an instance of the Struct, not the class.
+        If `Meta` or the attribute `attribute_name` of `Meta` are not present, no yield.
+    """
+    inner_meta_class = _get_inner_meta_class(source_struct_class)
+    if inner_meta_class is None:
+        return
+
+    struct_classes = getattr(inner_meta_class, attribute_name, None)
+    if struct_classes is None:
+        return
+
+    for index, struct_class in enumerate(struct_classes):
+        if not isclass(struct_class):
+            raise InvalidStructError(
+                f"Encountered non-class item in '{attribute_name}' list of 'Meta' inner class. "
+                f"Item at index {index}: '{struct_class}' with type {type(struct_class)}"
+            )
+
+        struct_instance = struct_class()
+        if not isinstance(struct_instance, Struct):
+            raise InvalidStructError(
+                "Encountered item in 'includes' list of 'Meta' inner class that is not a Struct or Struct "
+                f"subclass. Item at index {index} is {struct_class}"
+            )
+
+        yield struct_instance

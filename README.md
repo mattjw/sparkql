@@ -13,7 +13,7 @@ In general, it makes schema definition more Pythonic, and it's
 particularly useful you're dealing with structured data.
 
 In plain old PySpark, you might find that you write schemas
-[like this](./examples/conferences_comparison/plain_schema.py):
+[like this](https://github.com/mattjw/sparkql/tree/master/examples/conferences_comparison/plain_schema.py):
 
 ```python
 CITY_SCHEMA = StructType()
@@ -38,7 +38,7 @@ dframe.withColumn("city_name", df[CONF_CITY_FIELD][CITY_NAME_FIELD])
 ```
 
 Instead, with `sparkql`, schemas become a lot
-[more literate](./examples/conferences_comparison/sparkql_schema.py):
+[more literate](https://github.com/mattjw/sparkql/tree/master/examples/conferences_comparison/sparkql_schema.py):
 
 ```python
 class City(Struct):
@@ -86,12 +86,12 @@ class Geolocation(Struct):
 which would mean the concrete name of the `Geolocation.latitude` field
 is `lat`.
 
-### Field paths, and nested objects
+### Field paths and nested objects
 
 Referencing fields in nested data can be a chore. `sparkql` simplifies this
 with path referencing.
 
-[For example](./examples/nested_objects/sparkql_example.py), if we have a
+[For example](https://github.com/mattjw/sparkql/tree/master/examples/nested_objects/sparkql_example.py), if we have a
 schema with nested objects:
 
 ```python
@@ -137,7 +137,8 @@ Both give the same result. However, the former (`e`) is more
 type-oriented. The `e` attribute corresponds to the array's element
 field. Although this looks strange at first, it has the advantage of
 being inspectable by IDEs and other tools, allowing goodness such as
-IDE auto-completion and IDE-assisted refactoring.
+IDE auto-completion, automated refactoring, and identifying errors
+before runtime.
 
 `path_col` is the counterpart to `path_str` and returns a Spark `Column`
 object for the path, allowing it to be used in all places where Spark
@@ -145,11 +146,19 @@ requires a column.
 
 ### Composite schemas
 
-Structs can be re-used to build composite schemas with _inheritance_ or _includes_.
+It is sometimes useful to be able to re-use the fields of one struct
+in another struct. `sparkql` provides a few features to enable this:
+
+- _inheritance_: A subclass inherits the fields of a base struct class.
+- _includes_: Incorporate fields from another struct.
+- _implements_: Enforce that a struct must implement the fields of
+  another struct.
+
+See the following examples for a better explanation.
 
 #### Using inheritance
 
-For [example](./examples/composite_schemas/inheritance.py), the following:
+For [example](https://github.com/mattjw/sparkql/tree/master/examples/composite_schemas/inheritance.py), the following:
 
 ```python
 class BaseEvent(Struct):
@@ -160,7 +169,7 @@ class RegistrationEvent(BaseEvent):
     user_id = String(nullable=False)
 ```
 
-will produce the `RegistrationEvent` schema:
+will produce the following `RegistrationEvent` schema:
 
 ```text
 StructType(List(
@@ -171,7 +180,7 @@ StructType(List(
 
 #### Using an `includes` declaration
 
-For [example](./examples/composite_schemas/includes.py), the following:
+For [example](https://github.com/mattjw/sparkql/tree/master/examples/composite_schemas/includes.py), the following:
 
 ```python
 class EventMetadata(Struct):
@@ -192,6 +201,32 @@ StructType(List(
     StructField(correlation_id,StringType,false),
     StructField(event_time,TimestampType,false)))
 ```
+
+#### Using an `implements` declaration
+
+`implements` is similar to `includes`, but does not automatically
+incorporate the fields of specified structs. Instead, it is up to
+the implementor to ensure that the required fields are declared in
+the struct.
+
+Failing to implement a field from an `implements` struct will result in
+a `StructImplementationError` error.
+
+[For example](https://github.com/mattjw/sparkql/tree/master/examples/composite_schemas/implements.py):
+
+```
+class LogEntryMetadata(Struct):
+    logged_at = Timestamp(nullable=False)
+
+class PageViewLogEntry(Struct):
+    class Meta:
+        implements = [LogEntryMetadata]
+    page_id = String(nullable=False)
+
+# the above class declaration will fail with the following StructImplementationError error:
+#   Struct 'RegistrationEvent' does not implement field 'correlation_id' required by struct 'EventMetadata'
+```
+
 
 ### Prettified Spark schema strings
 
