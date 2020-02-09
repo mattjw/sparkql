@@ -5,8 +5,9 @@
 [![CircleCI](https://circleci.com/gh/mattjw/sparkql.svg?style=svg)](https://circleci.com/gh/mattjw/sparkql)
 [![codecov](https://codecov.io/gh/mattjw/sparkql/branch/master/graph/badge.svg)](https://codecov.io/gh/mattjw/sparkql)
 
-Python Spark SQL DataFrame schema management for sensible humans:
-_Don't sweat it... sparkql ✨ it._
+Python Spark SQL DataFrame schema management for sensible humans.
+
+> _Don't sweat it... sparkql it ✨
 
 ## Why use sparkql
 
