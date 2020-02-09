@@ -424,7 +424,7 @@ description = "Python type inferencer"
 name = "pytype"
 optional = false
 python-versions = "*"
-version = "2020.1.24"
+version = "2020.2.6"
 
 [package.dependencies]
 attrs = "*"
@@ -534,8 +534,8 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools"]
 
 [metadata]
-content-hash = "560ef7f985a9a26a1526c0746c4617da9a10c3bc5e8c4e2a48c348cef22403da"
-python-versions = "~3.6.8"
+content-hash = "68c475f78c43b6aef6741acce890a0ba14fcc9c84bf186cda22348474bcd13e2"
+python-versions = "~3.6 || ~3.7"
 
 [metadata.files]
 appdirs = [
@@ -735,7 +735,7 @@ pytest-spark = [
     {file = "pytest_spark-0.5.2-py3-none-any.whl", hash = "sha256:b6fc3310e37c2e6cf6eca73c2dc1a5e4583544bfc3d70999cda33f9aea55c6e4"},
 ]
 pytype = [
-    {file = "pytype-2020.1.24.tar.gz", hash = "sha256:bbce5420a59dfe003b471349a372870456f97efc053a00a5a504203ef90ccdf6"},
+    {file = "pytype-2020.2.6.tar.gz", hash = "sha256:53803f0f1fadf4923efc88a0bd0cfa4c242d2fa3f04421b6f8ab4d658ffd2b90"},
 ]
 pyyaml = [
     {file = "PyYAML-5.3-cp27-cp27m-win32.whl", hash = "sha256:940532b111b1952befd7db542c370887a8611660d2b9becff75d39355303d82d"},
