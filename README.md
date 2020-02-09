@@ -5,12 +5,14 @@
 [![CircleCI](https://circleci.com/gh/mattjw/sparkql.svg?style=svg)](https://circleci.com/gh/mattjw/sparkql)
 [![codecov](https://codecov.io/gh/mattjw/sparkql/branch/master/graph/badge.svg)](https://codecov.io/gh/mattjw/sparkql)
 
+> _Don't sweat... sparkql ✨._
+
 Python Spark SQL DataFrame schema management for sensible humans.
 
 ## Why use sparkql
 
 `sparkql` takes the pain out of working with DataFrame schemas in PySpark.
-In general, it makes schema definition more Pythonic, and it's
+It makes schema definition more Pythonic. And it's
 particularly useful you're dealing with structured data.
 
 In plain old PySpark, you might find that you write schemas
