@@ -227,7 +227,8 @@ class _FieldsExtractor:
             A Struct object. Note that this is an instance of the Struct, not the class.
             If `Meta` or `Meta.includes` are not provided, no yield.
         """
-        for struct in _yield_structs_from_meta(self.struct_class, self.INCLUDES_FIELD_NAME):
+        for struct in _yield_structs_from_meta(
+                self.struct_class, self.INCLUDES_FIELD_NAME):  # pytype: disable=wrong-arg-types
             yield struct
 
     #
@@ -314,17 +315,19 @@ class _Validator:
             raise ValueError(f"Struct class {self.struct_class} has not had its inner metadata extracted")
 
         for required_struct in self._yield_implements_structs():
-            req_fields = required_struct._struct_metadata.fields  # pylint: disable=protected-access
+
+            req_fields = required_struct._struct_metadata.fields  # pylint: disable=protected-access  # pytype: disable=attribute-error
             for req_field_name, req_field in req_fields.items():
-                if req_field_name not in root_struct_metadata.fields:
+                if req_field_name not in root_struct_metadata.fields:  # pytype: disable=attribute-error
                     raise StructImplementationError(
                         f"Struct '{self.struct_class.__name__}' does not implement field '{req_field_name}' "
                         f"required by struct '{type(required_struct).__name__}'"
                     )
-                if req_field != root_struct_metadata.fields[req_field_name]:
+                if req_field != root_struct_metadata.fields[req_field_name]:  # pytype: disable=attribute-error
                     # pylint: disable=protected-access
                     raise StructImplementationError(
-                        f"Struct '{self.struct_class.__name__}' implements field '{req_field_name}' "
+                        f"Struct '{self.struct_class.__name__}' "  # pytype: disable=attribute-error
+                        f"implements field '{req_field_name}' "
                         f"(required by struct '{type(required_struct).__name__}') but field is not compatible. "
                         f"Required {req_field._short_info()} "
                         f"but found {root_struct_metadata.fields[req_field_name]._short_info()}"
@@ -332,7 +335,8 @@ class _Validator:
 
     def _yield_implements_structs(self) -> Generator[Struct, None, None]:
         """Get the Structs specified in the `Meta.implements`, if any."""
-        for struct in _yield_structs_from_meta(self.struct_class, self.IMPLEMENTS_FIELD_NAME):
+        for struct in _yield_structs_from_meta(
+                self.struct_class, self.IMPLEMENTS_FIELD_NAME):  # pytype: disable=wrong-arg-types
             yield struct
 
 
