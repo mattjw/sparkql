@@ -7,7 +7,7 @@
 
 Python Spark SQL DataFrame schema management for sensible humans.
 
-> _Don't sweat it... sparkql it ✨
+> _Don't sweat it... sparkql it ✨_
 
 ## Why use sparkql
 
