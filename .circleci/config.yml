@@ -76,9 +76,12 @@ jobs:
 
       # Run all checks
       - run:
-          name: Run tests
+          name: Run checks and tests
           command: |
             poetry run verify-all
+
+      - store_artifacts:
+          path: reports/htmlcov
 
       # Check for releasable changes (if any) (for convenience)
       - run:
