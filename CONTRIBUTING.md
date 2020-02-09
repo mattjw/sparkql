@@ -58,7 +58,7 @@ Type hints are strongly encouraged, and are checked during CI.
 This library uses [Semantic Versioning](https://semver.org/) (semver).
 
 To track changes to the library (major, minor, patch), this library
-uses an abridged version of
+uses a version of
 [Conventional Commits](https://woile.github.io/commitizen/tutorials/writing_commits/#conventional-commits):
 
 - The change is a PATCH change if the message title begins with `fix:`.
@@ -78,17 +78,13 @@ put in the commit message body.
 
 ## Change types (`CHANGE_TYPE`)
 
-This project uses the
-[Commitizen](https://woile.github.io/commitizen/tutorials/writing_commits/#conventional-commits)
-brand of [Conventional Commits](https://www.conventionalcommits.org/).
-
 As stated above, the following change types are used to indicate a
 version change:
 
 - `feat`: Introduces a new feature to the codebase (this correlates
   with MINOR in semantic versioning).
 - `fix`: Patches a bug in the codebase (this correlates with PATCH
-  in semantic versioning).`
+  in semantic versioning).
 
 In addition, this project adopts the
 [Angular](https://github.com/angular/angular/blob/22b96b9/CONTRIBUTING.md#type)
@@ -101,7 +97,7 @@ change types:
 - `perf`: A code change that improves performance.
 - `refactor`: A code change that neither fixes a bug nor adds a feature.
 - `style`: Changes that do not affect the meaning of the code
-  (white-space, formatting, missing semi-colons, etc).
+  (white-space, formatting, etc).
 - `test`: Adding missing tests or correcting existing tests.
 
 ## Branch naming
