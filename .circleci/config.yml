@@ -82,6 +82,7 @@ jobs:
           command: |
             poetry run verify-all
 
+      # Upload code coverage artifacts
       - store_artifacts:
           path: reports/htmlcov
 
