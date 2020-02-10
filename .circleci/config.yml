@@ -94,10 +94,12 @@ jobs:
           file: reports/coverage.xml
 
       # Check for releasable changes (if any) (for convenience)
-      - run:
-          name: Check for releasable changes (if any)
-          command: |
-            poetry run find-releasable-changes
+      # TEMPORARILY DISABLED DUE TO BUG
+      #   https://circleci.com/gh/mattjw/sparkql/192?utm_campaign=vcs-integration-link&utm_medium=referral&utm_source=github-build-link
+      #- run:
+      #    name: Check for releasable changes (if any)
+      #    command: |
+      #      poetry run find-releasable-changes
 
 
   release:
