@@ -141,7 +141,7 @@ def get_poetry_version() -> str:
 
 def get_version_info() -> NextVersionInfo:
     """
-    Determine the version number that the next releaes will be, if any.
+    Determine the version number that the next release will be, if any.
 
     Looks through commit messages since the last release (via Commitizen, assuming Conventional Commits).
     If, according to commits, a new release can happen, then determine what the version number will be.
@@ -157,16 +157,27 @@ def get_version_info() -> NextVersionInfo:
         print("It doesn't look like this project is set up for commitizen")
         exit(1)
 
+    if "NO_COMMITS_FOUND" in cz_output:
+        return NextVersionInfo(get_poetry_version(), None, None, None)
+
     match = re.search(r"""bump: version ([.\d]+) → ([.\d]+)""", cz_output)
+    if match is None:
+        print(f"Failed to find bump string in: \n{cz_output}")
+        exit(1)
     current_version, next_version = match.groups()
 
     if current_version == next_version:
         return NextVersionInfo(current_version, None, None, None)
 
     match = re.search(r"""tag to create: ([.v\d]+)""", cz_output)
+    if match is None:
+        print(f"Failed to find tag string in: \n{cz_output}")
+        exit(1)
     next_tag = match.group(1)
 
     match = re.search(r"""increment detected: ([A-Z]+)""", cz_output)
+    if match is None:
+        print(f"Failed to find increment string in: \n{cz_output}")
     increment_type = match.group(1)
 
     return NextVersionInfo(current_version, next_version, next_tag, increment_type)
