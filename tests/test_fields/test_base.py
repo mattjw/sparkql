@@ -12,9 +12,4 @@ class TestBaseField:
         info_str = string_field._info()
 
         # then
-        print(info_str)
-        assert info_str == """<Float
-  spark type = FloatType
-  nullable = True
-  name = None <- [None, None]
-  parent = None>"""
+        assert info_str == "<Float \n  spark type = FloatType \n  nullable = True \n  name = None <- [None, None] \n  parent = None>"
