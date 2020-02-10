@@ -31,12 +31,12 @@ class Array(Generic[ArrayElementType], BaseField):
         super().__init__(nullable, name)
 
         if not isinstance(element, BaseField):
-            raise ValueError(f"Array element must be a field. Found type: {type(element)}")
+            raise ValueError(f"Array element must be a field. Found type: {type(element).__name__}")
 
         self.e = element  # pylint: disable=invalid-name
         if element._resolve_field_name() is not None:
             raise ValueError(
-                "When using a field as the element field of an array, the field shoud not have a name. "
+                "When using a field as the element field of an array, the field should not have a name. "
                 f"The field's name resolved to: {element._resolve_field_name()}"
             )
             # None of the naming mechanics of this array's element type will be used.
@@ -49,9 +49,10 @@ class Array(Generic[ArrayElementType], BaseField):
         self, parent: Optional["Struct"] = None  # pytype: disable=invalid-annotation,name-error
     ) -> "Struct":  # pytype: disable=invalid-annotation,name-error
         """Return a copy of this array with the parent attribute set."""
-        field = copy.copy(self)
-        field._parent_struct = self.e._replace_parent(parent=parent)  # pylint: disable=protected-access
-        return field
+        self_copy = copy.copy(self)
+        self_copy._parent_struct = parent  # pylint: disable=protected-access
+        self_copy.e = self.e._replace_parent(parent=parent)  # pylint: disable=protected-access
+        return self_copy
 
     #
     # Field name management

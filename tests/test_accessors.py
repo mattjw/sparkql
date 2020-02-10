@@ -2,7 +2,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql import functions as sql_funcs
 from pyspark.sql.types import StructField, StringType
 
-from sparkql import String, Struct, Array
+from sparkql import String, Struct, Array, Float
 from sparkql import accessors
 
 
@@ -124,3 +124,16 @@ class TestStructField:
 
         # then
         assert struct_field == StructField("biography", StringType(), False)
+
+
+class TestPrettyPath:
+    @staticmethod
+    def should_prettify_a_path():
+        # given (and above)
+        seq = [String(name="field_a"), Float(name="field_b")]
+
+        # when
+        pretty_path_str = accessors._pretty_path(seq)
+
+        # then
+        assert pretty_path_str == "< 'field_a' (String) -> 'field_b' (Float) >"

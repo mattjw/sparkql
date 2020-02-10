@@ -11,7 +11,7 @@ class TestArrayField:
 
         # when, then
         with pytest.raises(
-            ValueError, match="When using a field as the element field of an array, the field shoud not have a name."
+            ValueError, match="When using a field as the element field of an array, the field should not have a name."
         ):
             Array(element)
 
@@ -46,3 +46,33 @@ class TestArrayField:
 
         # then
         assert path == "sequence.string_field"
+
+    @staticmethod
+    def should_replace_parent_should_replace_parent_of_element():
+        # given
+        array_element = String()
+        array = Array(array_element, name="array")
+
+        class ParentStruct(Struct):
+            pass
+
+        new_parent = ParentStruct()
+
+        # when
+        returned_array = array._replace_parent(new_parent)
+
+        # then
+        assert array._parent_struct is None
+        assert returned_array is not array
+        assert returned_array._parent_struct is new_parent
+        assert isinstance(returned_array, Array)
+        assert returned_array.e._parent_struct is new_parent
+
+    @staticmethod
+    def should_reject_non_field_element():
+        # given
+        bad_element = "this is a str, which is not a field"
+
+        # when, then
+        with pytest.raises(ValueError, match="Array element must be a field. Found type: str"):
+            Array(bad_element)
