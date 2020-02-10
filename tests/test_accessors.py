@@ -130,10 +130,7 @@ class TestPrettyPath:
     @staticmethod
     def should_prettify_a_path():
         # given (and above)
-        seq = [
-            String(name="field_a"),
-            Float(name="field_b")
-        ]
+        seq = [String(name="field_a"), Float(name="field_b")]
 
         # when
         pretty_path_str = accessors._pretty_path(seq)
