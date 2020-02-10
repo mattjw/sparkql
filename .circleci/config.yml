@@ -31,12 +31,9 @@ workflows:
 
   ci_workflow:
     description: |
-      CI for all non-master branches. Executes a build and verify (including testing, linting, and so on).
+      CI for all branches. Executes a build and verify (including testing, linting, and so on).
     jobs:
-      - build_verify:
-          filters:
-            branches:
-              ignore: master
+      - build_verify
 
 
 jobs:
@@ -94,12 +91,10 @@ jobs:
           file: reports/coverage.xml
 
       # Check for releasable changes (if any) (for convenience)
-      # TEMPORARILY DISABLED DUE TO BUG
-      #   https://circleci.com/gh/mattjw/sparkql/192?utm_campaign=vcs-integration-link&utm_medium=referral&utm_source=github-build-link
-      #- run:
-      #    name: Check for releasable changes (if any)
-      #    command: |
-      #      poetry run find-releasable-changes
+      - run:
+          name: Check for releasable changes (if any)
+          command: |
+            poetry run find-releasable-changes
 
 
   release:
