@@ -55,6 +55,7 @@ class TestArrayField:
 
         class ParentStruct(Struct):
             pass
+
         new_parent = ParentStruct()
 
         # when

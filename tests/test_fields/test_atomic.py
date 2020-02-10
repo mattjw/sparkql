@@ -1,8 +1,32 @@
-from pyspark.sql.types import ByteType, IntegerType, LongType, ShortType, DecimalType, DoubleType, FloatType, \
-    StringType, BinaryType, BooleanType, DateType, TimestampType
+from pyspark.sql.types import (
+    ByteType,
+    IntegerType,
+    LongType,
+    ShortType,
+    DecimalType,
+    DoubleType,
+    FloatType,
+    StringType,
+    BinaryType,
+    BooleanType,
+    DateType,
+    TimestampType,
+)
 
-from sparkql.fields.atomic import Byte, Integer, Long, Short, Decimal, Double, Float, String, Binary, Boolean, Date, \
-    Timestamp
+from sparkql.fields.atomic import (
+    Byte,
+    Integer,
+    Long,
+    Short,
+    Decimal,
+    Double,
+    Float,
+    String,
+    Binary,
+    Boolean,
+    Date,
+    Timestamp,
+)
 
 
 def test_atomics_have_correct_spark_type_classes():

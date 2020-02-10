@@ -37,7 +37,8 @@ class Array(Generic[ArrayElementType], BaseField):
         if element._resolve_field_name() is not None:
             raise ValueError(
                 "When using a field as the element field of an array, the field should not have a name. "
-                f"The field's name resolved to: {element._resolve_field_name()}")
+                f"The field's name resolved to: {element._resolve_field_name()}"
+            )
             # None of the naming mechanics of this array's element type will be used.
             # The name of the element type will not be used for anything
 

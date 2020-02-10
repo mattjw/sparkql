@@ -55,11 +55,7 @@ class TestPrettySchema:
         true)))""",
             id="array without nulls",
         ),
-        pytest.param(
-            StructType([]),
-            "StructType(List())",
-            id="empty schema",
-        ),
+        pytest.param(StructType([]), "StructType(List())", id="empty schema"),
     ]
 
     @staticmethod
