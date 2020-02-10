@@ -31,7 +31,7 @@ class Array(Generic[ArrayElementType], BaseField):
         super().__init__(nullable, name)
 
         if not isinstance(element, BaseField):
-            raise ValueError(f"Array element must be a field. Found type: {type(element)}")
+            raise ValueError(f"Array element must be a field. Found type: {type(element).__name__}")
 
         self.e = element  # pylint: disable=invalid-name
         if element._resolve_field_name() is not None:

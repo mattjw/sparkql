@@ -46,3 +46,12 @@ class TestArrayField:
 
         # then
         assert path == "sequence.string_field"
+
+    @staticmethod
+    def should_reject_non_field_element():
+        # given
+        bad_element = "this is a str, which is not a field"
+
+        # when, then
+        with pytest.raises(ValueError, match="Array element must be a field. Found type: str"):
+            Array(bad_element)
