@@ -50,7 +50,7 @@ class Array(Generic[ArrayElementType], BaseField):
     ) -> "Struct":  # pytype: disable=invalid-annotation,name-error
         """Return a copy of this array with the parent attribute set."""
         self_copy = copy.copy(self)
-        self_copy._parent_struct = parent
+        self_copy._parent_struct = parent  # pylint: disable=protected-access
         self_copy.e = self.e._replace_parent(parent=parent)  # pylint: disable=protected-access
         return self_copy
 
