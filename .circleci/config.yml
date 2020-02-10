@@ -31,12 +31,9 @@ workflows:
 
   ci_workflow:
     description: |
-      CI for all non-master branches. Executes a build and verify (including testing, linting, and so on).
+      CI for all branches. Executes a build and verify (including testing, linting, and so on).
     jobs:
-      - build_verify:
-          filters:
-            branches:
-              ignore: master
+      - build_verify
 
 
 jobs:
