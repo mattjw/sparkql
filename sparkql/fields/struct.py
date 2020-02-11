@@ -300,7 +300,7 @@ class _Validator:
                 If class does not correctly implement any required structs.
         """
         root_struct_metadata: _StructInnerMetadata = self.struct_class._struct_metadata  # pylint: disable=protected-access
-        if root_struct_metadata is None:  # pylint: disable=protected-access
+        if root_struct_metadata is None:
             raise ValueError(f"Struct class {self.struct_class} has not had its inner metadata extracted")
 
         for required_struct in self._yield_implements_structs():
