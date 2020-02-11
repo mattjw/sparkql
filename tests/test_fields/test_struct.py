@@ -22,6 +22,14 @@ class TestStruct:
                 _name = String()
 
     @staticmethod
+    def test_should_not_inner_meta_that_is_not_a_class():
+        # given, when, then
+        with pytest.raises(InvalidStructError):
+
+            class Article(Struct):
+                Meta = String()
+
+    @staticmethod
     def test_should_allow_override_of_functions():
         # given, when, then
         class Article(Struct):
