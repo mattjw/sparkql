@@ -36,3 +36,15 @@ class TestStruct:
             @property
             def _spark_type_class(self):
                 return None
+
+    @staticmethod
+    def test_should_handle_non_field_attribute_on_struct_instance():
+        # given
+        class Article(Struct):
+            other_const = "HELLO"
+
+        # when
+        value = Article().other_const
+
+        # then
+        assert value == "HELLO"
