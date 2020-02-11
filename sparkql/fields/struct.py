@@ -223,11 +223,14 @@ class _FieldsExtractor:
     #
     # Handle inheritance from super class
 
-    def _get_super_class(self) -> Optional[Type]:
-        """Obtain super class; or None if somehow no super class."""
+    def _get_super_class(self) -> Type:
+        """Obtain super class."""
         root_class = self.struct_class
-        if len(root_class.__mro__) <= 1:
-            return None
+
+        assert len(root_class.__mro__) >= 2
+        # by definition, the `_FieldsExtractor` will only be invoked when the `root_class` is subclassing Struct, and
+        # thus the MRO for the `root_class` will always have at least two elems
+
         return root_class.__mro__[1]
 
     def _get_super_struct_metadata(self) -> Optional[_StructInnerMetadata]:
