@@ -60,6 +60,8 @@ As does dealing with nested fields:
 dframe.withColumn("city_name", path_col(Conference.city.name))
 ```
 
+## Defining schemas
+
 Each Spark atomic type has a counterpart `sparkql` field:
 
 | PySpark type | `sparkql` field |
