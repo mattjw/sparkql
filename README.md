@@ -60,7 +60,7 @@ As does dealing with nested fields:
 dframe.withColumn("city_name", path_col(Conference.city.name))
 ```
 
-## Defining schemas
+## Defining a schema
 
 Each Spark atomic type has a counterpart `sparkql` field:
 
@@ -80,7 +80,7 @@ Each Spark atomic type has a counterpart `sparkql` field:
 | `TimestampType` | `Timestamp` |
 
 `Array` (counterpart to `ArrayType` in PySpark) allows the definition
-of arrays of objects. By creating a sub-class of `Struct`, we can
+of arrays of objects. By creating a subclass of `Struct`, we can
 define a custom class that will be converted to a `StructType`.
 
 For
