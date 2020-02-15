@@ -8,8 +8,8 @@ from typing import ClassVar, Optional, Mapping, Type, Any, Generator, Tuple, Mut
 from pyspark.sql import types as sql_types
 from pyspark.sql.types import DataType, StructField
 
-from ..exceptions import InvalidStructError, StructImplementationError
-from .base import BaseField
+from sparkql.exceptions import InvalidStructError, StructImplementationError
+from sparkql.fields.base import BaseField
 
 
 class Struct(BaseField):

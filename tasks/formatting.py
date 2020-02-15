@@ -1,4 +1,4 @@
-from .utils import run, PROJECT_INFO, print_heavy
+from tasks.utils import run, PROJECT_INFO, print_heavy
 
 
 #

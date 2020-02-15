@@ -4,7 +4,7 @@ from typing import Union, Type
 
 from pyspark.sql.types import StructType
 
-from .fields.struct import Struct
+from sparkql.fields.struct import Struct
 
 
 def schema(schema_object: Union[Struct, Type[Struct]]) -> StructType:
