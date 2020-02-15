@@ -80,10 +80,34 @@ Each Spark atomic type has a counterpart `sparkql` field:
 `Array` (counterpart to `ArrayType` in PySpark) allows the definition
 of arrays of objects.
 
-Many examples of how to use `sparkql` can be found in
-[`examples`](https://github.com/mattjw/sparkql/tree/master/examples).
+For
+[example](https://github.com/mattjw/sparkql/tree/master/examples/arrays),
+given the `sparkql` schema definition:
+
+```python
+class Article(Struct):
+    title = String(nullable=False)
+    tags = Array(String(), nullable=False)
+    comments = Array(String(nullable=False))
+```
+
+then `sparkql.schema(Article)` will create the following Spark schema:
+
+```
+StructType(List(
+    StructField(title,StringType,false),
+    StructField(tags,
+        ArrayType(StringType,true),
+        false),
+    StructField(comments,
+        ArrayType(StringType,false),
+        true)))
+```
 
 ## Features
+
+Many examples of how to use `sparkql` can be found in
+[`examples`](https://github.com/mattjw/sparkql/tree/master/examples).
 
 ### Automated field naming
 
