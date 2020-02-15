@@ -78,22 +78,35 @@ Each Spark atomic type has a counterpart `sparkql` field:
 | `TimestampType` | `Timestamp` |
 
 `Array` (counterpart to `ArrayType` in PySpark) allows the definition
-of arrays of objects.
+of arrays of objects. By creating a sub-class of `Struct`, we can
+define a custom class that will be converted to a `StructType`.
 
 For
 [example](https://github.com/mattjw/sparkql/tree/master/examples/arrays),
 given the `sparkql` schema definition:
 
 ```python
+from sparkql import Struct, String, Array
+
 class Article(Struct):
     title = String(nullable=False)
     tags = Array(String(), nullable=False)
     comments = Array(String(nullable=False))
 ```
 
-then `sparkql.schema(Article)` will create the following Spark schema:
+Then we can build the equivalent PySpark schema (a `StructType`)
+with:
 
+```python
+from sparkql import schema
+
+pyspark_struct = schema(Article)
 ```
+
+Pretty printing the schema with the expression
+`sparkql.pretty_schema(pyspark_struct)` will give the following:
+
+```text
 StructType(List(
     StructField(title,StringType,false),
     StructField(tags,
