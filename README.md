@@ -60,6 +60,25 @@ As does dealing with nested fields:
 dframe.withColumn("city_name", path_col(Conference.city.name))
 ```
 
+Each Spark type has a counterpart `sparkql` field:
+
+| Spark type | `sparkql` field |
+|---|---|
+| `ByteType` | `Byte` |
+| `IntegerType` | `Integer` |
+| `LongType` | `Long` |
+| `ShortType` | `Short` |
+| `DecimalType` | `Decimal` |
+| `DoubleType` | `Double` |
+| `FloatType` | `Float` |
+| `StringType` | `String` |
+| `BinaryType` | `Binary` |
+| `BooleanType` | `Boolean` |
+| `DateType` | `Date` |
+| `TimestampType` | `Timestamp` |
+| `ArrayType` | `Array` |
+| `StructType` | `Struct` |
+
 ## Features
 
 ### Automated field naming
