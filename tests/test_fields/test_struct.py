@@ -1,5 +1,6 @@
 import pytest
 
+from sparkql.fields.struct import _Validator
 from sparkql.exceptions import InvalidStructError
 from sparkql import Struct, String
 
@@ -48,3 +49,17 @@ class TestStruct:
 
         # then
         assert value == "HELLO"
+
+
+class TestValidator:
+    @staticmethod
+    def should_reject_class_missing_metadata():
+        # given
+        class Empty:
+            _struct_metadata = None
+
+        validator = _Validator(Empty)
+
+        # when, then
+        with pytest.raises(ValueError, match="has not had its inner metadata extracted"):
+            validator.validate()

@@ -1,5 +1,5 @@
 from sparkql import schema, pretty_schema
-from ..conferences import Conference, prettified_schema
+from examples.conferences_extended.conferences import Conference, prettified_schema
 
 
 def test_stringified_schema():
