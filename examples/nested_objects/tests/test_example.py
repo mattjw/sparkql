@@ -1,8 +1,8 @@
 from pyspark.sql import Column
 from pyspark.sql.functions import col
 
-from ..sparkql_example import author_city_str, author_city_col, comment_usernames_str, comment_usernames_col, \
-    comment_messages_str, comment_messages_col
+from examples.nested_objects.sparkql_example import author_city_str, author_city_col, comment_usernames_str, \
+    comment_usernames_col, comment_messages_str, comment_messages_col
 
 
 def test_all():

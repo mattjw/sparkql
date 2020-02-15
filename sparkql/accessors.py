@@ -8,7 +8,7 @@ from pyspark.sql import Column
 from pyspark.sql import functions as sql_funcs
 from pyspark.sql.types import StructField
 
-from .fields.base import BaseField
+from sparkql.fields.base import BaseField
 
 
 def path_seq(field: BaseField) -> Sequence[str]:

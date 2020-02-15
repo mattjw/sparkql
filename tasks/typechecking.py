@@ -1,4 +1,4 @@
-from .utils import run, print_heavy
+from tasks.utils import run, print_heavy
 
 
 #

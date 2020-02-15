@@ -60,6 +60,29 @@ As does dealing with nested fields:
 dframe.withColumn("city_name", path_col(Conference.city.name))
 ```
 
+Each Spark atomic type has a counterpart `sparkql` field:
+
+| PySpark type | `sparkql` field |
+|---|---|
+| `ByteType` | `Byte` |
+| `IntegerType` | `Integer` |
+| `LongType` | `Long` |
+| `ShortType` | `Short` |
+| `DecimalType` | `Decimal` |
+| `DoubleType` | `Double` |
+| `FloatType` | `Float` |
+| `StringType` | `String` |
+| `BinaryType` | `Binary` |
+| `BooleanType` | `Boolean` |
+| `DateType` | `Date` |
+| `TimestampType` | `Timestamp` |
+
+`Array` (counterpart to `ArrayType` in PySpark) allows the definition
+of arrays of objects.
+
+Many examples of how to use `sparkql` can be found in
+[`examples`](https://github.com/mattjw/sparkql/tree/master/examples).
+
 ## Features
 
 ### Automated field naming
