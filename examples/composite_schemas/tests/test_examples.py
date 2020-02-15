@@ -3,7 +3,7 @@ import pytest
 from sparkql import pretty_schema, schema
 from sparkql.exceptions import StructImplementationError
 
-from .. import inheritance, includes
+from examples.composite_schemas import inheritance, includes
 
 
 def test_inheritance_registration_schema():

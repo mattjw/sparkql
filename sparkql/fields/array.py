@@ -5,7 +5,7 @@ from typing import Optional, Generic, TypeVar, Any
 
 from pyspark.sql.types import ArrayType, StructField
 
-from .base import BaseField
+from sparkql.fields.base import BaseField
 
 
 ArrayElementType = TypeVar("ArrayElementType", bound=BaseField)

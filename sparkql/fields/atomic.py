@@ -18,7 +18,7 @@ from pyspark.sql.types import (
     DataType,
 )
 
-from .base import AtomicField, IntegralField, FractionalField
+from sparkql.fields.base import AtomicField, IntegralField, FractionalField
 
 
 #

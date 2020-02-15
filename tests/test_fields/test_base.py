@@ -16,7 +16,7 @@ class TestBaseField:
         # then
         assert (
             info_str
-            == "<Float \n  spark type = FloatType \n  nullable = True \n  name = None <- [None, None] \n  parent = None>"
+            == "<Float\n  spark type = FloatType\n  nullable = True\n  name = None <- [None, None]\n  parent = None\n>"
         )
 
     @staticmethod

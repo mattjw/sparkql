@@ -1,6 +1,5 @@
 from sparkql import pretty_schema, schema
-from .. import plain_schema
-from .. import sparkql_schema
+from examples.conferences_comparison import plain_schema, sparkql_schema
 
 
 def test_plain_stringified_schema():
