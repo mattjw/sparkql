@@ -153,6 +153,10 @@ class _FieldsExtractor:
 
     struct_class: Type[Struct]
 
+    def __post_init__(self):
+        """Validate input instance variables."""
+        _validate_struct_class(self.struct_class)
+
     def extract(self) -> Mapping[str, BaseField]:
         """Extract the fields."""
         # pylint: disable=attribute-defined-outside-init
@@ -236,19 +240,14 @@ class _FieldsExtractor:
     def _get_super_struct_metadata(self) -> Optional[_StructInnerMetadata]:
         """Obtain super class's inner metadata; or None if none found."""
         super_class = self._get_super_class()
-        if super_class is None or not hasattr(super_class, "_struct_metadata"):
-            return None
+        assert super_class is not None and hasattr(super_class, "_struct_metadata")
+
         if super_class is Struct:
             # we know that the Struct class (i.e., the base for all custom Structs)
             return None
 
         super_struct_metadata = getattr(super_class, "_struct_metadata")
-        if not isinstance(super_struct_metadata, _StructInnerMetadata):
-            raise InvalidStructError(
-                "Inner struct metadata of super class was not of correct type. "
-                f"Encountered {type(super_struct_metadata)}"
-            )
-
+        assert isinstance(super_struct_metadata, _StructInnerMetadata)
         return super_struct_metadata
 
     def _get_super_class_fields(self) -> Mapping[str, BaseField]:
@@ -293,6 +292,10 @@ class _Validator:
     IMPLEMENTS_FIELD_NAME: ClassVar[str] = "implements"
 
     struct_class: Type[Struct]
+
+    def __post_init__(self):
+        """Validate input instance variables."""
+        _validate_struct_class(self.struct_class)
 
     def validate(self):
         """
@@ -383,3 +386,10 @@ def _yield_structs_from_meta(source_struct_class: Type[Struct], attribute_name: 
             )
 
         yield struct_instance
+
+
+def _validate_struct_class(struct_class: Type):
+    if not issubclass(struct_class, Struct):
+        raise ValueError("'struct_class' must inherit from Struct")
+    if struct_class is Struct:
+        raise ValueError("'struct_class' must not be Struct")
