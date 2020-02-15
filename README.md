@@ -84,7 +84,7 @@ of arrays of objects. By creating a subclass of `Struct`, we can
 define a custom class that will be converted to a `StructType`.
 
 For
-[example](https://github.com/mattjw/sparkql/tree/master/examples/arrays),
+[example](https://github.com/mattjw/sparkql/tree/master/examples/arrays/arrays.py),
 given the `sparkql` schema definition:
 
 ```python
