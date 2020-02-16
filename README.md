@@ -60,6 +60,19 @@ As does dealing with nested fields:
 dframe.withColumn("city_name", path_col(Conference.city.name))
 ```
 
+Here's a summary of `sparkql`'s features. See below for more
+information!
+
+- Automated field naming: The attribute name of a field as it appears
+  in its `Struct` is (by default) used as its field name. This name can
+  be optionally overridden.
+- Programatically reference field names in your structs programmatically
+  with `path_col` and `path_str`.
+- Validate that a DataFrame adheres to your schema.
+- Reuse and build composite schemas with `inheritance`, `includes`, and
+  `implements`.
+- Prettify Spark schema representation with `pretty_schema`.
+
 ## Defining a schema
 
 Each Spark atomic type has a counterpart `sparkql` field:
