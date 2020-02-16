@@ -66,12 +66,13 @@ information!
 - Automated field naming: The attribute name of a field as it appears
   in its `Struct` is (by default) used as its field name. This name can
   be optionally overridden.
-- Programatically reference field names in your structs programmatically
-  with `path_col` and `path_str`.
-- Validate that a DataFrame adheres to your schema.
+- Programatically reference field names in your structs with `path_col`
+  and `path_str`. Avoid hand-constructing strings (or Columns) to
+  reference your nested fields.
+- Validate that a DataFrame matches a `sparkql` schema.
 - Reuse and build composite schemas with `inheritance`, `includes`, and
   `implements`.
-- Prettify Spark schema representation with `pretty_schema`.
+- Get a human-readable Spark schema representation with `pretty_schema`.
 
 ## Defining a schema
 
