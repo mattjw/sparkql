@@ -33,7 +33,12 @@ class ValidationResult:
     report: str = ""
 
     def raise_on_invalid(self):
-        """If the DataFrame did not adhere to the schema, raises an appropriate error."""
+        """
+        If the DataFrame did not adhere to the schema, raises an appropriate error.
+
+        Raises:
+            InvalidDataFrameError if the DataFrame does not pass validation.
+        """
         if not self.is_valid:
             raise InvalidDataFrameError(self.report)
 
@@ -99,7 +104,8 @@ class Struct(BaseField):
         for child_prop, child_val in cls.__dict__.items():
             if (child_prop in Struct.__dict__) and (isinstance(child_val, BaseField)):
                 raise InvalidStructError(
-                    f"Field should not override inherited or reserved class properties: {child_prop}")
+                    f"Field should not override inherited or reserved class properties: {child_prop}"
+                )
 
         # Extract internal metadata for this class, including parsing the fields
         cls._struct_metadata = _StructInnerMetadata.from_struct_class(cls)

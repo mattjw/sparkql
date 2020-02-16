@@ -211,7 +211,59 @@ requires a column.
 
 ### DataFrame validation
 
+Struct method `validate_data_frame` will verify if a given DataFrame's
+schema matches the Struct.
+[For example](https://github.com/mattjw/sparkql/tree/master/examples/validation/test_validation.py),
+if we have our `Article`
+struct and a DataFrame we want to ensure adheres to the `Article`
+schema:
 
+```python
+dframe = spark_session.createDataFrame([{"title": "abc"}])
+
+class Article(Struct):
+    title = String()
+    body = String()
+```
+
+Then we can can validate with:
+
+```python
+validation_result = Article.validate_data_frame(dframe)
+```
+
+`validation_result.is_valid` indicates whether the DataFrame is valid
+(`False` in this case), and `validation_result.report` is a
+human-readable string describing the differences:
+
+```text
+Struct schema...
+
+StructType(List(
+    StructField(title,StringType,true),
+    StructField(body,StringType,true)))
+
+Data frame schema...
+
+StructType(List(
+    StructField(title,StringType,true)))
+
+Diff of struct -> data frame...
+
+  StructType(List(
+-     StructField(title,StringType,true)))
++     StructField(title,StringType,true),
++     StructField(body,StringType,true)))
+```
+
+For convenience,
+
+```python
+Article.validate_data_frame(dframe).raise_on_invalid()
+```
+
+will raise a `InvalidDataFrameError` (see `sparkql.exceptions`) if the  
+DataFrame is not valid.
 
 ### Composite schemas
 
