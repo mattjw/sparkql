@@ -259,7 +259,7 @@ StructType(List(
     StructField(title,StringType,true),
     StructField(body,StringType,true)))
 
-Data frame schema...
+DataFrame schema...
 
 StructType(List(
     StructField(title,StringType,true)))

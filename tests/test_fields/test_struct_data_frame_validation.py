@@ -52,7 +52,7 @@ class TestDataFrameValidation:
 StructType(List(
     StructField(string_field,StringType,true)))
 
-Data frame schema...
+DataFrame schema...
 
 StructType(List(
     StructField(other_field,StringType,true)))
@@ -105,7 +105,7 @@ StructType(List(
             StructField(value,FloatType,true))),true),
         true)))
 
-Data frame schema...
+DataFrame schema...
 
 StructType(List(
     StructField(other_string_field,StringType,true),

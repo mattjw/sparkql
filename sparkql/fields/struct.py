@@ -69,7 +69,7 @@ class Struct(BaseField):
             return ValidationResult(is_valid, pretty_struct=pretty_struct, pretty_data_frame=pretty_dframe)
 
         report = f"Struct schema...\n\n{pretty_struct}\n\n"
-        report += f"Data frame schema...\n\n{pretty_dframe}\n\n"
+        report += f"DataFrame schema...\n\n{pretty_dframe}\n\n"
         report += "Diff of struct -> data frame...\n\n"
         report += "\n".join(
             line_diff
