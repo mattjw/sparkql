@@ -66,7 +66,7 @@ Here's a summary of `sparkql`'s features.
   in its `Struct` is (by default) used as its field name. This name can
   be optionally overridden.
 - Programatically reference field names in your structs with `path_col`
-  and `path_str`. Avoid hand-constructing strings (or Columns) to
+  and `path_str`. Avoid hand-constructing strings (or `Column`s) to
   reference your nested fields.
 - Validate that a DataFrame matches a `sparkql` schema.
 - Reuse and build composite schemas with `inheritance`, `includes`, and
