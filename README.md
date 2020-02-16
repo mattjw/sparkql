@@ -60,6 +60,22 @@ As does dealing with nested fields:
 dframe.withColumn("city_name", path_col(Conference.city.name))
 ```
 
+Here's a summary of `sparkql`'s features.
+
+- ORM-like class-based Spark schema definitions.
+- Automated field naming: The attribute name of a field as it appears
+  in its `Struct` is (by default) used as its field name. This name can
+  be optionally overridden.
+- Programatically reference field names in your structs with `path_col`
+  and `path_str`. Avoid hand-constructing strings (or `Column`s) to
+  reference your nested fields.
+- Validate that a DataFrame matches a `sparkql` schema.
+- Reuse and build composite schemas with `inheritance`, `includes`, and
+  `implements`.
+- Get a human-readable Spark schema representation with `pretty_schema`.
+
+Read on for documentation on these features.
+
 ## Defining a schema
 
 Each Spark atomic type has a counterpart `sparkql` field:
@@ -208,6 +224,62 @@ before runtime.
 `path_col` is the counterpart to `path_str` and returns a Spark `Column`
 object for the path, allowing it to be used in all places where Spark
 requires a column.
+
+### DataFrame validation
+
+Struct method `validate_data_frame` will verify if a given DataFrame's
+schema matches the Struct.
+[For example](https://github.com/mattjw/sparkql/tree/master/examples/validation/test_validation.py),
+if we have our `Article`
+struct and a DataFrame we want to ensure adheres to the `Article`
+schema:
+
+```python
+dframe = spark_session.createDataFrame([{"title": "abc"}])
+
+class Article(Struct):
+    title = String()
+    body = String()
+```
+
+Then we can can validate with:
+
+```python
+validation_result = Article.validate_data_frame(dframe)
+```
+
+`validation_result.is_valid` indicates whether the DataFrame is valid
+(`False` in this case), and `validation_result.report` is a
+human-readable string describing the differences:
+
+```text
+Struct schema...
+
+StructType(List(
+    StructField(title,StringType,true),
+    StructField(body,StringType,true)))
+
+DataFrame schema...
+
+StructType(List(
+    StructField(title,StringType,true)))
+
+Diff of struct -> data frame...
+
+  StructType(List(
+-     StructField(title,StringType,true)))
++     StructField(title,StringType,true),
++     StructField(body,StringType,true)))
+```
+
+For convenience,
+
+```python
+Article.validate_data_frame(dframe).raise_on_invalid()
+```
+
+will raise a `InvalidDataFrameError` (see `sparkql.exceptions`) if the  
+DataFrame is not valid.
 
 ### Composite schemas
 

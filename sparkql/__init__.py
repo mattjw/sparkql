@@ -1,5 +1,6 @@
 """Python Spark SQL DataFrame schema management for sensible humans."""
 
+from sparkql.fields.struct import ValidationResult
 from sparkql.schema_builder import schema
 from sparkql.accessors import path_col, path_seq, path_str, name, struct_field
 from sparkql.formatters import pretty_schema
@@ -19,6 +20,7 @@ from sparkql.fields import (
     Array,
     Struct,
 )
+from sparkql import exceptions
 
 
 __all__ = [
@@ -43,4 +45,6 @@ __all__ = [
     "Timestamp",
     "Array",
     "Struct",
+    "ValidationResult",
+    "exceptions",
 ]
