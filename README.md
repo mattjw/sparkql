@@ -74,7 +74,7 @@ Here's a summary of `sparkql`'s features.
   `implements`.
 - Get a human-readable Spark schema representation with `pretty_schema`.
 
-Read on for detailed guidance on using these features.
+Read on for documentation on these features.
 
 ## Defining a schema
 
