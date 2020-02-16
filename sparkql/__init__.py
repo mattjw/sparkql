@@ -20,6 +20,7 @@ from sparkql.fields import (
     Array,
     Struct,
 )
+from sparkql import exceptions
 
 
 __all__ = [
@@ -45,4 +46,5 @@ __all__ = [
     "Array",
     "Struct",
     "ValidationResult",
+    "exceptions",
 ]

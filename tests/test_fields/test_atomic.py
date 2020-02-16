@@ -29,6 +29,7 @@ from sparkql.fields.atomic import (
 )
 
 
+# FIXME
 def test_atomics_have_correct_spark_type_classes():
     expectations = {
         Byte: ByteType,

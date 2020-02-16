@@ -1,7 +1,10 @@
+import re
+
 import pytest
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, StringType, FloatType, ArrayType
 
+from sparkql.exceptions import InvalidDataFrameError
 from sparkql.fields.struct import ValidationResult
 from sparkql import Struct, String, Float, Array
 
@@ -34,6 +37,33 @@ class TestDataFrameValidation:
             "StructType(List(\n    StructField(string_field,StringType,true)))",
             "",
         )
+
+    @staticmethod
+    def test_should_raise_when_invalid(spark_session: SparkSession):
+        # given
+        class SimpleStruct(Struct):
+            string_field = String()
+
+        dframe = spark_session.createDataFrame([{"other_field": "abc"}])
+
+        # when, then
+        err_message = """Struct schema...
+
+StructType(List(
+    StructField(string_field,StringType,true)))
+
+Data frame schema...
+
+StructType(List(
+    StructField(other_field,StringType,true)))
+
+Diff of struct -> data frame...
+
+  StructType(List(
+-     StructField(other_field,StringType,true)))
++     StructField(string_field,StringType,true)))"""
+        with pytest.raises(InvalidDataFrameError, match=re.escape(err_message)):
+            SimpleStruct.validate_data_frame(dframe).raise_on_invalid()
 
     @staticmethod
     def test_mismatched_data_frame_with_nested_data(spark_session: SparkSession):

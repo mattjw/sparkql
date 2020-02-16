@@ -11,7 +11,7 @@ from pyspark.sql.types import DataType, StructField
 
 from sparkql.formatters import pretty_schema
 from sparkql.schema_builder import schema as schematise
-from sparkql.exceptions import InvalidStructError, StructImplementationError
+from sparkql.exceptions import InvalidStructError, StructImplementationError, InvalidDataFrameError
 from sparkql.fields.base import BaseField
 
 
@@ -31,6 +31,11 @@ class ValidationResult:
     pretty_struct: str
     pretty_data_frame: str
     report: str = ""
+
+    def raise_on_invalid(self):
+        """If the DataFrame did not adhere to the schema, raises an appropriate error."""
+        if not self.is_valid:
+            raise InvalidDataFrameError(self.report)
 
 
 class Struct(BaseField):

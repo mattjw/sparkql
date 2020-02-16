@@ -15,3 +15,7 @@ class InvalidStructError(Exception):
 
 class StructImplementationError(InvalidStructError):
     """A custom Struct subclass fails to correctly implement required fields."""
+
+
+class InvalidDataFrameError(Exception):
+    """A DataFrame does not match a schema."""
