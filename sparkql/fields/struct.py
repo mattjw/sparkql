@@ -2,20 +2,71 @@
 
 from collections import OrderedDict
 from dataclasses import dataclass
+from difflib import ndiff
 from inspect import isclass
 from typing import ClassVar, Optional, Mapping, Type, Any, Generator, Tuple, MutableMapping
 
-from pyspark.sql import types as sql_types
+from pyspark.sql import types as sql_types, DataFrame
 from pyspark.sql.types import DataType, StructField
 
+from sparkql.formatters import pretty_schema
+from sparkql.schema_builder import schema as schematise
 from sparkql.exceptions import InvalidStructError, StructImplementationError
 from sparkql.fields.base import BaseField
+
+
+@dataclass(frozen=True)
+class ValidationResult:
+    """
+    Describes the result of attempting to validate a struct on a DataFrame's schema.
+
+    Attributes:
+        is_valid: Is the DataFrame valid?
+        pretty_struct: Human-readable Spark schema for the Struct.
+        pretty_data_frame: Human-readable Spark schema for the DataFrame.
+        report: A human-readable report on the differences between the two frames. Empty string if no differences.
+    """
+
+    is_valid: bool
+    pretty_struct: str
+    pretty_data_frame: str
+    report: str = ""
 
 
 class Struct(BaseField):
     """A struct; shadows StructType in the Spark API."""
 
     _struct_metadata: ClassVar[Optional["_StructInnerMetadata"]] = None
+
+    @classmethod
+    def validate_data_frame(cls, dframe: DataFrame) -> ValidationResult:
+        """
+        Validate that the DataFrame `dframe` adheres to the schema of this struct.
+
+        Args:
+            dframe: DataFrame to be validated.
+
+        Returns:
+            DataFrameValidationSummary, which describes whether the DataFrame is valid, and additional information
+            on the differences.
+        """
+        schematised_struct = schematise(cls)
+
+        is_valid = dframe.schema == schematised_struct
+        pretty_struct = pretty_schema(schematised_struct)
+        pretty_dframe = pretty_schema(dframe.schema)
+        if is_valid:
+            return ValidationResult(is_valid, pretty_struct=pretty_struct, pretty_data_frame=pretty_dframe)
+
+        report = f"Struct schema...\n\n{pretty_struct}\n\n"
+        report += f"Data frame schema...\n\n{pretty_dframe}\n\n"
+        report += "Diff of struct -> data frame...\n\n"
+        report += "\n".join(
+            line_diff
+            for line_diff in ndiff(pretty_dframe.splitlines(), pretty_struct.splitlines())
+            if not line_diff.startswith("?")
+        )
+        return ValidationResult(is_valid, pretty_struct=pretty_struct, pretty_data_frame=pretty_dframe, report=report)
 
     #
     # Handle Spark representations for a Struct object
