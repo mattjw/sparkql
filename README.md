@@ -62,6 +62,7 @@ dframe.withColumn("city_name", path_col(Conference.city.name))
 
 Here's a summary of `sparkql`'s features.
 
+- ORM-like class-based Spark schema definitions.
 - Automated field naming: The attribute name of a field as it appears
   in its `Struct` is (by default) used as its field name. This name can
   be optionally overridden.
