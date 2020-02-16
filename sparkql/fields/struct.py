@@ -98,7 +98,8 @@ class Struct(BaseField):
         # Ensure a subclass does not break any base class functionality
         for child_prop, child_val in cls.__dict__.items():
             if (child_prop in Struct.__dict__) and (isinstance(child_val, BaseField)):
-                raise InvalidStructError(f"Field should not override inherited class properties: {child_prop}")
+                raise InvalidStructError(
+                    f"Field should not override inherited or reserved class properties: {child_prop}")
 
         # Extract internal metadata for this class, including parsing the fields
         cls._struct_metadata = _StructInnerMetadata.from_struct_class(cls)

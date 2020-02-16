@@ -209,6 +209,10 @@ before runtime.
 object for the path, allowing it to be used in all places where Spark
 requires a column.
 
+### DataFrame validation
+
+
+
 ### Composite schemas
 
 It is sometimes useful to be able to re-use the fields of one struct
