@@ -17,8 +17,8 @@ def assert_ordered_dicts_equal(dict_a: Mapping[Any, Any], dict_b: Mapping[Any, A
     assert OrderedDict(dict_a) == OrderedDict(dict_b)
 
 
+@pytest.mark.only
 class TestStructMakeDict:
-
     @staticmethod
     def should_take_keyword_arg_and_resolve_property_name_to_explicit_name():
         # given
@@ -29,10 +29,7 @@ class TestStructMakeDict:
         dic = AnObject.make_dict(text="text_value")
 
         # then
-        assert_ordered_dicts_equal(
-            dic,
-            {"explicit_text_field_name": "text_value"}
-        )
+        assert_ordered_dicts_equal(dic, {"explicit_text_field_name": "text_value"})
 
     @staticmethod
     def should_take_positional_arg():
@@ -54,41 +51,44 @@ class TestStructMakeDict:
             numeric_field = Float(name="explicit_numeric_name")
 
         # when
-        dic = AnObject.make_dict(
-            numeric_field=7,
-            text_field="text_value",
-        )
+        dic = AnObject.make_dict(numeric_field=7, text_field="text_value")
 
         # then
-        assert_ordered_dicts_equal(
-            dic,
-            {"explicit_text_name": "text_value", "explicit_numeric_name": 7}
-        )
+        assert_ordered_dicts_equal(dic, {"explicit_text_name": "text_value", "explicit_numeric_name": 7})
 
     @staticmethod
     @pytest.mark.parametrize(
-        "args,kwargs,expected_error_message", [
+        "args,kwargs,expected_error_message",
+        [
             pytest.param(
-                [], {"numeric": 7},
+                [],
+                {"numeric": 7},
                 "Some struct properties were not specified: text \n"
                 "Properties required by this struct are: text, numeric",
-                id="value-unspecified"),
+                id="value-unspecified",
+            ),
             pytest.param(
-                ["value"], {"text": "value", "numeric": 7},
+                ["value"],
+                {"text": "value", "numeric": 7},
                 "There were struct properties with multiple values. Repeated properties: text \n"
                 "Properties required by this struct are: text, numeric",
-                id="surplus-mixed-args"),
+                id="surplus-mixed-args",
+            ),
             pytest.param(
-                ["value", 7, 3], {},
+                ["value", 7, 3],
+                {},
                 "There were 1 surplus positional arguments. Surplus values: 3 \n"
                 "Properties required by this struct are: text, numeric",
-                id="surplus-positional-args"),
+                id="surplus-positional-args",
+            ),
             pytest.param(
-                [], {"text": "value", "numeric": 7, "mystery_argument": "value"},
+                [],
+                {"text": "value", "numeric": 7, "mystery_argument": "value"},
                 "There were surplus keyword arguments: mystery_argument \n"
                 "Properties required by this struct are: text, numeric",
-                id="surplus-keyword-args"),
-        ]
+                id="surplus-keyword-args",
+            ),
+        ],
     )
     def should_raise_on_encountering_invalid_args(args, kwargs, expected_error_message):
         # given
@@ -101,7 +101,7 @@ class TestStructMakeDict:
             AnObject.make_dict(*args, **kwargs)
 
     # def todo(self):
-        # pytest.param(
-        #     [], {"text": None, "numeric": 7},
-        #     "xx",
-        #     id="none-used-for-non-nullable"),
+    # pytest.param(
+    #     [], {"text": None, "numeric": 7},
+    #     "xx",
+    #     id="none-used-for-non-nullable"),

@@ -1,7 +1,7 @@
 """Struct."""
 
 import dataclasses
-from collections import OrderedDict, defaultdict
+from collections import OrderedDict
 from dataclasses import dataclass
 from difflib import ndiff
 from inspect import isclass
@@ -12,8 +12,12 @@ from pyspark.sql.types import DataType, StructField
 
 from sparkql.formatters import pretty_schema
 from sparkql.schema_builder import schema as schematise
-from sparkql.exceptions import InvalidStructError, StructImplementationError, InvalidDataFrameError, \
-    InvalidStructInstanceArgumentsError
+from sparkql.exceptions import (
+    InvalidStructError,
+    StructImplementationError,
+    InvalidDataFrameError,
+    InvalidStructInstanceArgumentsError,
+)
 from sparkql.fields.base import BaseField
 
 
@@ -147,11 +151,7 @@ class Struct(BaseField):
         All fields must have a value specified.
         TODO more docs
         """
-        return _DictMaker(
-            struct_class=cls,
-            positional_args=args,
-            keyword_args=kwargs
-        ).make_dict()
+        return _DictMaker(struct_class=cls, positional_args=args, keyword_args=kwargs).make_dict()
 
     #
     # Other methods
@@ -479,6 +479,7 @@ def _validate_struct_class(struct_class: Type):
 @dataclass
 class _DictMaker:
     """Construct an instance of a Struct, as a dictionary."""
+
     struct_class: Type[Struct]
     positional_args: List[Any]
     keyword_args: Dict[str, Any]
@@ -543,11 +544,11 @@ class _DictMaker:
 
         if unfilled_props or duplicate_props or self._surplus_positional_values or self._surplus_keyword_args:
             raise InvalidStructInstanceArgumentsError(
-                properties=list(self.struct_class._struct_metadata.fields.keys()),
+                properties=list(self._struct_property_to_field.keys()),
                 unfilled_properties=unfilled_props,
                 duplicate_properties=duplicate_props,
                 surplus_positional_values=self._surplus_positional_values,
-                surplus_keyword_args=list(self._surplus_keyword_args.keys())
+                surplus_keyword_args=list(self._surplus_keyword_args.keys()),
             )
 
         #
@@ -556,8 +557,9 @@ class _DictMaker:
         for property_name, field in self._struct_property_to_field.items():
             values = self._property_to_value[property_name]
             assert len(values) == 1, values
-            field_name_to_value[field._field_name] = values[0]
+            field_name_to_value[field._field_name] = values[0]  # pylint: disable=protected-access
 
         # TODO: validate the value here
+        # TODO: refuse none for a null
 
         return field_name_to_value

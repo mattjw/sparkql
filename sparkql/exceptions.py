@@ -37,13 +37,17 @@ class InvalidStructInstanceArgumentsError(ValueError):
         if unfilled_properties:
             msg += "Some struct properties were not specified: " + ", ".join(unfilled_properties) + " \n"
         if duplicate_properties:
-            msg += \
-                "There were struct properties with multiple values. Repeated properties: " \
-                + ", ".join(duplicate_properties) + " \n"
+            msg += (
+                "There were struct properties with multiple values. Repeated properties: "
+                + ", ".join(duplicate_properties)
+                + " \n"
+            )
         if surplus_positional_values:
-            msg += \
-                f"There were {len(surplus_positional_values)} surplus positional arguments. Surplus values: " \
-                + ", ".join(map(str, surplus_positional_values)) + " \n"
+            msg += (
+                f"There were {len(surplus_positional_values)} surplus positional arguments. Surplus values: "
+                + ", ".join(map(str, surplus_positional_values))
+                + " \n"
+            )
         if surplus_keyword_args:
             msg += "There were surplus keyword arguments: " + ", ".join(surplus_keyword_args) + " \n"
         msg += f"Properties required by this struct are: " + ", ".join(properties)
