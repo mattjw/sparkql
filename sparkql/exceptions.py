@@ -22,8 +22,8 @@ class InvalidDataFrameError(Exception):
     """A DataFrame does not match a schema."""
 
 
-class InvalidStructInstanceArgumentsError(ValueError):
-    """Incorrect arguments specified when creating an data object from a schema."""
+class StructInstantiationArgumentsError(ValueError):
+    """Incorrect arguments specified when creating a data object from a schema."""
 
     def __init__(
         self,
@@ -52,3 +52,7 @@ class InvalidStructInstanceArgumentsError(ValueError):
             msg += "There were surplus keyword arguments: " + ", ".join(surplus_keyword_args) + " \n"
         msg += f"Properties required by this struct are: " + ", ".join(properties)
         super().__init__(msg)
+
+
+class StructInstantiationTypeError(TypeError):
+    """Incorrect argument type specified when creating a data object from a schema."""

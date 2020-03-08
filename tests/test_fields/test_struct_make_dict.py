@@ -8,7 +8,7 @@ from typing import Mapping, Any
 
 import pytest
 
-from sparkql.exceptions import InvalidStructInstanceArgumentsError
+from sparkql.exceptions import StructInstantiationArgumentsError, StructInstantiationTypeError
 from sparkql import Struct, String, Float
 
 
@@ -17,7 +17,6 @@ def assert_ordered_dicts_equal(dict_a: Mapping[Any, Any], dict_b: Mapping[Any, A
     assert OrderedDict(dict_a) == OrderedDict(dict_b)
 
 
-@pytest.mark.only
 class TestStructMakeDict:
     @staticmethod
     def should_take_keyword_arg_and_resolve_property_name_to_explicit_name():
@@ -93,15 +92,31 @@ class TestStructMakeDict:
     def should_raise_on_encountering_invalid_args(args, kwargs, expected_error_message):
         # given
         class AnObject(Struct):
-            text = String(name="alt_name", nullable=False)
+            text = String(name="alt_name")
             numeric = Float()
 
         # when, then
-        with pytest.raises(InvalidStructInstanceArgumentsError, match=expected_error_message):
+        with pytest.raises(StructInstantiationArgumentsError, match=expected_error_message):
             AnObject.make_dict(*args, **kwargs)
 
-    # def todo(self):
-    # pytest.param(
-    #     [], {"text": None, "numeric": 7},
-    #     "xx",
-    #     id="none-used-for-non-nullable"),
+    @staticmethod
+    @pytest.mark.parametrize(
+        "args,kwargs,expected_error_message",
+        [
+            pytest.param(
+                [],
+                {"text": None, "numeric": 7},
+                "None in non-nullable field 'text' is not permitted",
+                id="none-in-nullable",
+            )
+        ],
+    )
+    def should_raise_on_encountering_invalid_arg_type(args, kwargs, expected_error_message):
+        # given
+        class AnObject(Struct):
+            text = String(nullable=False)
+            numeric = Float()
+
+        # when, then
+        with pytest.raises(StructInstantiationTypeError, match=expected_error_message):
+            AnObject.make_dict(*args, **kwargs)

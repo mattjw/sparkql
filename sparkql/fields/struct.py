@@ -16,7 +16,8 @@ from sparkql.exceptions import (
     InvalidStructError,
     StructImplementationError,
     InvalidDataFrameError,
-    InvalidStructInstanceArgumentsError,
+    StructInstantiationArgumentsError,
+    StructInstantiationTypeError,
 )
 from sparkql.fields.base import BaseField
 
@@ -481,7 +482,7 @@ class _DictMaker:
     """Construct an instance of a Struct, as a dictionary."""
 
     struct_class: Type[Struct]
-    positional_args: List[Any]
+    positional_args: Tuple[Any]
     keyword_args: Dict[str, Any]
 
     # internal state
@@ -496,7 +497,8 @@ class _DictMaker:
 
     def __post_init__(self):
         # extract `_struct_metadata.fields` for convenience
-        self._struct_property_to_field = self.struct_class._struct_metadata.fields  # pylint: disable=protected-access
+        inner_meta = self.struct_class._struct_metadata  # pylint: disable=protected-access
+        self._struct_property_to_field = inner_meta.fields  # pytype: disable=attribute-error
         self._property_to_value = OrderedDict((property_name, []) for property_name in self._struct_property_to_field)
 
     def _process_positional_args(self):
@@ -533,7 +535,7 @@ class _DictMaker:
         self._process_keyword_args()
 
         #
-        # Validation
+        # Validate args
         unfilled_props = []
         duplicate_props = []
         for property_name, values_list in self._property_to_value.items():
@@ -543,7 +545,7 @@ class _DictMaker:
                 duplicate_props.append(property_name)
 
         if unfilled_props or duplicate_props or self._surplus_positional_values or self._surplus_keyword_args:
-            raise InvalidStructInstanceArgumentsError(
+            raise StructInstantiationArgumentsError(
                 properties=list(self._struct_property_to_field.keys()),
                 unfilled_properties=unfilled_props,
                 duplicate_properties=duplicate_props,
@@ -559,7 +561,14 @@ class _DictMaker:
             assert len(values) == 1, values
             field_name_to_value[field._field_name] = values[0]  # pylint: disable=protected-access
 
-        # TODO: validate the value here
-        # TODO: refuse none for a null
+        #
+        # Validate arg types
+        for field in self._struct_property_to_field.values():
+            field_name = field._field_name  # pylint: disable=protected-access
+            value = field_name_to_value[field_name]
+
+            if not field._is_nullable and value is None:  # pylint: disable=protected-access
+                raise StructInstantiationTypeError(f"None in non-nullable field '{field_name}' is not permitted")
+            # to do: validate the value here
 
         return field_name_to_value
