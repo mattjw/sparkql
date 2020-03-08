@@ -4,7 +4,7 @@ from collections import OrderedDict
 from dataclasses import dataclass
 from difflib import ndiff
 from inspect import isclass
-from typing import ClassVar, Optional, Mapping, Type, Any, Generator, Tuple, MutableMapping
+from typing import ClassVar, Optional, Mapping, Type, Any, Generator, Tuple, MutableMapping, Dict
 
 from pyspark.sql import types as sql_types, DataFrame
 from pyspark.sql.types import DataType, StructField
@@ -134,6 +134,56 @@ class Struct(BaseField):
             return resolved_field
 
         return attr_value
+
+    #
+    # Makers
+    @classmethod
+    def make_dict(cls, *args, **kwargs) -> Dict[str, Any]:
+        """
+        Create an data instance of this Struct schema, as a dictionary.
+
+        All fields must have a value specified.
+        """
+        # note: "field name" is the concrete field name. "property name" is the class attribute name.
+        args = list(args)
+        kwargs = dict(kwargs)
+
+        unprocessed_fields = OrderedDict(cls._struct_metadata.fields)
+
+        field_name_to_value = {}
+
+        # consume ordered args
+        while args:
+            arg_value = args.pop(0)
+
+            property_name = next(iter(unprocessed_fields.keys()))
+            # TODO: what if we've run out of fields in `unprocessed_fields`?
+
+            field: BaseField = unprocessed_fields.pop(property_name)
+            field_name = field._field_name
+            # TODO: validate `arg_value` for `field`
+
+            field_name_to_value[field_name] = arg_value
+
+        # consume keyword args
+        while kwargs:
+            property_name = next(iter(kwargs.keys()))
+            arg_value = kwargs.pop(property_name)
+
+            field: BaseField = unprocessed_fields.pop(property_name)
+
+            field_name = field._field_name
+            # TODO: validate `arg_value` for `field`
+
+            field_name_to_value[field_name] = arg_value
+
+        # TODO: what if leftovers in `unprocessed_fields`?
+
+        # finally, re-order according to internal fields
+        ordered_values = {
+            field._field_name: field_name_to_value[field._field_name] for field in cls._struct_metadata.fields.values()
+        }
+        return ordered_values
 
     #
     # Other methods

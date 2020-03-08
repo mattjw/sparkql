@@ -3,19 +3,36 @@ Suite of tests for Struct make_dict.
 
 Partner to `test_struct.py`.
 """
-from sparkql import Struct, String
+
+import pytest
+
+from sparkql import Struct, String, Float
 
 
+class AnObject(Struct):
+    text = String(name="explicit_text_name")
+    numeric = Float(name="explicit_numeric_name")
+    more_text = String()
+
+
+@pytest.mark.only
 class TestStructMakeDict:
 
     @staticmethod
     def should_make_dict_from_flat_schema():
-        # given
-        class AnObject(Struct):
-            text = String(name="alternative_text_name")
+        # given, above
 
         # when
-        dic = AnObject.make_dict(text="value")
+        dic = AnObject.make_dict(
+            "text_value",
+            more_text="more_text_value",
+            numeric=123,
+        )
 
         # then
-        assert dic == {"alternative_text_name": "value"}
+        assert list(dic.items()) == list({
+            "explicit_text_name": "text_value",
+            "explicit_numeric_name": 123,
+            "more_text": "more_text_value",
+        }.items())
+        # TODO ordering matters
