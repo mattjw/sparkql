@@ -1,17 +1,19 @@
 """Struct."""
 
-from collections import OrderedDict
+import dataclasses
+from collections import OrderedDict, defaultdict
 from dataclasses import dataclass
 from difflib import ndiff
 from inspect import isclass
-from typing import ClassVar, Optional, Mapping, Type, Any, Generator, Tuple, MutableMapping, Dict
+from typing import ClassVar, Optional, Mapping, Type, Any, Generator, Tuple, MutableMapping, Dict, List
 
 from pyspark.sql import types as sql_types, DataFrame
 from pyspark.sql.types import DataType, StructField
 
 from sparkql.formatters import pretty_schema
 from sparkql.schema_builder import schema as schematise
-from sparkql.exceptions import InvalidStructError, StructImplementationError, InvalidDataFrameError
+from sparkql.exceptions import InvalidStructError, StructImplementationError, InvalidDataFrameError, \
+    InvalidStructInstanceArgumentsError
 from sparkql.fields.base import BaseField
 
 
@@ -143,48 +145,13 @@ class Struct(BaseField):
         Create an data instance of this Struct schema, as a dictionary.
 
         All fields must have a value specified.
+        TODO more docs
         """
-        # note: "field name" is the concrete field name. "property name" is the class attribute name.
-        args = list(args)
-        kwargs = dict(kwargs)
-
-        unprocessed_fields = OrderedDict(cls._struct_metadata.fields)
-
-        field_name_to_value = {}
-
-        # consume positional args
-        while args:
-            arg_value = args.pop(0)
-
-            property_name = next(iter(unprocessed_fields.keys()))
-            # TODO: what if we've run out of fields in `unprocessed_fields`?
-
-            field: BaseField = unprocessed_fields.pop(property_name)
-            field_name = field._field_name
-            # TODO: validate `arg_value` for `field`
-
-            field_name_to_value[field_name] = arg_value
-
-        # consume keyword args
-        while kwargs:
-            property_name = next(iter(kwargs.keys()))
-            arg_value = kwargs.pop(property_name)
-
-            field: BaseField = unprocessed_fields.pop(property_name)
-
-            field_name = field._field_name
-            # TODO: validate `arg_value` for `field`
-
-            field_name_to_value[field_name] = arg_value
-
-        # TODO: what if leftovers in `unprocessed_fields`?
-
-        # finally, re-order according to internal field order
-        ordered_values = OrderedDict(
-            (field._field_name, field_name_to_value[field._field_name])
-            for field in cls._struct_metadata.fields.values()
-        )
-        return ordered_values
+        return _DictMaker(
+            struct_class=cls,
+            positional_args=args,
+            keyword_args=kwargs
+        ).make_dict()
 
     #
     # Other methods
@@ -507,3 +474,90 @@ def _validate_struct_class(struct_class: Type):
         raise ValueError("'struct_class' must inherit from Struct")
     if struct_class is Struct:
         raise ValueError("'struct_class' must not be Struct")
+
+
+@dataclass
+class _DictMaker:
+    """Construct an instance of a Struct, as a dictionary."""
+    struct_class: Type[Struct]
+    positional_args: List[Any]
+    keyword_args: Dict[str, Any]
+
+    # internal state
+    _struct_property_to_field: Dict[str, BaseField] = dataclasses.field(init=False)
+
+    _property_to_value: "OrderedDict[str, List[Any]]" = dataclasses.field(init=False)
+    # ^ store extracted values while we process them. maps property name (i.e., attrib name) to a value.
+    #   we'll track if there are any surplus values for the same field
+
+    _surplus_positional_values: List[Any] = dataclasses.field(default_factory=list, init=False)
+    _surplus_keyword_args: Dict[str, Any] = dataclasses.field(default_factory=dict, init=False)
+
+    def __post_init__(self):
+        # extract `_struct_metadata.fields` for convenience
+        self._struct_property_to_field = self.struct_class._struct_metadata.fields  # pylint: disable=protected-access
+        self._property_to_value = OrderedDict((property_name, []) for property_name in self._struct_property_to_field)
+
+    def _process_positional_args(self):
+        property_to_field = OrderedDict(self._struct_property_to_field)
+        args = list(self.positional_args)
+        while args:
+            arg_value = args.pop(0)
+            # determine what field this value is for
+            if not property_to_field:
+                # we've run out of struct fields. we have surplus positional args
+                self._surplus_positional_values.append(arg_value)
+            else:
+                property_name = next(iter(property_to_field.keys()))
+                property_to_field.pop(property_name)
+                self._property_to_value[property_name].append(arg_value)
+
+    def _process_keyword_args(self):
+        property_to_field = OrderedDict(self._struct_property_to_field)
+        kwargs = dict(self.keyword_args)
+        while kwargs:
+            arg_property_name = next(iter(kwargs.keys()))
+            arg_value = kwargs.pop(arg_property_name)
+
+            if arg_property_name not in property_to_field:
+                self._surplus_keyword_args[arg_property_name] = arg_value
+            else:
+                self._property_to_value[arg_property_name].append(arg_value)
+
+    def make_dict(self) -> "OrderedDict[str, Any]":
+        """Make a dictionary from the given args (see ivars)."""
+        # note: "field name" is the concrete field name
+        #       "property name" is the class attribute name
+        self._process_positional_args()
+        self._process_keyword_args()
+
+        #
+        # Validation
+        unfilled_props = []
+        duplicate_props = []
+        for property_name, values_list in self._property_to_value.items():
+            if not values_list:
+                unfilled_props.append(property_name)
+            elif len(values_list) >= 2:
+                duplicate_props.append(property_name)
+
+        if unfilled_props or duplicate_props or self._surplus_positional_values or self._surplus_keyword_args:
+            raise InvalidStructInstanceArgumentsError(
+                properties=list(self.struct_class._struct_metadata.fields.keys()),
+                unfilled_properties=unfilled_props,
+                duplicate_properties=duplicate_props,
+                surplus_positional_values=self._surplus_positional_values,
+                surplus_keyword_args=list(self._surplus_keyword_args.keys())
+            )
+
+        #
+        # Create instance, with correct ordering, and field name keys
+        field_name_to_value = OrderedDict()
+        for property_name, field in self._struct_property_to_field.items():
+            values = self._property_to_value[property_name]
+            assert len(values) == 1, values
+            field_name_to_value[field._field_name] = values[0]
+
+        # TODO: validate the value here
+
+        return field_name_to_value

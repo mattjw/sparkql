@@ -8,7 +8,7 @@ from typing import Mapping, Any
 
 import pytest
 
-from exceptions import InvalidStructInstanceArgumentsError
+from sparkql.exceptions import InvalidStructInstanceArgumentsError
 from sparkql import Struct, String, Float
 
 
@@ -17,7 +17,6 @@ def assert_ordered_dicts_equal(dict_a: Mapping[Any, Any], dict_b: Mapping[Any, A
     assert OrderedDict(dict_a) == OrderedDict(dict_b)
 
 
-@pytest.mark.only
 class TestStructMakeDict:
 
     @staticmethod
@@ -70,12 +69,25 @@ class TestStructMakeDict:
     @pytest.mark.parametrize(
         "args,kwargs,expected_error_message", [
             pytest.param(
-                [], {"numeric": 7}, "missing value for 'alt_name'", id="value-unspecified"),
+                [], {"numeric": 7},
+                "Some struct properties were not specified: text \n"
+                "Properties required by this struct are: text, numeric",
+                id="value-unspecified"),
             pytest.param(
-                [], {"alt_name": None, "numeric": 7}, "none value for 'alt_name' not allowed",
-                id="none-used-for-non-nullable"),
+                ["value"], {"text": "value", "numeric": 7},
+                "There were struct properties with multiple values. Repeated properties: text \n"
+                "Properties required by this struct are: text, numeric",
+                id="surplus-mixed-args"),
             pytest.param(
-                ["value"], {"alt_name": "value", "numeric": 7}, "alt_name over-specified", id="excess args"),
+                ["value", 7, 3], {},
+                "There were 1 surplus positional arguments. Surplus values: 3 \n"
+                "Properties required by this struct are: text, numeric",
+                id="surplus-positional-args"),
+            pytest.param(
+                [], {"text": "value", "numeric": 7, "mystery_argument": "value"},
+                "There were surplus keyword arguments: mystery_argument \n"
+                "Properties required by this struct are: text, numeric",
+                id="surplus-keyword-args"),
         ]
     )
     def should_raise_on_encountering_invalid_args(args, kwargs, expected_error_message):
@@ -87,3 +99,9 @@ class TestStructMakeDict:
         # when, then
         with pytest.raises(InvalidStructInstanceArgumentsError, match=expected_error_message):
             AnObject.make_dict(*args, **kwargs)
+
+    # def todo(self):
+        # pytest.param(
+        #     [], {"text": None, "numeric": 7},
+        #     "xx",
+        #     id="none-used-for-non-nullable"),
