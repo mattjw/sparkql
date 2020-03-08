@@ -19,3 +19,7 @@ class StructImplementationError(InvalidStructError):
 
 class InvalidDataFrameError(Exception):
     """A DataFrame does not match a schema."""
+
+
+class InvalidStructInstanceArgumentsError(ValueError):
+    """Incorrect arguments specified when creating an data object from a schema."""

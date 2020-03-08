@@ -138,7 +138,7 @@ class Struct(BaseField):
     #
     # Makers
     @classmethod
-    def make_dict(cls, *args, **kwargs) -> Dict[str, Any]:
+    def make_dict(cls, *args, **kwargs) -> "OrderedDict[str, Any]":
         """
         Create an data instance of this Struct schema, as a dictionary.
 
@@ -152,7 +152,7 @@ class Struct(BaseField):
 
         field_name_to_value = {}
 
-        # consume ordered args
+        # consume positional args
         while args:
             arg_value = args.pop(0)
 
@@ -179,10 +179,11 @@ class Struct(BaseField):
 
         # TODO: what if leftovers in `unprocessed_fields`?
 
-        # finally, re-order according to internal fields
-        ordered_values = {
-            field._field_name: field_name_to_value[field._field_name] for field in cls._struct_metadata.fields.values()
-        }
+        # finally, re-order according to internal field order
+        ordered_values = OrderedDict(
+            (field._field_name, field_name_to_value[field._field_name])
+            for field in cls._struct_metadata.fields.values()
+        )
         return ordered_values
 
     #
