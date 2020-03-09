@@ -127,7 +127,7 @@ class BaseField(ABC):
 
         Incompatibility may be due to incorrect nullability or incorrect type.
         """
-        if self._is_nullable and value is None:
+        if not self._is_nullable and value is None:
             raise ValueError(f"Non-nullable field cannot have None value")
 
     #

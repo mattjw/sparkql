@@ -17,7 +17,6 @@ from sparkql.exceptions import (
     StructImplementationError,
     InvalidDataFrameError,
     StructInstantiationArgumentsError,
-    StructInstantiationTypeError,
 )
 from sparkql.fields.base import BaseField
 
@@ -592,9 +591,6 @@ class _DictMaker:
         for field in self._struct_property_to_field.values():
             field_name = field._field_name  # pylint: disable=protected-access
             value = field_name_to_value[field_name]
-
-            if not field._is_nullable and value is None:  # pylint: disable=protected-access
-                raise StructInstantiationTypeError(f"None in non-nullable field '{field_name}' is not permitted")
-            # to do: validate the value here
+            field._validate_on_value(value)  # pylint: disable=protected-access
 
         return field_name_to_value

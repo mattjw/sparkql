@@ -52,7 +52,3 @@ class StructInstantiationArgumentsError(ValueError):
             msg += "There were surplus keyword arguments: " + ", ".join(surplus_keyword_args) + " \n"
         msg += f"Properties required by this struct are: " + ", ".join(properties)
         super().__init__(msg)
-
-
-class StructInstantiationTypeError(TypeError):
-    """Incorrect argument type specified when creating a data object from a schema."""

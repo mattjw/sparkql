@@ -8,7 +8,7 @@ from typing import Mapping, Any
 
 import pytest
 
-from sparkql.exceptions import StructInstantiationArgumentsError, StructInstantiationTypeError
+from sparkql.exceptions import StructInstantiationArgumentsError
 from sparkql import Struct, String, Float
 
 
@@ -106,7 +106,7 @@ class TestStructMakeDict:
             pytest.param(
                 [],
                 {"text": None, "numeric": 7},
-                "None in non-nullable field 'text' is not permitted",
+                "Non-nullable field cannot have None value",
                 id="none-in-nullable",
             )
         ],
@@ -118,5 +118,5 @@ class TestStructMakeDict:
             numeric = Float()
 
         # when, then
-        with pytest.raises(StructInstantiationTypeError, match=expected_error_message):
+        with pytest.raises(ValueError, match=expected_error_message):
             AnObject.make_dict(*args, **kwargs)
