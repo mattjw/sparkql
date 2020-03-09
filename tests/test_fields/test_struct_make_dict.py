@@ -3,6 +3,7 @@ Suite of tests for Struct make_dict.
 
 Partner to `test_struct.py`.
 """
+import re
 from collections import OrderedDict
 from typing import Mapping, Any
 
@@ -96,7 +97,7 @@ class TestStructMakeDict:
             numeric = Float()
 
         # when, then
-        with pytest.raises(StructInstantiationArgumentsError, match=expected_error_message):
+        with pytest.raises(StructInstantiationArgumentsError, match=re.escape(expected_error_message)):
             AnObject.make_dict(*args, **kwargs)
 
     @staticmethod
