@@ -115,15 +115,16 @@ class TestStructValidateOnValue:
             pytest.param(
                 {"wrong_name": "hello"},
                 pytest.raises(
-                    ValueError, match=re.escape("Dict fields do not match struct fields. \nStruct fields: text \nDict fields: wrong_name")
+                    ValueError,
+                    match=re.escape(
+                        "Dict fields do not match struct fields. \nStruct fields: text \nDict fields: wrong_name"
+                    ),
                 ),
                 id="incorrect-field-name",
             ),
             pytest.param(
                 {"text": 3},
-                pytest.raises(
-                    TypeError, match=re.escape("Invalid type <class 'int'>. Allowed types are: 'str'")
-                ),
+                pytest.raises(TypeError, match=re.escape("Invalid type <class 'int'>. Allowed types are: 'str'")),
                 id="incorrect-field-type",
             ),
         ],
