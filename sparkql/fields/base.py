@@ -132,7 +132,10 @@ class BaseField(ABC):
         #   types.py:1183
         #   _acceptable_types = {...}
         if not self._is_nullable and value is None:
-            raise ValueError(f"Non-nullable field cannot have None value")
+            msg = "Non-nullable field cannot have None value"
+            if self._resolve_field_name() is not None:
+                msg += f" (field name = '{self._resolve_field_name()}')"
+            raise TypeError(msg)
 
     #
     # Misc.

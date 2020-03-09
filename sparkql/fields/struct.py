@@ -176,7 +176,10 @@ class Struct(BaseField):
         Create a data instance of this Struct schema, as a dictionary.
 
         Specify the values for the fields of this struct using args and keyword args, in the same way you would
-        specify values in a constructor. Use the struct's property names are keyword arguments.
+        specify values in a constructor. Use the struct's property names are keyword arguments. Omitted fields default
+        to null.
+
+        Values are validated according to the struct's schema. Null values are only permitted in nullable fields.
 
         For example, given a struct:
 
@@ -589,7 +592,9 @@ class _DictMaker:
         self._process_keyword_args()
 
         #
-        # Validate args
+        # Identify unfilled props and duplicate (repeated) props
+        # Note: unfilled_props are not error cases. they will be defaulted to null.
+        # duplicate_props *are* error cases
         unfilled_props = []
         duplicate_props = []
         for property_name, values_list in self._property_to_value.items():
@@ -598,7 +603,15 @@ class _DictMaker:
             elif len(values_list) >= 2:
                 duplicate_props.append(property_name)
 
-        if unfilled_props or duplicate_props or self._surplus_positional_values or self._surplus_keyword_args:
+        #
+        # Default unfilled props to null
+        for property_name, values_list in self._property_to_value.items():
+            if not values_list:
+                values_list.append(None)
+
+        #
+        # Apply arg handling validation
+        if duplicate_props or self._surplus_positional_values or self._surplus_keyword_args:
             raise StructInstantiationArgumentsError(
                 properties=list(self._struct_property_to_field.keys()),
                 unfilled_properties=unfilled_props,
