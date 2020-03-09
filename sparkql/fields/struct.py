@@ -169,13 +169,37 @@ class Struct(BaseField):
 
     #
     # Makers
+
     @classmethod
     def make_dict(cls, *args, **kwargs) -> "OrderedDict[str, Any]":
         """
-        Create an data instance of this Struct schema, as a dictionary.
+        Create a data instance of this Struct schema, as a dictionary.
 
-        All fields must have a value specified.
-        TODO more docs
+        Specify the values for the fields of this struct using args and keyword args, in the same way you would
+        specify values in a constructor. Use the struct's property names are keyword arguments.
+
+        For example, given a struct:
+
+            ```
+            class Article(Struct):
+                title = String("long_title")
+                body = String()
+            ```
+
+        then we can write:
+
+            ```
+            Article.make_dict(
+                title=The title",
+                body="The body of the article."
+            )
+            ```
+
+        to create a dictionary:
+
+            ```
+            { "long_title": "The title", "body": "The body of the article."}
+            ```
         """
         return _DictMaker(struct_class=cls, positional_args=args, keyword_args=kwargs).make_dict()
 
