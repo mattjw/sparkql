@@ -1,6 +1,6 @@
 """Concrete atomic fields."""
-
-from typing import Type
+from datetime import datetime, date
+from typing import Type, Any
 
 from pyspark.sql.types import (
     ByteType,
@@ -18,7 +18,7 @@ from pyspark.sql.types import (
     DataType,
 )
 
-from sparkql.fields.base import AtomicField, IntegralField, FractionalField
+from sparkql.fields.base import AtomicField, IntegralField, FractionalField, _validate_value_type_for_field
 
 
 #
@@ -96,6 +96,10 @@ class String(AtomicField):
     def _spark_type_class(self) -> Type[DataType]:
         return StringType
 
+    def _validate_on_value(self, value: Any) -> None:
+        super()._validate_on_value(value)
+        _validate_value_type_for_field((str,), value)
+
 
 class Binary(AtomicField):
     """Field for Spark's BinaryType."""
@@ -103,6 +107,10 @@ class Binary(AtomicField):
     @property
     def _spark_type_class(self) -> Type[DataType]:
         return BinaryType
+
+    def _validate_on_value(self, value: Any) -> None:
+        super()._validate_on_value(value)
+        _validate_value_type_for_field((bytearray,), value)
 
 
 class Boolean(AtomicField):
@@ -112,6 +120,10 @@ class Boolean(AtomicField):
     def _spark_type_class(self) -> Type[DataType]:
         return BooleanType
 
+    def _validate_on_value(self, value: Any) -> None:
+        super()._validate_on_value(value)
+        _validate_value_type_for_field((bool,), value)
+
 
 class Date(AtomicField):
     """Field for Spark's DateType."""
@@ -120,6 +132,10 @@ class Date(AtomicField):
     def _spark_type_class(self) -> Type[DataType]:
         return DateType
 
+    def _validate_on_value(self, value: Any) -> None:
+        super()._validate_on_value(value)
+        _validate_value_type_for_field((date, datetime), value)
+
 
 class Timestamp(AtomicField):
     """Field for Spark's TimestampType."""
@@ -127,3 +143,7 @@ class Timestamp(AtomicField):
     @property
     def _spark_type_class(self) -> Type[DataType]:
         return TimestampType
+
+    def _validate_on_value(self, value: Any) -> None:
+        super()._validate_on_value(value)
+        _validate_value_type_for_field((date, datetime, int, float), value)

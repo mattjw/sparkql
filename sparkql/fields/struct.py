@@ -86,7 +86,7 @@ class Struct(BaseField):
         return ValidationResult(is_valid, pretty_struct=pretty_struct, pretty_data_frame=pretty_dframe, report=report)
 
     #
-    # Handle Spark representations for a Struct object
+    # Handle type management and Spark representations for a Struct object
 
     @property
     def _spark_type_class(self) -> Type[DataType]:
@@ -98,6 +98,32 @@ class Struct(BaseField):
         return StructField(
             name=self._field_name, dataType=self._struct_metadata.spark_struct, nullable=self._is_nullable
         )
+
+    def _validate_on_value(self, value: Any) -> None:
+        super()._validate_on_value(value)
+        if not isinstance(value, Mapping):
+            raise ValueError(f"Value for a struct must be a mapping, not {type(value)}")
+
+        dic: Mapping[str, Any] = value
+
+        fields = list(self._struct_metadata.fields.values())
+        field_names = [field._field_name for field in fields]  # pylint: disable=protected-access
+        if len(fields) != len(dic):
+            raise ValueError(
+                f"Dict has incorrect number of fields. \n"
+                f"Struct requires {len(fields)} fields: {', '.join(field_names)} \n"
+                f"Dict has {len(dic)} fields: {', '.join(dic.keys())}"
+            )
+
+        if field_names != list(dic.keys()):
+            raise ValueError(
+                f"Dict fields do not match struct fields. \n"
+                f"Struct fields: {', '.join(field_names)} \n"
+                f"Dict fields: {', '.join(dic.keys())}"
+            )
+
+        for field in fields:
+            field._validate_on_value(dic[field._field_name])  # pylint: disable=protected-access
 
     #
     # Hook in to sub-class creation. Ensure fields are pre-processed when a sub-class is declared
