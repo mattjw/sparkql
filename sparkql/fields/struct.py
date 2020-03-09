@@ -17,7 +17,8 @@ from sparkql.exceptions import (
     StructImplementationError,
     InvalidDataFrameError,
     StructInstantiationArgumentsError,
-    StructInstantiationArgumentTypeError)
+    StructInstantiationArgumentTypeError,
+)
 from sparkql.fields.base import BaseField
 
 

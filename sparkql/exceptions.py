@@ -22,7 +22,11 @@ class InvalidDataFrameError(Exception):
     """A DataFrame does not match a schema."""
 
 
-class StructInstantiationArgumentsError(TypeError):
+class StructInstantiationError(TypeError):
+    """Error when attempting to instantiate data from a schema."""
+
+
+class StructInstantiationArgumentsError(StructInstantiationError):
     """Incorrect arguments specified when creating a data object from a schema."""
 
     def __init__(
@@ -54,5 +58,5 @@ class StructInstantiationArgumentsError(TypeError):
         super().__init__(msg)
 
 
-class StructInstantiationArgumentTypeError(TypeError):
+class StructInstantiationArgumentTypeError(StructInstantiationError):
     """Found an argument with an incorrect type when creating a data object from a schema."""
