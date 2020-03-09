@@ -206,7 +206,7 @@ class Struct(BaseField):
     @classmethod
     def make_row(cls, *args, **kwargs) -> Row:
         """Reserved."""
-        raise NotImplementedError("Function name reserved.")
+        raise Exception("Function name reserved.")
 
     #
     # Other methods
