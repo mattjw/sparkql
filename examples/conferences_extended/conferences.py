@@ -1,9 +1,11 @@
+from datetime import datetime
+
 from sparkql import Struct, Float, String, Timestamp, Array
 
 
 class Location(Struct):
-    lat = Float(False)
-    lon = Float(False)
+    lat = Float(False, name="latitude")
+    lon = Float(False, name="longitude")
 
 
 class Conference(Struct):
@@ -24,8 +26,8 @@ StructType(List(
     StructField(city,StringType,false),
     StructField(city_location,
         StructType(List(
-            StructField(lat,FloatType,false),
-            StructField(lon,FloatType,false))),
+            StructField(latitude,FloatType,false),
+            StructField(longitude,FloatType,false))),
         false),
     StructField(country,StringType,false),
     StructField(twitter,StringType,true),
@@ -36,3 +38,19 @@ StructType(List(
         ArrayType(StringType,false),
         true)))
 """
+
+
+cardiff_pycon_dict = Conference.make_dict(
+    name="PyCon UK",
+    city="Cardiff",
+    city_location=Location.make_dict(
+        lat=51.48,
+        lon=-3.18
+    ),
+    country="GBR",
+    twitter=None,
+    start_date=datetime(2019, 9, 13, 0, 0),
+    end_date=datetime(2019, 9, 17, 13, 23, 59),
+    url=None,
+    keywords=["python", "software"]
+)

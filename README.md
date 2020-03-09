@@ -160,8 +160,8 @@ argument to the field
 
 ```python
 class Geolocation(Struct):
-    latitude = Float("lat")
-    longitude = Float("lon")
+    latitude = Float(name="lat")
+    longitude = Float(name="lon")
 ```
 
 which would mean the concrete name of the `Geolocation.latitude` field

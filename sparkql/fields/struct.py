@@ -8,7 +8,7 @@ from inspect import isclass
 from typing import ClassVar, Optional, Mapping, Type, Any, Generator, Tuple, MutableMapping, Dict, List
 
 from pyspark.sql import types as sql_types, DataFrame
-from pyspark.sql.types import DataType, StructField
+from pyspark.sql.types import DataType, StructField, Row
 
 from sparkql.formatters import pretty_schema
 from sparkql.schema_builder import schema as schematise
@@ -182,7 +182,7 @@ class Struct(BaseField):
 
             ```
             class Article(Struct):
-                title = String("long_title")
+                title = String(name="long_title")
                 body = String()
             ```
 
@@ -202,6 +202,11 @@ class Struct(BaseField):
             ```
         """
         return _DictMaker(struct_class=cls, positional_args=args, keyword_args=kwargs).make_dict()
+
+    @classmethod
+    def make_row(cls, *args, **kwargs) -> Row:
+        """Reserved."""
+        raise NotImplementedError("Function name reserved.")
 
     #
     # Other methods

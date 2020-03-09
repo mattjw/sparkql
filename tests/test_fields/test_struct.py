@@ -124,7 +124,7 @@ class TestStructValidateOnValue:
             ),
             pytest.param(
                 {"text": 3},
-                pytest.raises(TypeError, match=re.escape("Invalid type <class 'int'>. Allowed types are: 'str'")),
+                pytest.raises(TypeError, match=re.escape("Value '3' has invalid type 'int'. Allowed types are: 'str'")),
                 id="incorrect-field-type",
             ),
         ],
