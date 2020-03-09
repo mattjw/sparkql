@@ -16,7 +16,9 @@ from pyspark.sql.types import (
     BooleanType,
     DateType,
     TimestampType,
-    StructType, StructField)
+    StructType,
+    StructField,
+)
 
 from sparkql.fields.base import BaseField
 from sparkql.fields.atomic import (
@@ -79,7 +81,7 @@ class TestValidateOnValue:
         ],
     )
     def test_atomics_should_successfully_receive_value(
-            sparkql_field_class, spark_type_class, value, spark_session: SparkSession
+        sparkql_field_class, spark_type_class, value, spark_session: SparkSession
     ):
         # check sparkql converter should accept the value
         field_instance: BaseField = sparkql_field_class()
@@ -87,10 +89,8 @@ class TestValidateOnValue:
 
         # check dataframe can be successfully created with same value
         spark_session.createDataFrame(
-            data=[[value]],
-            schema=StructType([
-                StructField("test_field", spark_type_class())
-            ]))
+            data=[[value]], schema=StructType([StructField("test_field", spark_type_class())])
+        )
 
     @staticmethod
     @pytest.mark.parametrize(
@@ -107,7 +107,7 @@ class TestValidateOnValue:
         ],
     )
     def test_atomics_should_reject_invalid_value(
-            sparkql_field_class, spark_type_class, value, spark_session: SparkSession
+        sparkql_field_class, spark_type_class, value, spark_session: SparkSession
     ):
         # check sparkql converter should reject the value
         with pytest.raises(TypeError):
@@ -117,7 +117,5 @@ class TestValidateOnValue:
         # check dataframe can be reject the value
         with pytest.raises(TypeError):
             spark_session.createDataFrame(
-                data=[[value]],
-                schema=StructType([
-                    StructField("test_field", spark_type_class())
-                ]))
+                data=[[value]], schema=StructType([StructField("test_field", spark_type_class())])
+            )

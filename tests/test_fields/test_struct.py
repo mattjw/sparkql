@@ -1,3 +1,5 @@
+import re
+
 import pytest
 
 from sparkql.fields.struct import _Validator, _FieldsExtractor
@@ -88,6 +90,54 @@ class TestValidator:
         # given, when, then
         with pytest.raises(ValueError, match="'struct_class' must not be Struct"):
             _Validator(Struct)
+
+
+class TestStructValidateOnValue:
+    @staticmethod
+    @pytest.mark.parametrize(
+        "value, expected_error",
+        [
+            pytest.param(
+                [],
+                pytest.raises(ValueError, match=re.escape("Value for a struct must be a mapping, not <class 'list'>")),
+                id="value-is-wrong-type",
+            ),
+            pytest.param(
+                {},
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(
+                        "Dict has incorrect number of fields. \nStruct requires 1 fields: text \nDict has 0 fields: "
+                    ),
+                ),
+                id="not-enough-fields",
+            ),
+            pytest.param(
+                {"wrong_name": "hello"},
+                pytest.raises(
+                    ValueError, match=re.escape("Dict fields do not match struct fields. \nStruct fields: text \nDict fields: wrong_name")
+                ),
+                id="incorrect-field-name",
+            ),
+            pytest.param(
+                {"text": 3},
+                pytest.raises(
+                    TypeError, match=re.escape("Invalid type <class 'int'>. Allowed types are: (<class 'str'>,)")
+                ),
+                id="incorrect-field-type",
+            ),
+        ],
+    )
+    def should_reject_invalid_values(value, expected_error):
+        # given
+        class SimpleObject(Struct):
+            text = String()
+
+        struct = SimpleObject()
+
+        # when
+        with expected_error:
+            struct._validate_on_value(value)
 
 
 class TestFieldExtractor:

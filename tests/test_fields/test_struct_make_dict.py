@@ -105,10 +105,7 @@ class TestStructMakeDict:
         "args,kwargs,expected_error_message",
         [
             pytest.param(
-                [],
-                {"text": None, "numeric": 7},
-                "Non-nullable field cannot have None value",
-                id="none-in-nullable",
+                [], {"text": None, "numeric": 7}, "Non-nullable field cannot have None value", id="none-in-nullable"
             )
         ],
     )
