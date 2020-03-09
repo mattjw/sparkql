@@ -17,7 +17,7 @@ from sparkql.exceptions import (
     StructImplementationError,
     InvalidDataFrameError,
     StructInstantiationArgumentsError,
-)
+    StructInstantiationArgumentTypeError)
 from sparkql.fields.base import BaseField
 
 
@@ -207,7 +207,7 @@ class Struct(BaseField):
         Raises:
             StructInstantiationArgumentsError:
                 If arguments are not specified correctly.
-            TypeError:
+            StructInstantiationArgumentTypeError:
                 If a value does not match a field's expected type. Or if attempting to use a null in a non-nullable
                 field.
 
@@ -643,6 +643,9 @@ class _DictMaker:
         for field in self._struct_property_to_field.values():
             field_name = field._field_name  # pylint: disable=protected-access
             value = field_name_to_value[field_name]
-            field._validate_on_value(value)  # pylint: disable=protected-access
+            try:
+                field._validate_on_value(value)  # pylint: disable=protected-access
+            except TypeError as ex:
+                raise StructInstantiationArgumentTypeError(str(ex))
 
         return dict(field_name_to_value)

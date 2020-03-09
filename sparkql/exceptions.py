@@ -52,3 +52,7 @@ class StructInstantiationArgumentsError(TypeError):
         if unfilled_properties:
             msg += "\nOmitted struct properties were defaulted to null: " + ", ".join(unfilled_properties)
         super().__init__(msg)
+
+
+class StructInstantiationArgumentTypeError(TypeError):
+    """Found an argument with an incorrect type when creating a data object from a schema."""
