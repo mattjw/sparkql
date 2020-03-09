@@ -285,8 +285,9 @@ DataFrame is not valid.
 
 ### Creating an instance of a schema
 
-You might want to create an instance of a schema. For example,
-you might want to return a complex object from a Spark UDF.
+`sparkql` simplifies the process of creating an instance of a struct.
+You might need to do this, for exmaple, when creating test data, or
+when creating an object (a dict or a row) to return from a UDF.
 
 Use `Struct.make_dict(...)` to instantiate a struct as a dictionary.
 This has the advantage that the input values will be correctly
