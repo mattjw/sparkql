@@ -99,7 +99,7 @@ class TestStructValidateOnValue:
         [
             pytest.param(
                 [],
-                pytest.raises(ValueError, match=re.escape("Value for a struct must be a mapping, not <class 'list'>")),
+                pytest.raises(ValueError, match=re.escape("Value for a struct must be a mapping, not 'list'")),
                 id="value-is-wrong-type",
             ),
             pytest.param(
@@ -122,7 +122,7 @@ class TestStructValidateOnValue:
             pytest.param(
                 {"text": 3},
                 pytest.raises(
-                    TypeError, match=re.escape("Invalid type <class 'int'>. Allowed types are: (<class 'str'>,)")
+                    TypeError, match=re.escape("Invalid type <class 'int'>. Allowed types are: 'str'")
                 ),
                 id="incorrect-field-type",
             ),

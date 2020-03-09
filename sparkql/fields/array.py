@@ -105,7 +105,7 @@ class Array(Generic[ArrayElementType], BaseField):
     def _validate_on_value(self, value: Any) -> None:
         super()._validate_on_value(value)
         if not isinstance(value, Sequence):
-            raise ValueError(f"Value for an array must be a sequence, not {type(value)}")
+            raise ValueError(f"Value for an array must be a sequence, not '{type(value).__name__}'")
         for item in value:
             self.e._validate_on_value(item)  # pylint: disable=protected-access
 

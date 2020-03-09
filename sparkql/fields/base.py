@@ -15,7 +15,8 @@ from sparkql.exceptions import FieldNameError, FieldParentError
 def _validate_value_type_for_field(accepted_types: Tuple[Type, ...], value: Any):
     """Raise TypeError if `value` is not compatible with types."""
     if not isinstance(value, accepted_types):
-        raise TypeError(f"Invalid type {type(value)}. Allowed types are: {accepted_types}")
+        pretty_types = " ,".join("'" + type.__name__ + "'" for type in accepted_types)
+        raise TypeError(f"Invalid type {type(value)}. Allowed types are: {pretty_types}")
 
 
 class BaseField(ABC):
