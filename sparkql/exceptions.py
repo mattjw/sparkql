@@ -22,7 +22,7 @@ class InvalidDataFrameError(Exception):
     """A DataFrame does not match a schema."""
 
 
-class StructInstantiationArgumentsError(ValueError):
+class StructInstantiationArgumentsError(TypeError):
     """Incorrect arguments specified when creating a data object from a schema."""
 
     def __init__(

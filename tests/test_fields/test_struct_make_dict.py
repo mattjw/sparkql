@@ -69,7 +69,8 @@ class TestStructMakeDict:
 
         # when, then
         with pytest.raises(
-                TypeError, match=re.escape("Non-nullable field cannot have None value (field name = 'numeric')")):
+            TypeError, match=re.escape("Non-nullable field cannot have None value (field name = 'numeric')")
+        ):
             AnObject.make_dict(*args, **kwargs)
 
     @staticmethod
@@ -138,9 +139,7 @@ class TestStructMakeDict:
         "args,kwargs,expected_error_message",
         [
             pytest.param(
-                [], {"text": None, "numeric": 7},
-                "Non-nullable field cannot have None value",
-                id="none-in-nullable"
+                [], {"text": None, "numeric": 7}, "Non-nullable field cannot have None value", id="none-in-nullable"
             )
         ],
     )

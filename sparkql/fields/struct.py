@@ -203,6 +203,16 @@ class Struct(BaseField):
             ```
             { "long_title": "The title", "body": "The body of the article."}
             ```
+
+        Raises:
+            StructInstantiationArgumentsError:
+                If arguments are not specified correctly.
+            TypeError:
+                If a value does not match a field's expected type. Or if attempting to use a null in a non-nullable
+                field.
+
+        Returns:
+            An instance of this struct, as a dictioniary.
         """
         return _DictMaker(struct_class=cls, positional_args=args, keyword_args=kwargs).make_dict()
 
