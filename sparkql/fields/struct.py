@@ -171,7 +171,7 @@ class Struct(BaseField):
     # Makers
 
     @classmethod
-    def make_dict(cls, *args, **kwargs) -> "OrderedDict[str, Any]":
+    def make_dict(cls, *args, **kwargs) -> Dict[str, Any]:
         """
         Create a data instance of this Struct schema, as a dictionary.
 
@@ -581,7 +581,7 @@ class _DictMaker:
             else:
                 self._property_to_value[arg_property_name].append(arg_value)
 
-    def make_dict(self) -> "OrderedDict[str, Any]":
+    def make_dict(self) -> Dict[str, Any]:
         """Make a dictionary from the given args (see ivars)."""
         # note: "field name" is the concrete field name
         #       "property name" is the class attribute name
@@ -622,4 +622,4 @@ class _DictMaker:
             value = field_name_to_value[field_name]
             field._validate_on_value(value)  # pylint: disable=protected-access
 
-        return field_name_to_value
+        return dict(field_name_to_value)

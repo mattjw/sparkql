@@ -3,6 +3,7 @@ Suite of tests for Struct make_dict.
 
 Partner to `test_struct.py`.
 """
+
 import re
 from collections import OrderedDict
 from typing import Mapping, Any
