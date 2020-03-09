@@ -73,6 +73,8 @@ Here's a summary of `sparkql`'s features.
 - Reuse and build composite schemas with `inheritance`, `includes`, and
   `implements`.
 - Get a human-readable Spark schema representation with `pretty_schema`.
+- Create an instance of a schema as a dictionary, with validation of
+  the input values.
 
 Read on for documentation on these features.
 
@@ -160,8 +162,8 @@ argument to the field
 
 ```python
 class Geolocation(Struct):
-    latitude = Float("lat")
-    longitude = Float("lon")
+    latitude = Float(name="lat")
+    longitude = Float(name="lon")
 ```
 
 which would mean the concrete name of the `Geolocation.latitude` field
@@ -280,6 +282,19 @@ Article.validate_data_frame(dframe).raise_on_invalid()
 
 will raise a `InvalidDataFrameError` (see `sparkql.exceptions`) if the  
 DataFrame is not valid.
+
+### Creating an instance of a schema
+
+`sparkql` simplifies the process of creating an instance of a struct.
+You might need to do this, for exmaple, when creating test data, or
+when creating an object (a dict or a row) to return from a UDF.
+
+Use `Struct.make_dict(...)` to instantiate a struct as a dictionary.
+This has the advantage that the input values will be correctly
+validated, and it will convert schema property names into their
+underlying field names. See
+[this example](https://github.com/mattjw/sparkql/tree/master/examples/conferences_extended/conferences.py), the following:
+on how to use `make_dict`.
 
 ### Composite schemas
 

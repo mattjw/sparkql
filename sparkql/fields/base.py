@@ -1,7 +1,7 @@
 """Base field and abstract fields."""
 
 from abc import ABC, abstractmethod
-from typing import Optional, Type, Any
+from typing import Optional, Type, Any, Tuple
 import copy
 
 from pyspark.sql import types as sql_type
@@ -10,6 +10,13 @@ from pyspark.sql.types import StructField, DataType
 from sparkql.exceptions import FieldNameError, FieldParentError
 
 # pytype: disable=invalid-annotation
+
+
+def _validate_value_type_for_field(accepted_types: Tuple[Type, ...], value: Any):
+    """Raise TypeError if `value` is not compatible with types; None values are always permitted."""
+    if value is not None and not isinstance(value, accepted_types):
+        pretty_types = " ,".join("'" + type.__name__ + "'" for type in accepted_types)
+        raise TypeError(f"Value '{value}' has invalid type '{type(value).__name__}'. Allowed types are: {pretty_types}")
 
 
 class BaseField(ABC):
@@ -114,6 +121,19 @@ class BaseField(ABC):
     def _spark_struct_field(self) -> StructField:
         """The Spark StructField for this field."""
 
+    @abstractmethod
+    def _validate_on_value(self, value: Any) -> None:
+        """
+        Raises an error if `value` is not compatible with this field.
+
+        Incompatibility may be due to incorrect nullability or incorrect type.
+        """
+        # for acceptable type declrations according to pytype, see pytype source code:
+        #   types.py:1183
+        #   _acceptable_types = {...}
+        if not self._is_nullable and value is None:
+            raise ValueError(f"Non-nullable field cannot have None value")
+
     #
     # Misc.
 
@@ -184,6 +204,10 @@ class AtomicField(BaseField):
             super().__eq__(other) and isinstance(other, AtomicField) and self._spark_data_type == other._spark_data_type
         )
 
+    @abstractmethod
+    def _validate_on_value(self, value: Any) -> None:
+        super()._validate_on_value(value)
+
 
 class NumericField(AtomicField):
     """
@@ -203,6 +227,10 @@ class NumericField(AtomicField):
     @abstractmethod
     def _spark_type_class(self) -> Type[DataType]:
         """The class of the Spark type corresponding to this field."""
+
+    @abstractmethod
+    def _validate_on_value(self, value: Any) -> None:
+        super()._validate_on_value(value)
 
 
 class IntegralField(NumericField):
@@ -225,6 +253,10 @@ class IntegralField(NumericField):
     def _spark_type_class(self) -> Type[DataType]:
         """The class of the Spark type corresponding to this field."""
 
+    def _validate_on_value(self, value: Any) -> None:
+        super()._validate_on_value(value)
+        _validate_value_type_for_field((int,), value)
+
 
 class FractionalField(NumericField):
     """
@@ -245,3 +277,7 @@ class FractionalField(NumericField):
     @abstractmethod
     def _spark_type_class(self) -> Type[DataType]:
         """The class of the Spark type corresponding to this field."""
+
+    @abstractmethod
+    def _validate_on_value(self, value: Any) -> None:
+        super()._validate_on_value(value)

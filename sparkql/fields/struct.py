@@ -1,17 +1,23 @@
 """Struct."""
 
+import dataclasses
 from collections import OrderedDict
 from dataclasses import dataclass
 from difflib import ndiff
 from inspect import isclass
-from typing import ClassVar, Optional, Mapping, Type, Any, Generator, Tuple, MutableMapping
+from typing import ClassVar, Optional, Mapping, Type, Any, Generator, Tuple, MutableMapping, Dict, List
 
 from pyspark.sql import types as sql_types, DataFrame
-from pyspark.sql.types import DataType, StructField
+from pyspark.sql.types import DataType, StructField, Row
 
 from sparkql.formatters import pretty_schema
 from sparkql.schema_builder import schema as schematise
-from sparkql.exceptions import InvalidStructError, StructImplementationError, InvalidDataFrameError
+from sparkql.exceptions import (
+    InvalidStructError,
+    StructImplementationError,
+    InvalidDataFrameError,
+    StructInstantiationArgumentsError,
+)
 from sparkql.fields.base import BaseField
 
 
@@ -79,7 +85,7 @@ class Struct(BaseField):
         return ValidationResult(is_valid, pretty_struct=pretty_struct, pretty_data_frame=pretty_dframe, report=report)
 
     #
-    # Handle Spark representations for a Struct object
+    # Handle type management and Spark representations for a Struct object
 
     @property
     def _spark_type_class(self) -> Type[DataType]:
@@ -91,6 +97,32 @@ class Struct(BaseField):
         return StructField(
             name=self._field_name, dataType=self._struct_metadata.spark_struct, nullable=self._is_nullable
         )
+
+    def _validate_on_value(self, value: Any) -> None:
+        super()._validate_on_value(value)
+        if not isinstance(value, Mapping):
+            raise ValueError(f"Value for a struct must be a mapping, not '{type(value).__name__}'")
+
+        dic: Mapping[str, Any] = value
+
+        fields = list(self._struct_metadata.fields.values())
+        field_names = [field._field_name for field in fields]  # pylint: disable=protected-access
+        if len(fields) != len(dic):
+            raise ValueError(
+                f"Dict has incorrect number of fields. \n"
+                f"Struct requires {len(fields)} fields: {', '.join(field_names)} \n"
+                f"Dict has {len(dic)} fields: {', '.join(dic.keys())}"
+            )
+
+        if field_names != list(dic.keys()):
+            raise ValueError(
+                f"Dict fields do not match struct fields. \n"
+                f"Struct fields: {', '.join(field_names)} \n"
+                f"Dict fields: {', '.join(dic.keys())}"
+            )
+
+        for field in fields:
+            field._validate_on_value(dic[field._field_name])  # pylint: disable=protected-access
 
     #
     # Hook in to sub-class creation. Ensure fields are pre-processed when a sub-class is declared
@@ -134,6 +166,47 @@ class Struct(BaseField):
             return resolved_field
 
         return attr_value
+
+    #
+    # Makers
+
+    @classmethod
+    def make_dict(cls, *args, **kwargs) -> Dict[str, Any]:
+        """
+        Create a data instance of this Struct schema, as a dictionary.
+
+        Specify the values for the fields of this struct using args and keyword args, in the same way you would
+        specify values in a constructor. Use the struct's property names are keyword arguments.
+
+        For example, given a struct:
+
+            ```
+            class Article(Struct):
+                title = String(name="long_title")
+                body = String()
+            ```
+
+        then we can write:
+
+            ```
+            Article.make_dict(
+                title=The title",
+                body="The body of the article."
+            )
+            ```
+
+        to create a dictionary:
+
+            ```
+            { "long_title": "The title", "body": "The body of the article."}
+            ```
+        """
+        return _DictMaker(struct_class=cls, positional_args=args, keyword_args=kwargs).make_dict()
+
+    @classmethod
+    def make_row(cls, *args, **kwargs) -> Row:
+        """Reserved."""
+        raise NotImplementedError("Function name reserved.")
 
     #
     # Other methods
@@ -456,3 +529,97 @@ def _validate_struct_class(struct_class: Type):
         raise ValueError("'struct_class' must inherit from Struct")
     if struct_class is Struct:
         raise ValueError("'struct_class' must not be Struct")
+
+
+@dataclass
+class _DictMaker:
+    """Construct an instance of a Struct, as a dictionary."""
+
+    struct_class: Type[Struct]
+    positional_args: Tuple[Any]
+    keyword_args: Dict[str, Any]
+
+    # internal state
+    _struct_property_to_field: Dict[str, BaseField] = dataclasses.field(init=False)
+
+    _property_to_value: "OrderedDict[str, List[Any]]" = dataclasses.field(init=False)
+    # ^ store extracted values while we process them. maps property name (i.e., attrib name) to a value.
+    #   we'll track if there are any surplus values for the same field
+
+    _surplus_positional_values: List[Any] = dataclasses.field(default_factory=list, init=False)
+    _surplus_keyword_args: Dict[str, Any] = dataclasses.field(default_factory=dict, init=False)
+
+    def __post_init__(self):
+        # extract `_struct_metadata.fields` for convenience
+        inner_meta = self.struct_class._struct_metadata  # pylint: disable=protected-access
+        self._struct_property_to_field = inner_meta.fields  # pytype: disable=attribute-error
+        self._property_to_value = OrderedDict((property_name, []) for property_name in self._struct_property_to_field)
+
+    def _process_positional_args(self):
+        property_to_field = OrderedDict(self._struct_property_to_field)
+        args = list(self.positional_args)
+        while args:
+            arg_value = args.pop(0)
+            # determine what field this value is for
+            if not property_to_field:
+                # we've run out of struct fields. we have surplus positional args
+                self._surplus_positional_values.append(arg_value)
+            else:
+                property_name = next(iter(property_to_field.keys()))
+                property_to_field.pop(property_name)
+                self._property_to_value[property_name].append(arg_value)
+
+    def _process_keyword_args(self):
+        property_to_field = OrderedDict(self._struct_property_to_field)
+        kwargs = dict(self.keyword_args)
+        while kwargs:
+            arg_property_name = next(iter(kwargs.keys()))
+            arg_value = kwargs.pop(arg_property_name)
+
+            if arg_property_name not in property_to_field:
+                self._surplus_keyword_args[arg_property_name] = arg_value
+            else:
+                self._property_to_value[arg_property_name].append(arg_value)
+
+    def make_dict(self) -> Dict[str, Any]:
+        """Make a dictionary from the given args (see ivars)."""
+        # note: "field name" is the concrete field name
+        #       "property name" is the class attribute name
+        self._process_positional_args()
+        self._process_keyword_args()
+
+        #
+        # Validate args
+        unfilled_props = []
+        duplicate_props = []
+        for property_name, values_list in self._property_to_value.items():
+            if not values_list:
+                unfilled_props.append(property_name)
+            elif len(values_list) >= 2:
+                duplicate_props.append(property_name)
+
+        if unfilled_props or duplicate_props or self._surplus_positional_values or self._surplus_keyword_args:
+            raise StructInstantiationArgumentsError(
+                properties=list(self._struct_property_to_field.keys()),
+                unfilled_properties=unfilled_props,
+                duplicate_properties=duplicate_props,
+                surplus_positional_values=self._surplus_positional_values,
+                surplus_keyword_args=list(self._surplus_keyword_args.keys()),
+            )
+
+        #
+        # Create instance, with correct ordering, and field name keys
+        field_name_to_value = OrderedDict()
+        for property_name, field in self._struct_property_to_field.items():
+            values = self._property_to_value[property_name]
+            assert len(values) == 1, values
+            field_name_to_value[field._field_name] = values[0]  # pylint: disable=protected-access
+
+        #
+        # Validate arg types
+        for field in self._struct_property_to_field.values():
+            field_name = field._field_name  # pylint: disable=protected-access
+            value = field_name_to_value[field_name]
+            field._validate_on_value(value)  # pylint: disable=protected-access
+
+        return dict(field_name_to_value)
