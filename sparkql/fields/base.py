@@ -127,6 +127,9 @@ class BaseField(ABC):
 
         Incompatibility may be due to incorrect nullability or incorrect type.
         """
+        # for acceptable type declrations according to pytype, see pytype source code:
+        #   types.py:1183
+        #   _acceptable_types = {...}
         if not self._is_nullable and value is None:
             raise ValueError(f"Non-nullable field cannot have None value")
 
@@ -274,6 +277,6 @@ class FractionalField(NumericField):
     def _spark_type_class(self) -> Type[DataType]:
         """The class of the Spark type corresponding to this field."""
 
+    @abstractmethod
     def _validate_on_value(self, value: Any) -> None:
         super()._validate_on_value(value)
-        _validate_value_type_for_field((int, float), value)

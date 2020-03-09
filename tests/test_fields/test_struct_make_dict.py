@@ -50,7 +50,7 @@ class TestStructMakeDict:
             numeric_field = Float(name="explicit_numeric_name")
 
         # when
-        dic = AnObject.make_dict(numeric_field=7, text_field="text_value")
+        dic = AnObject.make_dict(numeric_field=7.0, text_field="text_value")
 
         # then
         assert_ordered_dicts_equal(dic, {"explicit_text_name": "text_value", "explicit_numeric_name": 7})

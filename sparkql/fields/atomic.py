@@ -1,6 +1,7 @@
 """Concrete atomic fields."""
 from datetime import datetime, date
 from typing import Type, Any
+import decimal
 
 from pyspark.sql.types import (
     ByteType,
@@ -68,6 +69,10 @@ class Decimal(FractionalField):
     def _spark_type_class(self) -> Type[DataType]:
         return DecimalType
 
+    def _validate_on_value(self, value: Any) -> None:
+        super()._validate_on_value(value)
+        _validate_value_type_for_field((decimal.Decimal,), value)
+
 
 class Double(FractionalField):
     """Field for Spark's DoubleType."""
@@ -76,6 +81,10 @@ class Double(FractionalField):
     def _spark_type_class(self) -> Type[DataType]:
         return DoubleType
 
+    def _validate_on_value(self, value: Any) -> None:
+        super()._validate_on_value(value)
+        _validate_value_type_for_field((float,), value)
+
 
 class Float(FractionalField):
     """Field for Spark's FloatType."""
@@ -83,6 +92,10 @@ class Float(FractionalField):
     @property
     def _spark_type_class(self) -> Type[DataType]:
         return FloatType
+
+    def _validate_on_value(self, value: Any) -> None:
+        super()._validate_on_value(value)
+        _validate_value_type_for_field((float,), value)
 
 
 #
@@ -146,4 +159,4 @@ class Timestamp(AtomicField):
 
     def _validate_on_value(self, value: Any) -> None:
         super()._validate_on_value(value)
-        _validate_value_type_for_field((date, datetime, int, float), value)
+        _validate_value_type_for_field((datetime,), value)
