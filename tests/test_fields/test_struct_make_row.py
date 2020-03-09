@@ -24,5 +24,5 @@ class TestStructMakeRow:
         class AnObject(Struct):
             pass
 
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(Exception):
             AnObject.make_row()
