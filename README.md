@@ -292,9 +292,65 @@ when creating an object (a dict or a row) to return from a UDF.
 Use `Struct.make_dict(...)` to instantiate a struct as a dictionary.
 This has the advantage that the input values will be correctly
 validated, and it will convert schema property names into their
-underlying field names. See
-[this example](https://github.com/mattjw/sparkql/tree/master/examples/conferences_extended/conferences.py), the following:
-on how to use `make_dict`.
+underlying field names.
+
+For
+[example](https://github.com/mattjw/sparkql/tree/master/examples/struct_instantiation/instantiate_as_dict.py),
+given some simple Structs:
+
+```python
+class User(Struct):
+    id = Integer(name="user_id", nullable=False)
+    username = String()
+
+class Article(Struct):
+    id = Integer(name="article_id", nullable=False)
+    title = String()
+    author = User()
+    text = String(name="body")
+```
+
+Here are some examples of creating dicts from `Article`...
+
+```python
+Article.make_dict(
+    id=1001,
+    title="The article title",
+    author=User.make_dict(
+        id=440,
+        username="user"
+    ),
+    text="Lorem ipsum article text lorem ipsum."
+)
+
+# generates...
+{
+    "article_id": 1001,
+    "author": {
+        "user_id": 440,
+        "username": "user"},
+    "body": "Lorem ipsum article text lorem ipsum.",
+    "title": "The article title"
+}
+```
+
+```python
+Article.make_dict(
+    id=1002
+)
+
+# generates...
+{
+    "article_id": 1002,
+    "author": None,
+    "body": None,
+    "title": None
+}
+```
+
+See
+[this example](https://github.com/mattjw/sparkql/tree/master/examples/conferences_extended/conferences.py)
+for an extended example of using `make_dict`.
 
 ### Composite schemas
 
