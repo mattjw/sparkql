@@ -310,7 +310,7 @@ class Article(Struct):
     text = String(name="body")
 ```
 
-Here are a few examples of creating dicts from `Article`...
+Here are a few examples of creating dicts from `Article`:
 
 ```python
 Article.make_dict(
