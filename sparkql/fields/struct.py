@@ -101,6 +101,7 @@ class Struct(BaseField):
 
     def _validate_on_value(self, value: Any) -> None:
         super()._validate_on_value(value)
+        # if value is not None and not isinstance(value, Mapping):  # FIXME
         if not isinstance(value, Mapping):
             raise ValueError(f"Value for a struct must be a mapping, not '{type(value).__name__}'")
 
