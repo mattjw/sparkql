@@ -10,7 +10,7 @@ from typing import Mapping, Any
 
 import pytest
 
-from sparkql.exceptions import StructInstantiationArgumentsError
+from sparkql.exceptions import StructInstantiationArgumentsError, StructInstantiationArgumentTypeError
 from sparkql import Struct, String, Float
 
 
@@ -58,36 +58,70 @@ class TestStructMakeDict:
         assert_ordered_dicts_equal(dic, {"explicit_text_name": "text_value", "explicit_numeric_name": 7})
 
     @staticmethod
+    def should_fail_when_defaulting_a_non_nullable_to_null():
+        # given
+        args = ["text value"]
+        kwargs = {}
+
+        class AnObject(Struct):
+            text = String(name="alt_name")
+            numeric = Float(nullable=False)
+
+        # when, then
+        with pytest.raises(
+            StructInstantiationArgumentTypeError,
+            match=re.escape("Non-nullable field cannot have None value (field name = 'numeric')"),
+        ):
+            AnObject.make_dict(*args, **kwargs)
+
+    @staticmethod
+    def should_default_a_nullable_to_null():
+        # given
+        args = []
+        kwargs = {"numeric": 3.4}
+
+        class AnObject(Struct):
+            text = String(name="alt_name")
+            numeric = Float(nullable=False)
+
+        # when
+        dic = AnObject.make_dict(*args, **kwargs)
+
+        # then
+        assert_ordered_dicts_equal(dic, {"alt_name": None, "numeric": 3.4})
+
+    @staticmethod
     @pytest.mark.parametrize(
         "args,kwargs,expected_error_message",
         [
             pytest.param(
-                [],
-                {"numeric": 7},
-                "Some struct properties were not specified: text \n"
-                "Properties required by this struct are: text, numeric",
-                id="value-unspecified",
-            ),
-            pytest.param(
                 ["value"],
-                {"text": "value", "numeric": 7},
+                {"text": "value", "numeric": 7.0},
                 "There were struct properties with multiple values. Repeated properties: text \n"
                 "Properties required by this struct are: text, numeric",
                 id="surplus-mixed-args",
             ),
             pytest.param(
-                ["value", 7, 3],
+                ["value", 7.0, 3.0],
                 {},
-                "There were 1 surplus positional arguments. Surplus values: 3 \n"
+                "There were 1 surplus positional arguments. Values for surplus args: 3.0 \n"
                 "Properties required by this struct are: text, numeric",
                 id="surplus-positional-args",
             ),
             pytest.param(
                 [],
-                {"text": "value", "numeric": 7, "mystery_argument": "value"},
+                {"text": "value", "numeric": 7.0, "mystery_argument": "value"},
                 "There were surplus keyword arguments: mystery_argument \n"
                 "Properties required by this struct are: text, numeric",
                 id="surplus-keyword-args",
+            ),
+            pytest.param(
+                [],
+                {"mystery_argument": "value"},
+                "There were surplus keyword arguments: mystery_argument \n"
+                "Properties required by this struct are: text, numeric\n"
+                "Omitted struct properties were defaulted to null: text, numeric",
+                id="all-fields-defaulted-is-ok-but-surplus-keyword-args-is-bad",
             ),
         ],
     )
@@ -117,5 +151,5 @@ class TestStructMakeDict:
             numeric = Float()
 
         # when, then
-        with pytest.raises(ValueError, match=expected_error_message):
+        with pytest.raises(StructInstantiationArgumentTypeError, match=expected_error_message):
             AnObject.make_dict(*args, **kwargs)

@@ -140,6 +140,41 @@ class TestStructValidateOnValue:
         with expected_error:
             struct._validate_on_value(value)
 
+    @staticmethod
+    def should_allow_null_struct_in_nullable_field():
+        # given
+        class NestedObject(Struct):
+            nested_text = String
+
+        class SimpleObject(Struct):
+            object_field = NestedObject()
+
+        struct = SimpleObject()
+
+        value = {"object_field": None}
+
+        # when, then
+        struct._validate_on_value(value)
+
+    @staticmethod
+    def should_reject_null_struct_in_non_nullable_field():
+        # given
+        class NestedObject(Struct):
+            nested_text = String
+
+        class SimpleObject(Struct):
+            object_field = NestedObject(nullable=False)
+
+        struct = SimpleObject()
+
+        value = {"object_field": None}
+
+        # when, then
+        with pytest.raises(
+            TypeError, match=re.escape("Non-nullable field cannot have None value (field name = 'object_field')")
+        ):
+            struct._validate_on_value(value)
+
 
 class TestFieldExtractor:
     @staticmethod

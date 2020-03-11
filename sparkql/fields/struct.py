@@ -17,6 +17,7 @@ from sparkql.exceptions import (
     StructImplementationError,
     InvalidDataFrameError,
     StructInstantiationArgumentsError,
+    StructInstantiationArgumentTypeError,
 )
 from sparkql.fields.base import BaseField
 
@@ -100,6 +101,9 @@ class Struct(BaseField):
 
     def _validate_on_value(self, value: Any) -> None:
         super()._validate_on_value(value)
+        if value is None:
+            # super() will have already validate none vs nullability. if None, then it's safe to be none
+            return
         if not isinstance(value, Mapping):
             raise ValueError(f"Value for a struct must be a mapping, not '{type(value).__name__}'")
 
@@ -176,7 +180,10 @@ class Struct(BaseField):
         Create a data instance of this Struct schema, as a dictionary.
 
         Specify the values for the fields of this struct using args and keyword args, in the same way you would
-        specify values in a constructor. Use the struct's property names are keyword arguments.
+        specify values in a constructor. Use the struct's property names are keyword arguments. Omitted fields default
+        to null.
+
+        Values are validated according to the struct's schema. Null values are only permitted in nullable fields.
 
         For example, given a struct:
 
@@ -200,6 +207,16 @@ class Struct(BaseField):
             ```
             { "long_title": "The title", "body": "The body of the article."}
             ```
+
+        Raises:
+            StructInstantiationArgumentsError:
+                If arguments are not specified correctly.
+            StructInstantiationArgumentTypeError:
+                If a value does not match a field's expected type. Or if attempting to use a null in a non-nullable
+                field.
+
+        Returns:
+            An instance of this struct, as a dictioniary.
         """
         return _DictMaker(struct_class=cls, positional_args=args, keyword_args=kwargs).make_dict()
 
@@ -589,7 +606,9 @@ class _DictMaker:
         self._process_keyword_args()
 
         #
-        # Validate args
+        # Identify unfilled props and duplicate (repeated) props
+        # Note: unfilled_props are not error cases. they will be defaulted to null.
+        # duplicate_props *are* error cases
         unfilled_props = []
         duplicate_props = []
         for property_name, values_list in self._property_to_value.items():
@@ -598,7 +617,15 @@ class _DictMaker:
             elif len(values_list) >= 2:
                 duplicate_props.append(property_name)
 
-        if unfilled_props or duplicate_props or self._surplus_positional_values or self._surplus_keyword_args:
+        #
+        # Default unfilled props to null
+        for property_name, values_list in self._property_to_value.items():
+            if not values_list:
+                values_list.append(None)
+
+        #
+        # Apply arg handling validation
+        if duplicate_props or self._surplus_positional_values or self._surplus_keyword_args:
             raise StructInstantiationArgumentsError(
                 properties=list(self._struct_property_to_field.keys()),
                 unfilled_properties=unfilled_props,
@@ -620,6 +647,9 @@ class _DictMaker:
         for field in self._struct_property_to_field.values():
             field_name = field._field_name  # pylint: disable=protected-access
             value = field_name_to_value[field_name]
-            field._validate_on_value(value)  # pylint: disable=protected-access
+            try:
+                field._validate_on_value(value)  # pylint: disable=protected-access
+            except TypeError as ex:
+                raise StructInstantiationArgumentTypeError(str(ex))
 
         return dict(field_name_to_value)
