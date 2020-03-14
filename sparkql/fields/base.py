@@ -18,7 +18,8 @@ def _validate_value_type_for_field(accepted_types: Tuple[Type, ...], value: Any)
     if value is not None and not isinstance(value, accepted_types):
         pretty_types = " ,".join("'" + accepted_type.__name__ + "'" for accepted_type in accepted_types)
         raise FieldValueValidationError(
-            f"Value '{value}' has invalid type '{type(value).__name__}'. Allowed types are: {pretty_types}")
+            f"Value '{value}' has invalid type '{type(value).__name__}'. Allowed types are: {pretty_types}"
+        )
 
 
 class BaseField(ABC):

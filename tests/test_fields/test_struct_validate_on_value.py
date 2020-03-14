@@ -14,7 +14,8 @@ class TestStructValidateOnValue:
             pytest.param(
                 [],
                 pytest.raises(
-                    FieldValueValidationError, match=re.escape("Value for a struct must be a mapping, not 'list'")),
+                    FieldValueValidationError, match=re.escape("Value for a struct must be a mapping, not 'list'")
+                ),
                 id="value-is-wrong-type",
             ),
             pytest.param(
@@ -41,7 +42,8 @@ class TestStructValidateOnValue:
                 {"text": 3},
                 pytest.raises(
                     FieldValueValidationError,
-                    match=re.escape("Value '3' has invalid type 'int'. Allowed types are: 'str'")),
+                    match=re.escape("Value '3' has invalid type 'int'. Allowed types are: 'str'"),
+                ),
                 id="incorrect-field-type",
             ),
         ],
@@ -89,6 +91,6 @@ class TestStructValidateOnValue:
         # when, then
         with pytest.raises(
             FieldValueValidationError,
-                match=re.escape("Non-nullable field cannot have None value (field name = 'object_field')")
+            match=re.escape("Non-nullable field cannot have None value (field name = 'object_field')"),
         ):
             struct._validate_on_value(value)

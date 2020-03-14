@@ -103,6 +103,6 @@ class TestArrayFieldValidateOnValue:
         # when, then
         with pytest.raises(
             FieldValueValidationError,
-            match=re.escape("Value 'string' has invalid type 'str'. Allowed types are: 'float'")
+            match=re.escape("Value 'string' has invalid type 'str'. Allowed types are: 'float'"),
         ):
             TestArrayFieldValidateOnValue.FIELD._validate_on_value(value)
