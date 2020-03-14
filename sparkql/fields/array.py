@@ -104,6 +104,9 @@ class Array(Generic[ArrayElementType], BaseField):
 
     def _validate_on_value(self, value: Any) -> None:
         super()._validate_on_value(value)
+        if value is None:
+            # super() will have already validate none vs nullability. if None, then it's safe to be none
+            return
         if not isinstance(value, Sequence):
             raise ValueError(f"Value for an array must be a sequence, not '{type(value).__name__}'")
         for item in value:

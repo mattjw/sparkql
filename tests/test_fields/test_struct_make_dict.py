@@ -159,15 +159,9 @@ class TestStructMakeDict:
     @pytest.mark.parametrize(
         "array_value, expected_error",
         [
+            pytest.param(None, does_not_raise(), id="allow-none-in-nullable"),
             pytest.param(
-                None,
-                does_not_raise(),
-                id="allow-none-in-nullable"
-            ),
-            pytest.param(
-                "this is a string value",
-                pytest.raises(Exception, match="xxx"),
-                id="reject-non-sequence-in-array"
+                "this is a string value", pytest.raises(Exception, match="xxx"), id="reject-non-sequence-in-array"
             ),
         ],
     )
