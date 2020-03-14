@@ -22,7 +22,7 @@ class InvalidDataFrameError(Exception):
     """A DataFrame does not match a schema."""
 
 
-class StructInstantiationError(TypeError):
+class StructInstantiationError(Exception):
     """Error when attempting to instantiate data from a schema."""
 
 
