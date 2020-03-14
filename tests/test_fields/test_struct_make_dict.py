@@ -7,11 +7,12 @@ Partner to `test_struct.py`.
 import re
 from collections import OrderedDict
 from typing import Mapping, Any
+from contextlib import ExitStack as does_not_raise
 
 import pytest
 
 from sparkql.exceptions import StructInstantiationArgumentsError, StructInstantiationArgumentTypeError
-from sparkql import Struct, String, Float
+from sparkql import Struct, String, Float, Array
 
 
 def assert_ordered_dicts_equal(dict_a: Mapping[Any, Any], dict_b: Mapping[Any, Any]):
@@ -153,3 +154,30 @@ class TestStructMakeDict:
         # when, then
         with pytest.raises(StructInstantiationArgumentTypeError, match=expected_error_message):
             AnObject.make_dict(*args, **kwargs)
+
+    @staticmethod
+    @pytest.mark.parametrize(
+        "array_value, expected_error",
+        [
+            pytest.param(
+                None,
+                does_not_raise(),
+                id="allow-none-in-nullable"
+            ),
+            pytest.param(
+                "this is a string value",
+                pytest.raises(Exception, match="xxx"),
+                id="reject-non-sequence-in-array"
+            ),
+        ],
+    )
+    def test_arrays_should_be_handled_correctly(array_value, expected_error):
+        # 2x test cases.
+
+        # given
+        class AnObject(Struct):
+            text_sequence = Array(String(), nullable=True)
+
+        # when, then
+        with expected_error:
+            AnObject.make_dict(text_sequence=array_value)
