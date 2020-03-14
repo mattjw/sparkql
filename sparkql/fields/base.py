@@ -7,16 +7,18 @@ import copy
 from pyspark.sql import types as sql_type
 from pyspark.sql.types import StructField, DataType
 
-from sparkql.exceptions import FieldNameError, FieldParentError
+from sparkql.exceptions import FieldNameError, FieldParentError, FieldValueValidationError
+
 
 # pytype: disable=invalid-annotation
 
 
 def _validate_value_type_for_field(accepted_types: Tuple[Type, ...], value: Any):
-    """Raise TypeError if `value` is not compatible with types; None values are always permitted."""
+    """Raise error if `value` is not compatible with types; None values are always permitted."""
     if value is not None and not isinstance(value, accepted_types):
-        pretty_types = " ,".join("'" + type.__name__ + "'" for type in accepted_types)
-        raise TypeError(f"Value '{value}' has invalid type '{type(value).__name__}'. Allowed types are: {pretty_types}")
+        pretty_types = " ,".join("'" + accepted_type.__name__ + "'" for accepted_type in accepted_types)
+        raise FieldValueValidationError(
+            f"Value '{value}' has invalid type '{type(value).__name__}'. Allowed types are: {pretty_types}")
 
 
 class BaseField(ABC):
@@ -128,14 +130,14 @@ class BaseField(ABC):
 
         Incompatibility may be due to incorrect nullability or incorrect type.
         """
-        # for acceptable type declrations according to pytype, see pytype source code:
+        # for acceptable type declarations according to pytype, see pytype source code:
         #   types.py:1183
         #   _acceptable_types = {...}
         if not self._is_nullable and value is None:
             msg = "Non-nullable field cannot have None value"
             if self._resolve_field_name() is not None:
                 msg += f" (field name = '{self._resolve_field_name()}')"
-            raise TypeError(msg)
+            raise FieldValueValidationError(msg)
 
     #
     # Misc.

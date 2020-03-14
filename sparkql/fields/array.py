@@ -6,6 +6,7 @@ from typing import Optional, Generic, TypeVar, Any
 
 from pyspark.sql.types import ArrayType, StructField
 
+from sparkql.exceptions import FieldValueValidationError
 from sparkql.fields.base import BaseField
 
 
@@ -105,7 +106,7 @@ class Array(Generic[ArrayElementType], BaseField):
     def _validate_on_value(self, value: Any) -> None:
         super()._validate_on_value(value)
         if not isinstance(value, Sequence):
-            raise ValueError(f"Value for an array must be a sequence, not '{type(value).__name__}'")
+            raise FieldValueValidationError(f"Value for an array must be a sequence, not '{type(value).__name__}'")
         for item in value:
             self.e._validate_on_value(item)  # pylint: disable=protected-access
 

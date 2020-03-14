@@ -2,6 +2,7 @@ import re
 
 import pytest
 
+from sparkql.exceptions import FieldValueValidationError
 from sparkql import Struct, String
 
 
@@ -12,13 +13,14 @@ class TestStructValidateOnValue:
         [
             pytest.param(
                 [],
-                pytest.raises(ValueError, match=re.escape("Value for a struct must be a mapping, not 'list'")),
+                pytest.raises(
+                    FieldValueValidationError, match=re.escape("Value for a struct must be a mapping, not 'list'")),
                 id="value-is-wrong-type",
             ),
             pytest.param(
                 {},
                 pytest.raises(
-                    ValueError,
+                    FieldValueValidationError,
                     match=re.escape(
                         "Dict has incorrect number of fields. \nStruct requires 1 fields: text \nDict has 0 fields: "
                     ),
@@ -28,7 +30,7 @@ class TestStructValidateOnValue:
             pytest.param(
                 {"wrong_name": "hello"},
                 pytest.raises(
-                    ValueError,
+                    FieldValueValidationError,
                     match=re.escape(
                         "Dict fields do not match struct fields. \nStruct fields: text \nDict fields: wrong_name"
                     ),
@@ -37,7 +39,9 @@ class TestStructValidateOnValue:
             ),
             pytest.param(
                 {"text": 3},
-                pytest.raises(TypeError, match=re.escape("Value '3' has invalid type 'int'. Allowed types are: 'str'")),
+                pytest.raises(
+                    FieldValueValidationError,
+                    match=re.escape("Value '3' has invalid type 'int'. Allowed types are: 'str'")),
                 id="incorrect-field-type",
             ),
         ],
@@ -84,6 +88,7 @@ class TestStructValidateOnValue:
 
         # when, then
         with pytest.raises(
-            TypeError, match=re.escape("Non-nullable field cannot have None value (field name = 'object_field')")
+            FieldValueValidationError,
+                match=re.escape("Non-nullable field cannot have None value (field name = 'object_field')")
         ):
             struct._validate_on_value(value)
