@@ -157,21 +157,31 @@ class TestStructMakeDict:
 
     @staticmethod
     @pytest.mark.parametrize(
-        "array_value, expected_error",
+        "kwargs, expected_error",
         [
-            pytest.param(None, does_not_raise(), id="allow-none-in-nullable"),
+            pytest.param({"text_sequence": None}, does_not_raise(), id="allow-none-in-nullable"),
             pytest.param(
-                "this is a string value", pytest.raises(Exception, match="xxx"), id="reject-non-sequence-in-array"
+                {"text_sequence": "this is a string value"},
+                pytest.raises(StructInstantiationArgumentTypeError, match="xxx"),
+                id="reject-non-sequence-string-in-array",
+            ),
+            pytest.param(
+                {"float_sequence": 5.5},
+                pytest.raises(
+                    StructInstantiationArgumentTypeError, match="Value for an array must be a sequence, not 'float'"
+                ),
+                id="reject-non-sequence-float-in-array",
             ),
         ],
     )
-    def test_arrays_should_be_handled_correctly(array_value, expected_error):
+    def test_arrays_should_be_handled_correctly(kwargs, expected_error):
         # 2x test cases.
 
         # given
         class AnObject(Struct):
-            text_sequence = Array(String(), nullable=True)
+            text_sequence = Array(String())
+            float_sequence = Array(Float())
 
         # when, then
         with expected_error:
-            AnObject.make_dict(text_sequence=array_value)
+            AnObject.make_dict(**kwargs)

@@ -9,6 +9,7 @@ from pyspark.sql.types import StructField, DataType
 
 from sparkql.exceptions import FieldNameError, FieldParentError
 
+
 # pytype: disable=invalid-annotation
 
 
@@ -135,7 +136,7 @@ class BaseField(ABC):
             msg = "Non-nullable field cannot have None value"
             if self._resolve_field_name() is not None:
                 msg += f" (field name = '{self._resolve_field_name()}')"
-            raise TypeError(msg)
+
 
     #
     # Misc.
