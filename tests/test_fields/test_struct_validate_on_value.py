@@ -2,7 +2,7 @@ import re
 
 import pytest
 
-from sparkql.exceptions import StructInstantiationArgumentTypeError
+from sparkql.exceptions import StructInstantiationArgumentTypeError, FieldValueValidationError
 from sparkql import Struct, String
 
 
@@ -13,13 +13,13 @@ class TestStructValidateOnValue:
         [
             pytest.param(
                 [],
-                pytest.raises(ValueError, match=re.escape("Value for a struct must be a mapping, not 'list'")),
+                pytest.raises(FieldValueValidationError, match=re.escape("Value for a struct must be a mapping, not 'list'")),
                 id="value-is-wrong-type",
             ),
             pytest.param(
                 {},
                 pytest.raises(
-                    ValueError,
+                    FieldValueValidationError,
                     match=re.escape(
                         "Dict has incorrect number of fields. \nStruct requires 1 fields: text \nDict has 0 fields: "
                     ),
@@ -29,7 +29,7 @@ class TestStructValidateOnValue:
             pytest.param(
                 {"wrong_name": "hello"},
                 pytest.raises(
-                    ValueError,
+                    FieldValueValidationError,
                     match=re.escape(
                         "Dict fields do not match struct fields. \nStruct fields: text \nDict fields: wrong_name"
                     ),

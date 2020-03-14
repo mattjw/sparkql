@@ -105,7 +105,7 @@ class Struct(BaseField):
             # super() will have already validate none vs nullability. if None, then it's safe to be none
             return
         if not isinstance(value, Mapping):
-            raise ValueError(f"Value for a struct must be a mapping, not '{type(value).__name__}'")
+            raise FieldValidationError(f"Value for a struct must be a mapping, not '{type(value).__name__}'")
 
         dic: Mapping[str, Any] = value
 

@@ -3,7 +3,7 @@ import re
 import pytest
 
 from sparkql.fields.struct import _Validator, _FieldsExtractor
-from sparkql.exceptions import InvalidStructError, StructInstantiationArgumentTypeError
+from sparkql.exceptions import InvalidStructError
 from sparkql import Struct, String
 
 

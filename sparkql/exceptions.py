@@ -22,6 +22,10 @@ class InvalidDataFrameError(Exception):
     """A DataFrame does not match a schema."""
 
 
+class FieldValueValidationError(Exception):
+    """Value is not compatible with a field."""
+
+
 class StructInstantiationError(Exception):
     """Error when attempting to instantiate data from a schema."""
 

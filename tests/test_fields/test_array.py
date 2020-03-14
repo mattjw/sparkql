@@ -2,6 +2,7 @@ import re
 
 import pytest
 
+from sparkql.exceptions import FieldValueValidationError
 from sparkql import String, Array, path_str, Struct, Float
 
 
@@ -81,7 +82,7 @@ class TestArrayField:
 
 
 class TestArrayFieldValidateOnValue:
-    FIELD = Array(Float())
+    ARRAY_FIELD = Array(Float())
 
     @staticmethod
     def should_reject_non_sequence():
@@ -89,8 +90,9 @@ class TestArrayFieldValidateOnValue:
         value = {}
 
         # when, then
-        with pytest.raises(ValueError, match=re.escape("Value for an array must be a sequence, not 'dict'")):
-            TestArrayFieldValidateOnValue.FIELD._validate_on_value(value)
+        with pytest.raises(
+                FieldValueValidationError, match=re.escape("Value for an array must be a sequence, not 'dict'")):
+            TestArrayFieldValidateOnValue.ARRAY_FIELD._validate_on_value(value)
 
     @staticmethod
     def should_reject_invalid_element_value():
@@ -99,7 +101,7 @@ class TestArrayFieldValidateOnValue:
 
         # when, then
         with pytest.raises(
-            TypeError,
+            FieldValueValidationError,
             match=re.escape("Value 'string' has invalid type 'str'. Allowed types are: 'float'"),
         ):
-            TestArrayFieldValidateOnValue.FIELD._validate_on_value(value)
+            TestArrayFieldValidateOnValue.ARRAY_FIELD._validate_on_value(value)
