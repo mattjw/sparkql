@@ -20,6 +20,7 @@ from pyspark.sql.types import (
     StructField,
 )
 
+from sparkql.exceptions import FieldValueValidationError
 from sparkql.fields.base import BaseField
 from sparkql.fields.atomic import (
     Byte,
@@ -110,7 +111,7 @@ class TestValidateOnValue:
         sparkql_field_class, spark_type_class, value, spark_session: SparkSession
     ):
         # check sparkql converter should reject the value
-        with pytest.raises(TypeError):
+        with pytest.raises(FieldValueValidationError):
             field_instance: BaseField = sparkql_field_class()
             field_instance._validate_on_value(value)
 

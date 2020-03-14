@@ -18,6 +18,7 @@ from sparkql.exceptions import (
     InvalidDataFrameError,
     StructInstantiationArgumentsError,
     StructInstantiationArgumentTypeError,
+    FieldValueValidationError,
 )
 from sparkql.fields.base import BaseField
 
@@ -105,21 +106,21 @@ class Struct(BaseField):
             # super() will have already validate none vs nullability. if None, then it's safe to be none
             return
         if not isinstance(value, Mapping):
-            raise ValueError(f"Value for a struct must be a mapping, not '{type(value).__name__}'")
+            raise FieldValueValidationError(f"Value for a struct must be a mapping, not '{type(value).__name__}'")
 
         dic: Mapping[str, Any] = value
 
         fields = list(self._struct_metadata.fields.values())
         field_names = [field._field_name for field in fields]  # pylint: disable=protected-access
         if len(fields) != len(dic):
-            raise ValueError(
+            raise FieldValueValidationError(
                 f"Dict has incorrect number of fields. \n"
                 f"Struct requires {len(fields)} fields: {', '.join(field_names)} \n"
                 f"Dict has {len(dic)} fields: {', '.join(dic.keys())}"
             )
 
         if field_names != list(dic.keys()):
-            raise ValueError(
+            raise FieldValueValidationError(
                 f"Dict fields do not match struct fields. \n"
                 f"Struct fields: {', '.join(field_names)} \n"
                 f"Dict fields: {', '.join(dic.keys())}"
@@ -649,7 +650,7 @@ class _DictMaker:
             value = field_name_to_value[field_name]
             try:
                 field._validate_on_value(value)  # pylint: disable=protected-access
-            except TypeError as ex:
+            except FieldValueValidationError as ex:
                 raise StructInstantiationArgumentTypeError(str(ex))
 
         return dict(field_name_to_value)
