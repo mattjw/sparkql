@@ -105,11 +105,31 @@ class Array(Generic[ArrayElementType], BaseField):
 
     def _validate_on_value(self, value: Any) -> None:
         super()._validate_on_value(value)
+        if value is None:
+            # super() will have already validate none vs nullability. if None, then it's safe to be none
+            return
         if not isinstance(value, Sequence):
             raise FieldValueValidationError(f"Value for an array must be a sequence, not '{type(value).__name__}'")
+        if isinstance(value, str):
+            raise FieldValueValidationError(
+                f"Value for an array must not be a string. Found value '{value}'. Did you mean to use a list of "
+                "strings?"
+            )
         for item in value:
+            element_field = self.e
+            if not element_field._is_nullable and item is None:  # pylint: disable=protected-access
+                # to improve readability for errors, we preemptively validate the non-nullability of the array
+                # element here
+                msg = (
+                    "Encountered None value in array, but the element field of this array is specified as "
+                    "non-nullable"
+                )
+                if self._resolve_field_name() is not None:
+                    msg += f" (array field name = '{self._resolve_field_name()}')"
+                raise FieldValueValidationError(msg)
             self.e._validate_on_value(item)  # pylint: disable=protected-access
 
+    #
     # Misc
 
     def __eq__(self, other: Any) -> bool:

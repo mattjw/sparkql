@@ -31,7 +31,7 @@ class StructInstantiationError(Exception):
 
 
 class StructInstantiationArgumentsError(StructInstantiationError):
-    """Incorrect arguments specified when creating a data object from a schema."""
+    """Incorrect arguments specified when creating a data object from a schema; e.g., a required argument is missing."""
 
     def __init__(
         self,
@@ -63,4 +63,8 @@ class StructInstantiationArgumentsError(StructInstantiationError):
 
 
 class StructInstantiationArgumentTypeError(StructInstantiationError):
-    """Found an argument with an incorrect type when creating a data object from a schema."""
+    """
+    Found an argument with an incorrect type when creating a data object from a schema.
+
+    For example using a null in a non-nullable or using a string as a float.
+    """
