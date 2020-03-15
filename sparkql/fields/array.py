@@ -111,6 +111,16 @@ class Array(Generic[ArrayElementType], BaseField):
         if not isinstance(value, Sequence):
             raise FieldValueValidationError(f"Value for an array must be a sequence, not '{type(value).__name__}'")
         for item in value:
+            element_field = self.e
+            if not element_field._is_nullable and item is None:
+                # to improve readability for errors, we preemptively validate the non-nullability of the array
+                # element here
+                msg = (
+                      "Encountered None value in array, but the element field of this array is specified as "
+                      "non-nullable")
+                if self._resolve_field_name() is not None:
+                    msg += f" (array field name = '{self._resolve_field_name()}')"
+                raise FieldValueValidationError(msg)
             self.e._validate_on_value(item)  # pylint: disable=protected-access
 
     #

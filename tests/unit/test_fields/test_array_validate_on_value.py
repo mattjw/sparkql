@@ -3,28 +3,28 @@ import re
 import pytest
 
 from sparkql import Array, Float, Struct, String
-from sparkql.exceptions import FieldValueValidationError, StructInstantiationArgumentTypeError
+from sparkql.exceptions import FieldValueValidationError
 from tests.utilities import does_not_raise
 
 
 @pytest.mark.only
 class TestArrayFieldValidateOnValue:
-    ARRAY_FIELD = Array(Float())
-
     @staticmethod
     def should_reject_non_sequence():
         # given
+        array_of_floats_field = Array(Float())
         value = {}
 
         # when, then
         with pytest.raises(
             FieldValueValidationError, match=re.escape("Value for an array must be a sequence, not 'dict'")
         ):
-            TestArrayFieldValidateOnValue.ARRAY_FIELD._validate_on_value(value)
+            array_of_floats_field._validate_on_value(value)
 
     @staticmethod
     def should_reject_invalid_element_value():
         # given
+        array_of_floats_field = Array(Float())
         value = [3.5, "string"]
 
         # when, then
@@ -32,29 +32,32 @@ class TestArrayFieldValidateOnValue:
             FieldValueValidationError,
             match=re.escape("Value 'string' has invalid type 'str'. Allowed types are: 'float'"),
         ):
-            TestArrayFieldValidateOnValue.ARRAY_FIELD._validate_on_value(value)
+            array_of_floats_field._validate_on_value(value)
 
     @staticmethod
     @pytest.mark.parametrize(
         "kwargs, expected_error",
         [
-            pytest.param({"text_sequence": None}, does_not_raise(), id="allow-none-in-nullable"),
-            pytest.param(
-                {"text_sequence": "this is a string value"},
-                pytest.raises(IOError, match="xxx"),
-                id="reject-non-sequence-string-in-array",
-            ),
-            pytest.param(
-                {"float_sequence": 5.5},
-                pytest.raises(
-                    IOError, match="yy"
-                ),
-                id="reject-non-sequence-float-in-array",
-            ),
+            # pytest.param({"text_sequence": None}, does_not_raise(), id="allow-none-in-nullable"),
+            # pytest.param(
+            #     {"text_sequence": "this is a string value"},
+            #     pytest.raises(FieldValueValidationError, match="xxx"),
+            #     id="reject-non-sequence-string-in-array",
+            # ),
+            # pytest.param(
+            #     {"float_sequence": 5.5},
+            #     pytest.raises(
+            #         FieldValueValidationError,
+            #         match="fff"),
+            #     id="reject-non-sequence-float-in-array",
+            # ),
             pytest.param(
                 {"non_nullable_float_sequence": [None]},
                 pytest.raises(
-                    IOError, match="zz"
+                    FieldValueValidationError,
+                    match=re.escape(
+                        "Encountered None value in array, but the element field of this array is specified as "
+                        "non-nullable (array field name = 'non_nullable_float_sequence')")
                 ),
                 id="reject-null-element-in-array-of-of-non-nullable-elements",
             ),
@@ -69,4 +72,4 @@ class TestArrayFieldValidateOnValue:
 
         # when, then
         with expected_error:
-            AnObject.make_dict(**kwargs)
+            AnObject._validate_on_value(**kwargs)
