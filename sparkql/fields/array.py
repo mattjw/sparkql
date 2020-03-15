@@ -117,7 +117,7 @@ class Array(Generic[ArrayElementType], BaseField):
             )
         for item in value:
             element_field = self.e
-            if not element_field._is_nullable and item is None:
+            if not element_field._is_nullable and item is None:  # pylint: disable=protected-access
                 # to improve readability for errors, we preemptively validate the non-nullability of the array
                 # element here
                 msg = (
