@@ -110,6 +110,10 @@ class Array(Generic[ArrayElementType], BaseField):
             return
         if not isinstance(value, Sequence):
             raise FieldValueValidationError(f"Value for an array must be a sequence, not '{type(value).__name__}'")
+        if isinstance(value, str):
+            raise FieldValueValidationError(
+                f"Value for an array must not be a string. Found value '{value}'. Did you mean to use a list of "
+                "strings?")
         for item in value:
             element_field = self.e
             if not element_field._is_nullable and item is None:

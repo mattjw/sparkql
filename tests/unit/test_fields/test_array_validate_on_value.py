@@ -2,12 +2,11 @@ import re
 
 import pytest
 
-from sparkql import Array, Float, Struct, String
+from sparkql import Array, Float, String
 from sparkql.exceptions import FieldValueValidationError
 from tests.utilities import does_not_raise
 
 
-@pytest.mark.only
 class TestArrayFieldValidateOnValue:
     @staticmethod
     def should_reject_non_sequence():
@@ -36,40 +35,46 @@ class TestArrayFieldValidateOnValue:
 
     @staticmethod
     @pytest.mark.parametrize(
-        "kwargs, expected_error",
+        "array_field, value, expected_error",
         [
-            # pytest.param({"text_sequence": None}, does_not_raise(), id="allow-none-in-nullable"),
-            # pytest.param(
-            #     {"text_sequence": "this is a string value"},
-            #     pytest.raises(FieldValueValidationError, match="xxx"),
-            #     id="reject-non-sequence-string-in-array",
-            # ),
-            # pytest.param(
-            #     {"float_sequence": 5.5},
-            #     pytest.raises(
-            #         FieldValueValidationError,
-            #         match="fff"),
-            #     id="reject-non-sequence-float-in-array",
-            # ),
             pytest.param(
-                {"non_nullable_float_sequence": [None]},
+                Array(String(), name="name_of_array_field"),
+                None,
+                does_not_raise(),
+                id="array-of-nullable-elemets-should-accept-none",
+            ),
+            pytest.param(
+                Array(String(), name="name_of_array_field"),
+                "this is a string value",
+                pytest.raises(
+                    FieldValueValidationError,
+                    match=re.escape(
+                        "Value for an array must not be a string. Found value 'this is a string value'. Did you mean "
+                        "to use a list of strings?")),
+                id="string-array-should-reject-non-sequence",
+            ),
+            pytest.param(
+                Array(Float(), name="name_of_array_field"),
+                3.5,
+                pytest.raises(
+                    FieldValueValidationError,
+                    match=re.escape("Value for an array must be a sequence, not 'float'")),
+                id="float-array-should-reject-non-sequence",
+            ),
+            pytest.param(
+                Array(Float(nullable=False), name="name_of_array_field"),
+                [None],
                 pytest.raises(
                     FieldValueValidationError,
                     match=re.escape(
                         "Encountered None value in array, but the element field of this array is specified as "
-                        "non-nullable (array field name = 'non_nullable_float_sequence')")
+                        "non-nullable (array field name = 'name_of_array_field')")
                 ),
-                id="reject-null-element-in-array-of-of-non-nullable-elements",
+                id="float-array-of-non-nullable-elements-should-reject-null-element",
             ),
         ],
     )
-    def test_arrays_should_be_handled_correctly(kwargs, expected_error):
-        # given
-        class AnObject(Struct):
-            text_sequence = Array(String())
-            float_sequence = Array(Float())
-            non_nullable_float_sequence = Array(Float(nullable=False))
-
-        # when, then
+    def test_arrays_should_be_handled_correctly(array_field: Array, value, expected_error):
+        # given, when, then
         with expected_error:
-            AnObject._validate_on_value(**kwargs)
+            array_field._validate_on_value(value)
