@@ -11,7 +11,8 @@ from typing import Mapping, Any
 import pytest
 
 from sparkql.exceptions import StructInstantiationArgumentsError, StructInstantiationArgumentTypeError
-from sparkql import Struct, String, Float
+from sparkql import Struct, String, Float, Array
+from tests.utilities import does_not_raise
 
 
 def assert_ordered_dicts_equal(dict_a: Mapping[Any, Any], dict_b: Mapping[Any, Any]):
@@ -153,3 +154,41 @@ class TestStructMakeDict:
         # when, then
         with pytest.raises(StructInstantiationArgumentTypeError, match=expected_error_message):
             AnObject.make_dict(*args, **kwargs)
+
+    @staticmethod
+    @pytest.mark.parametrize(
+        "kwargs, expected_error",
+        [
+            pytest.param({"text_sequence": None}, does_not_raise(), id="allow-none-in-nullable"),
+            pytest.param(
+                {"text_sequence": "this is a string value"},
+                pytest.raises(
+                    StructInstantiationArgumentTypeError,
+                    match=re.escape(
+                        "Value for an array must not be a string. Found value 'this is a string value'. "
+                        "Did you mean to use a list of strings?"
+                    ),
+                ),
+                id="reject-non-sequence-string-in-array",
+            ),
+            pytest.param(
+                {"float_sequence": 5.5},
+                pytest.raises(
+                    StructInstantiationArgumentTypeError,
+                    match=re.escape("Value for an array must be a sequence, not 'float'"),
+                ),
+                id="reject-non-sequence-float-in-array",
+            ),
+        ],
+    )
+    def test_arrays_should_be_handled_correctly(kwargs, expected_error):
+        # 2x test cases.
+
+        # given
+        class AnObject(Struct):
+            text_sequence = Array(String())
+            float_sequence = Array(Float())
+
+        # when, then
+        with expected_error:
+            AnObject.make_dict(**kwargs)

@@ -50,15 +50,17 @@ class TestArrayFieldValidateOnValue:
                     FieldValueValidationError,
                     match=re.escape(
                         "Value for an array must not be a string. Found value 'this is a string value'. Did you mean "
-                        "to use a list of strings?")),
+                        "to use a list of strings?"
+                    ),
+                ),
                 id="string-array-should-reject-non-sequence",
             ),
             pytest.param(
                 Array(Float(), name="name_of_array_field"),
                 3.5,
                 pytest.raises(
-                    FieldValueValidationError,
-                    match=re.escape("Value for an array must be a sequence, not 'float'")),
+                    FieldValueValidationError, match=re.escape("Value for an array must be a sequence, not 'float'")
+                ),
                 id="float-array-should-reject-non-sequence",
             ),
             pytest.param(
@@ -68,7 +70,8 @@ class TestArrayFieldValidateOnValue:
                     FieldValueValidationError,
                     match=re.escape(
                         "Encountered None value in array, but the element field of this array is specified as "
-                        "non-nullable (array field name = 'name_of_array_field')")
+                        "non-nullable (array field name = 'name_of_array_field')"
+                    ),
                 ),
                 id="float-array-of-non-nullable-elements-should-reject-null-element",
             ),

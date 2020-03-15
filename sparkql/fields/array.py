@@ -113,15 +113,17 @@ class Array(Generic[ArrayElementType], BaseField):
         if isinstance(value, str):
             raise FieldValueValidationError(
                 f"Value for an array must not be a string. Found value '{value}'. Did you mean to use a list of "
-                "strings?")
+                "strings?"
+            )
         for item in value:
             element_field = self.e
             if not element_field._is_nullable and item is None:
                 # to improve readability for errors, we preemptively validate the non-nullability of the array
                 # element here
                 msg = (
-                      "Encountered None value in array, but the element field of this array is specified as "
-                      "non-nullable")
+                    "Encountered None value in array, but the element field of this array is specified as "
+                    "non-nullable"
+                )
                 if self._resolve_field_name() is not None:
                     msg += f" (array field name = '{self._resolve_field_name()}')"
                 raise FieldValueValidationError(msg)
