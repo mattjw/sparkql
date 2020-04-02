@@ -81,10 +81,10 @@ class TestPathStrForArray:
             root_field = StructWithArray(name="alt_root_field_name")
 
         # when
-        path_field_names = accessors.path_str(RootStruct.root_field.array_field.e.element_field)
+        path = accessors.path_str(RootStruct.root_field.array_field.e.element_field)
 
         # then
-        assert path_field_names == "alt_root_field_name.alt_array_field_name.alt_element_field_name"
+        assert path == "alt_root_field_name.alt_array_field_name.alt_element_field_name"
 
     @staticmethod
     def should_work_on_narrower_example():
@@ -96,10 +96,10 @@ class TestPathStrForArray:
             array_field = Array(Element(), name="alt_array_field_name", nullable=True)
 
         # when
-        path_field_names = accessors.path_str(StructWithArray.array_field.e.element_field)
+        path = accessors.path_str(StructWithArray.array_field.e.element_field)
 
         # then
-        assert path_field_names == "alt_array_field_name.alt_element_field_name"
+        assert path == "alt_array_field_name.alt_element_field_name"
 
 
 # >>
