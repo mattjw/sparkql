@@ -90,7 +90,7 @@ def prepare_release():
         + f'-c "user.email={GITHUB_COMMITTER_EMAIL}" '
         + f'commit -m "{commit_message}"',
         hide=None,
-        echo=True,
+        echo=False,
     )
 
     print()
@@ -122,7 +122,7 @@ def github_push(branch: str):
         exit(1)
 
     print(f"Pushing: {branch}")
-    run(f"git push https://{token}@${remote_url} {branch}", echo=False)
+    run(f"git push https://{token}@${remote_url} {branch}", echo=False)  # never echo this; contains github token
 
 
 @dataclass
