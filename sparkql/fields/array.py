@@ -45,9 +45,7 @@ class Array(Generic[ArrayElementType], BaseField):
             # ^ CORRECTION: child will get the parent's name
 
         # hand down this array's explicit name to its child element
-        element = element._replace_explicit_name(
-            name=self._explicit_name
-        )
+        element = element._replace_explicit_name(name=self._explicit_name)
         self.e = element  # pylint: disable=invalid-name
 
     #

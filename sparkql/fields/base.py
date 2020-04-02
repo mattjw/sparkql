@@ -78,10 +78,10 @@ class BaseField(ABC):
         Should only be used for internal mechanics of handling name resolution during
         path chaining.
         """
-        field = copy.copy(self)
+        field: BaseField = copy.copy(self)
         if self.__name_explicit is not None:
             raise FieldParentError("Attempted to set an explicit name that has already been set")
-        field.__name_explicit = name
+        field.__name_explicit = name  # pylint: disable=protected-access
         return field
 
     #
