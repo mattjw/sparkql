@@ -45,7 +45,7 @@ class Array(Generic[ArrayElementType], BaseField):
 
         # hand down this array's explicit name to its child element
         # this is to ensure correct naming in path chaining (see `self._replace_parent` and `path_seq`)
-        element = element._replace_explicit_name(name=self._explicit_name)
+        # element = element._replace_explicit_name(name=self._explicit_name)
         self.e = element  # pylint: disable=invalid-name
 
     #

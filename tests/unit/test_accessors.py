@@ -41,6 +41,21 @@ class TestPathSeq:
         # then
         assert path_field_names == ["recipients", "full_name"]
 
+    @staticmethod
+    def test_should_return_correct_list_for_nested_array_with_explicit_field_name():
+        # given (see above)
+        class Element(Struct):
+            element_field = String(name="alt_element_field_name", nullable=True)
+
+        class StructWithArray(Struct):
+            array_field = Array(Element(), name="alt_array_field_name", nullable=True)
+
+        # when
+        path_field_names = accessors.path_seq(StructWithArray.array_field.e.element_field)
+
+        # then
+        assert path_field_names == ["alt_array_field_name", "alt_element_field_name"]
+
 
 class TestPathStr:
     @staticmethod
@@ -62,53 +77,6 @@ class TestPathStr:
 
         # then
         assert path_field_names == "recipients.full_name"
-
-
-# << TO BE MOVED
-
-
-import pytest
-
-
-class TestPathStrForArray:
-    @staticmethod
-    # @pytest.mark.only
-    def should_use_explicit_name_for_array_field():
-        # given (see above)
-        class Element(Struct):
-            element_field = String(name="alt_element_field_name", nullable=True)
-
-        class StructWithArray(Struct):
-            array_field = Array(Element(), name="alt_array_field_name", nullable=True)
-
-        class RootStruct(Struct):
-            root_field = StructWithArray(name="alt_root_field_name")
-
-        # when
-        obj = RootStruct.root_field.array_field.e.element_field
-        path = accessors.path_str(obj)
-
-        # then
-        assert path == "alt_root_field_name.alt_array_field_name.alt_element_field_name"
-
-    @staticmethod
-    def should_work_on_narrower_example():
-        # given (see above)
-        class Element(Struct):
-            element_field = String(name="alt_element_field_name", nullable=True)
-
-        class StructWithArray(Struct):
-            array_field = Array(Element(), name="alt_array_field_name", nullable=True)
-
-        # when
-        obj = StructWithArray.array_field.e.element_field
-        path = accessors.path_str(obj)
-
-        # then
-        assert path == "alt_array_field_name.alt_element_field_name"
-
-
-# >>
 
 
 class TestPathCol:
