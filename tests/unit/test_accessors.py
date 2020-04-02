@@ -64,6 +64,31 @@ class TestPathStr:
         assert path_field_names == "recipients.full_name"
 
 
+# << TO BE MOVED
+
+
+class TestPathStrForArray:
+    @staticmethod
+    def test_should_use_explicit_name_for_array_field():
+        # given (see above)
+        class Element(Struct):
+            element_field = String(name="alt_element_field_name", nullable=True)
+
+        class StructWithArray(Struct):
+            array_field = Array(Element(), name="alt_array_field_name", nullable=True)
+
+        class RootStruct(Struct):
+            root_field = StructWithArray(name="root_field_name")
+
+        # when
+        path_field_names = accessors.path_str(RootStruct.root_field.array_field.e.element_field)
+
+        # then
+        assert path_field_names == "root_field_name.alt_array_field_name.alt_element_field_name"
+
+
+# >>
+
 class TestPathCol:
     @staticmethod
     def test_should_return_correct_column_for_nested_schemas(spark_session: SparkSession):
