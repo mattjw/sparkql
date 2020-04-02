@@ -30,12 +30,11 @@ class Array(Generic[ArrayElementType], BaseField):
     e: ArrayElementType  # pytype: disable=not-supported-yet  # pylint: disable=invalid-name
 
     def __init__(self, element: ArrayElementType, nullable: bool = True, name: Optional[str] = None):
-        super().__init__(nullable, name)
+        super().__init__(nullable=nullable, name=name)
 
         if not isinstance(element, BaseField):
             raise ValueError(f"Array element must be a field. Found type: {type(element).__name__}")
 
-        self.e = element  # pylint: disable=invalid-name
         if element._resolve_field_name() is not None:
             raise ValueError(
                 "When using a field as the element field of an array, the field should not have a name. "
@@ -43,6 +42,13 @@ class Array(Generic[ArrayElementType], BaseField):
             )
             # None of the naming mechanics of this array's element type will be used.
             # The name of the element type will not be used for anything
+            # ^ CORRECTION: child will get the parent's name
+
+        # hand down this array's explicit name to its child element
+        element = element._replace_explicit_name(
+            name=self._explicit_name
+        )
+        self.e = element  # pylint: disable=invalid-name
 
     #
     # Field path chaining

@@ -71,8 +71,25 @@ class BaseField(ABC):
         field._parent_struct = parent  # pylint: disable=protected-access
         return field
 
+    def _replace_explicit_name(self, name: Optional[str] = None) -> "BaseField":
+        """
+        Return a copy of this field, with the explicit name set.
+
+        Should only be used for internal mechanics of handling name resolution during
+        path chaining.
+        """
+        field = copy.copy(self)
+        if self.__name_explicit is not None:
+            raise FieldParentError("Attempted to set an explicit name that has already been set")
+        field.__name_explicit = name
+        return field
+
     #
     # Field name management
+
+    @property
+    def _explicit_name(self) -> Optional[str]:
+        return self.__name_explicit
 
     @property
     def _contextual_name(self) -> Optional[str]:

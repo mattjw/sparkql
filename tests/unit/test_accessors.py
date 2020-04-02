@@ -67,8 +67,12 @@ class TestPathStr:
 # << TO BE MOVED
 
 
+import pytest
+
+
 class TestPathStrForArray:
     @staticmethod
+    # @pytest.mark.only
     def should_use_explicit_name_for_array_field():
         # given (see above)
         class Element(Struct):
@@ -81,7 +85,8 @@ class TestPathStrForArray:
             root_field = StructWithArray(name="alt_root_field_name")
 
         # when
-        path = accessors.path_str(RootStruct.root_field.array_field.e.element_field)
+        obj = RootStruct.root_field.array_field.e.element_field
+        path = accessors.path_str(obj)
 
         # then
         assert path == "alt_root_field_name.alt_array_field_name.alt_element_field_name"
@@ -96,7 +101,8 @@ class TestPathStrForArray:
             array_field = Array(Element(), name="alt_array_field_name", nullable=True)
 
         # when
-        path = accessors.path_str(StructWithArray.array_field.e.element_field)
+        obj = StructWithArray.array_field.e.element_field
+        path = accessors.path_str(obj)
 
         # then
         assert path == "alt_array_field_name.alt_element_field_name"
