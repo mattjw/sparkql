@@ -80,7 +80,7 @@ class BaseField(ABC):
         """
         field: BaseField = copy.copy(self)
         if self.__name_explicit is not None:
-            raise FieldParentError("Attempted to set an explicit name that has already been set")
+            raise FieldNameError("Attempted to set an explicit name that has already been set")
         field.__name_explicit = name  # pylint: disable=protected-access
         return field
 

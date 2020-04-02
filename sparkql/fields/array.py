@@ -36,15 +36,15 @@ class Array(Generic[ArrayElementType], BaseField):
             raise ValueError(f"Array element must be a field. Found type: {type(element).__name__}")
 
         if element._resolve_field_name() is not None:
+            # we require that the array's element should be a "vanilla" field. it should not have been given
+            # any name (explicit nor contextual)
             raise ValueError(
                 "When using a field as the element field of an array, the field should not have a name. "
                 f"The field's name resolved to: {element._resolve_field_name()}"
             )
-            # None of the naming mechanics of this array's element type will be used.
-            # The name of the element type will not be used for anything
-            # ^ CORRECTION: child will get the parent's name
 
         # hand down this array's explicit name to its child element
+        # this is to ensure correct naming in path chaining (see `self._replace_parent` and `path_seq`)
         element = element._replace_explicit_name(name=self._explicit_name)
         self.e = element  # pylint: disable=invalid-name
 
