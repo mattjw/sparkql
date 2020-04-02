@@ -61,3 +61,12 @@ class TestBaseField:
         # when, then
         with pytest.raises(FieldNameError):
             float_field._field_name
+
+    @staticmethod
+    def test_should_reject_replacing_a_preexisting_explicit_name():
+        # given
+        float_field = Float(name="explicit_name")
+
+        # wheb, then
+        with pytest.raises(FieldNameError):
+            float_field._replace_explicit_name("new_explicit_name")

@@ -277,3 +277,4 @@ dmypy.json
 
 .pytype
 reports/
+.venv

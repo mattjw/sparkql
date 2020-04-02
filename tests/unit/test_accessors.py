@@ -41,6 +41,21 @@ class TestPathSeq:
         # then
         assert path_field_names == ["recipients", "full_name"]
 
+    @staticmethod
+    def test_should_return_correct_list_for_nested_array_with_explicit_field_name():
+        # given (see above)
+        class Element(Struct):
+            element_field = String(name="alt_element_field_name", nullable=True)
+
+        class StructWithArray(Struct):
+            array_field = Array(Element(), name="alt_array_field_name", nullable=True)
+
+        # when
+        path_field_names = accessors.path_seq(StructWithArray.array_field.e.element_field)
+
+        # then
+        assert path_field_names == ["alt_array_field_name", "alt_element_field_name"]
+
 
 class TestPathStr:
     @staticmethod
