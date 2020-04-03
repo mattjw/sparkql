@@ -18,7 +18,7 @@ def _validate_value_type_for_field(accepted_types: Tuple[Type, ...], value: Any)
     if value is not None and not isinstance(value, accepted_types):
         pretty_types = " ,".join("'" + accepted_type.__name__ + "'" for accepted_type in accepted_types)
         raise FieldValueValidationError(
-            f"Value '{value}' has invalid type '{type(value).__name__}'. Allowed types are: {pretty_types}"
+            f"Value '{value}' has invalid type '{value.__class__.__name__}'. Allowed types are: {pretty_types}"
         )
 
 
@@ -180,7 +180,7 @@ class BaseField(ABC):
     def _info(self):
         """String formatted object with a more complete summary of this field, primarily for debugging."""
         return (
-            f"<{type(self).__name__}\n"
+            f"<{self.__class__.__name__}\n"
             f"  spark type = {self._spark_type_class.__name__}\n"
             f"  nullable = {self._is_nullable}\n"
             f"  name = {self._resolve_field_name()} <- {[self.__name_explicit, self.__name_contextual]}\n"
@@ -190,7 +190,14 @@ class BaseField(ABC):
 
     def _short_info(self):
         """Short info string for use in error messages."""
-        return f"<{type(self).__name__}: nullable={self._is_nullable}>"
+        nullable = "Nullable " if self._is_nullable else ""
+        return f"<{nullable}{self.__class__.__name__}: {self._resolve_field_name()}>"
+
+    def __hash__(self):
+        return hash((self._is_nullable, self._resolve_field_name()))
+
+    def __repr__(self):
+        return self._short_info()
 
 
 class AtomicField(BaseField):
