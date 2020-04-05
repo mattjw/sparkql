@@ -1,0 +1,41 @@
+# CI for all branches. Executes a build and verify (including testing, linting, and so on).
+
+name: Continuous integration
+
+on: [push, pull_request]
+
+jobs:
+  build_verify:
+
+    runs-on: ubuntu-latest
+
+    container:
+      image: docker.pkg.github.com/mattjw/docker-images/circleci-python-java8:py3.6.8
+
+    #strategy:
+    #  matrix:
+    #    python: [3.6, 3.7]
+
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v2
+
+      # restore cache ???
+
+      - name: Install dependencies
+        run: |
+          poetry --version
+          poetry install --no-root
+
+      - name: Run checks and tests
+        command: |
+          poetry run verify-all
+
+      - name: Upload coverage report to codecov
+        uses: codecov/codecov-action@v1
+        with:
+          file: reports/coverage.xml
+          fail_ci_if_error: true
+
+      - name: Check for releasable changes (if any)
+        run: poetry run find-releasable-changes
