@@ -40,6 +40,7 @@ class TestPathSeq:
 
         # then
         assert path_field_names == ["recipients", "full_name"]
+        assert False
 
     @staticmethod
     def test_should_return_correct_list_for_nested_array_with_explicit_field_name():

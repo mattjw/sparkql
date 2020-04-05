@@ -19,14 +19,6 @@ jobs:
       - name: Code checkout
         uses: actions/checkout@v2
 
-      # REMOVE
-      - name: DEBUG
-        run: |
-          echo "GITHUB_WORKSPACE = $GITHUB_WORKSPACE"
-          echo "Working directory: $(pwd)"
-          ls -laht
-          git --version
-
       - name: Fetch all git tags
         run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
         # This is required for commitizen to operate quickly (see the `find-releasable-changes` task)
@@ -41,12 +33,6 @@ jobs:
         run: |
           poetry --version
           poetry install --no-root
-
-      # <<REMOVE
-      - name: Check for releasable changes (if any)
-        shell: bash
-        run: poetry run cz bump --dry-run --files-only
-      # >>
 
       - name: Run checks and tests
         run: |
