@@ -34,6 +34,12 @@ jobs:
           poetry --version
           poetry install --no-root
 
+      # <<REMOVE
+      - name: Check for releasable changes (if any)
+        shell: bash
+        run: poetry run cz bump --dry-run --files-only
+      # >>
+
       - name: Run checks and tests
         run: |
           poetry run verify-all
