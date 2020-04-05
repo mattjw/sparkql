@@ -58,7 +58,7 @@ Type hints are strongly encouraged, and are checked during CI.
 Coverage reports are uploaded to `codecov.io`
 [here](https://codecov.io/gh/mattjw/sparkql). The `test` task
 generates coverage reports to the `reports` directory. CI will
-deposit built reports on CircleCI, and also upload them to `codecov.io`.
+deposit built reports on CI, and also upload them to `codecov.io`.
 The badge is configured
 [here](https://codecov.io/gh/mattjw/sparkql/settings/badge).
 
@@ -129,12 +129,12 @@ publish, the following instructions explain how to make a new release.
 
 ### Making a new release via CI
 
-A CircleCI workflow named `release_workflow` is executed on each
+_(Via CircleCI...)_ A CircleCI workflow named `release_workflow` is executed on each
 merge to `master`. To make a release, approve the `request_release`
 hold step via the
 [CircleCI interface](https://circleci.com/gh/mattjw/workflows/sparkql/tree/master).
 
-### Making a new releease by hand
+### Making a new release by hand
 
 First, ensure you are on an up-to-date `master` branch. 
 
