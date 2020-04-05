@@ -22,8 +22,9 @@ jobs:
       # REMOVE
       - name: DEBUG
         run: |
+          echo "GITHUB_WORKSPACE = $GITHUB_WORKSPACE"
           echo "Working directory: $(pwd)"
-          ls
+          ls -laht
 
       - name: Fetch all git tags
         run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
