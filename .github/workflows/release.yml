@@ -17,7 +17,8 @@ jobs:
     container:
       image: mattjwnet/python-poetry-java8:py3.6.8
 
-    if: startsWith(github.event.issue.title, 'RELEASE project') && github.event.issue.user.login == 'mattjw'
+    #if: startsWith(github.event.issue.title, 'RELEASE project') && github.event.issue.user.login == 'mattjw'
+    if: startsWith(github.event.issue.title, 'RELEASE project')
 
     #strategy:
     #  matrix:
