@@ -150,7 +150,7 @@ def get_version_info() -> NextVersionInfo:
         A string of the form "0.1.1" if there is a new release to generate (based on commit messages). Returns
         `None` if the commit history indicates that there is nothing to release.
     """
-    result: Result = run("cz bump --dry-run --files-only", warn=True, hide=False)  # UNDO
+    result: Result = run("cz bump --dry-run --files-only", warn=True, hide=False, echo=True)
     cz_output = result.stdout
 
     if "NO_VERSION_SPECIFIED" in cz_output:
