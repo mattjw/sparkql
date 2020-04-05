@@ -9,12 +9,12 @@ jobs:
 
     runs-on: ubuntu-latest
     container:
-      image: mattjwnet/circleci-python-java8:py3.6.8
+      image: mattjwnet/python-poetry-java8:py3.6.8
 
-      env:
-        working_directory: ~/repo
-        # It'd be nice to reduce the duplication. Ideally, Github Actions will support a one place to set
-        # the working directory across all steps
+#      env:
+#        working_directory: ~/repo
+#        # It'd be nice to reduce the duplication. Ideally, Github Actions will support a one place to set
+#        # the working directory across all steps
 
     #strategy:
     #  matrix:
@@ -23,24 +23,24 @@ jobs:
     steps:
       - name: Code checkout
         uses: actions/checkout@v2
-        with:
-          path: ${{env.working_directory}}
+#        with:
+#          path: ${{env.working_directory}}
 
       # restore cache ???
 
       - name: Install dependencies
-        working-directory: ${{env.working_directory}}
+#        working-directory: ${{env.working_directory}}
         run: |
           poetry --version
           poetry install --no-root
 
       - name: Run checks and tests
-        working-directory: ${{env.working_directory}}
+#        working-directory: ${{env.working_directory}}
         run: |
           poetry run verify-all
 
       - name: Upload coverage artiface to Github
-        # Located in the Artifacts drop-down on the Github page for the executed workflow
+        # The artifact can be found in the Artifacts drop-down on the Github page for the executed workflow
         uses: actions/upload-artifact@v1
         with:
           name: coverage-report
@@ -53,5 +53,5 @@ jobs:
           fail_ci_if_error: true
 
       - name: Check for releasable changes (if any)
-        working-directory: ${{env.working_directory}}
+#        working-directory: ${{env.working_directory}}
         run: poetry run find-releasable-changes
