@@ -26,7 +26,16 @@ jobs:
 #        with:
 #          path: ${{env.working_directory}}
 
-      # restore cache ???
+#      - name: Cache Primes
+#        id: cache-primes
+#        uses: actions/cache@v1
+#        with:
+#          path: # WAT IS THE PATH???
+#          key: ${{ runner.os }}-primes
+
+      - name: Working dir
+        run: |
+          echo "Working directory: $(pwd)"
 
       - name: Install dependencies
 #        working-directory: ${{env.working_directory}}
@@ -45,12 +54,12 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: coverage-report
-          path: ${{env.working_directory}}/reports/htmlcov
+          path: reports/htmlcov
 
       - name: Upload coverage report to codecov
         uses: codecov/codecov-action@v1
         with:
-          file: ${{env.working_directory}}/reports/coverage.xml
+          file: reports/coverage.xml
           fail_ci_if_error: true
 
       - name: Check for releasable changes (if any)
