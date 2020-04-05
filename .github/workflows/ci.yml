@@ -21,9 +21,10 @@ jobs:
 
       - name: Fetch all git tags
         run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-        # This is required for commitizen to operate quickly (see the `find-releasable-changes` task)
+        # This is required for commitizen to operate quickly (see the
+        # `find-releasable-changes` task)
 
-      - name: Set up cache
+      - name: Dependencies cache
         uses: actions/cache@v1
         with:
           path: .venv
@@ -39,7 +40,8 @@ jobs:
           poetry run verify-all
 
       - name: Upload coverage artiface to Github
-        # The artifact can be found in the Artifacts drop-down on the Github page for the executed workflow
+        # The artifact can be found in the Artifacts drop-down on the
+        # Github page for the executed workflow
         uses: actions/upload-artifact@v1
         with:
           name: coverage-report
