@@ -8,9 +8,13 @@ jobs:
   build_verify:
 
     runs-on: ubuntu-latest
-
     container:
       image: mattjwnet/circleci-python-java8:py3.6.8
+
+      env:
+        working_directory: ~/repo
+        # It'd be nice to reduce the duplication. Ideally, Github Actions will support a one place to set
+        # the working directory across all steps
 
     #strategy:
     #  matrix:
@@ -18,20 +22,24 @@ jobs:
 
     steps:
       - name: Code checkout
+        working-directory: ${{env.working_directory}}
         uses: actions/checkout@v2
 
       # restore cache ???
 
       - name: Install dependencies
+        working-directory: ${{env.working_directory}}
         run: |
           poetry --version
           poetry install --no-root
 
       - name: Run checks and tests
+        working-directory: ${{env.working_directory}}
         run: |
           poetry run verify-all
 
       - name: Upload coverage artiface to Github
+        working-directory: ${{env.working_directory}}
         # Located in the Artifacts drop-down on the Github page for the executed workflow
         uses: actions/upload-artifact@v1
         with:
@@ -39,10 +47,12 @@ jobs:
           path: reports/htmlcov
 
       - name: Upload coverage report to codecov
+        working-directory: ${{env.working_directory}}
         uses: codecov/codecov-action@v1
         with:
           file: reports/coverage.xml
           fail_ci_if_error: true
 
       - name: Check for releasable changes (if any)
+        working-directory: ${{env.working_directory}}
         run: poetry run find-releasable-changes
