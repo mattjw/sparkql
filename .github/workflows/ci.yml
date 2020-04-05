@@ -31,6 +31,7 @@ jobs:
       - name: Install dependencies
 #        working-directory: ${{env.working_directory}}
         run: |
+          echo "Working directory: $(pwd)"
           poetry --version
           poetry install --no-root
 
