@@ -1,6 +1,6 @@
 # CI for all branches. Executes a build and verify (including testing, linting, and so on).
 
-name: Continuous integration
+name: CI
 
 on: [push, pull_request]
 

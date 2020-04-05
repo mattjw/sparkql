@@ -122,6 +122,15 @@ For example:
 - `fix/broken-arg-type`
 - `docs/diagram-for-inheritance`
 
+## CI runners
+
+This project is in the process of migrating from CircleCI to
+Github Actions. The status of the migration is as follows:
+
+- [Github Actions]()
+- [CircleCI](https://circleci.com/gh/mattjw/workflows/sparkql/tree/master):
+  Release a new version of the library.
+
 ## Creating a new release
 
 If you have accumulated releasable changes that you would like to
