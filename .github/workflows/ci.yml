@@ -25,20 +25,17 @@ jobs:
           echo "GITHUB_WORKSPACE = $GITHUB_WORKSPACE"
           echo "Working directory: $(pwd)"
           ls -laht
+          git --version
 
       - name: Fetch all git tags
         run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
         # This is required for commitizen to operate quickly (see the `find-releasable-changes` task)
 
-      - name: Echo working directory
-        run: |
-          echo "Working directory: $(pwd)"
-
       - name: Set up cache
         uses: actions/cache@v1
         with:
           path: .venv
-          key: venv-${{ runner.os }}-${{ hashFiles('poetry.lock') }}
+          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
 
       - name: Install dependencies
         run: |
