@@ -58,7 +58,7 @@ Type hints are strongly encouraged, and are checked during CI.
 Coverage reports are uploaded to `codecov.io`
 [here](https://codecov.io/gh/mattjw/sparkql). The `test` task
 generates coverage reports to the `reports` directory. CI will
-deposit built reports on CI, and also upload them to `codecov.io`.
+record coverage reports, and also upload them to `codecov.io`.
 The badge is configured
 [here](https://codecov.io/gh/mattjw/sparkql/settings/badge).
 
@@ -127,9 +127,10 @@ For example:
 This project is in the process of migrating from CircleCI to
 Github Actions. The status of the migration is as follows:
 
-- [Github Actions]()
+- [Github Actions](https://github.com/mattjw/sparkql/actions): Run
+  tests. PRs are blocked until this workflow succeeds.
 - [CircleCI](https://circleci.com/gh/mattjw/workflows/sparkql/tree/master):
-  Release a new version of the library.
+  A utility workflow to support releasing a new version of the library.
 
 ## Creating a new release
 
