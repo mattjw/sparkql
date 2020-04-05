@@ -1,0 +1,35 @@
+# Release all releasable changes, if any. Triggered by the creation
+# of a special RELEASE issue. Bump version and publish a release.
+
+# Based on an idea discussed here:
+# https://github.community/t5/GitHub-Actions/GitHub-Actions-Manual-Trigger-Approvals/td-p/31504/page/5
+
+name: Release
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  build_verify:
+
+    runs-on: ubuntu-latest
+    container:
+      image: mattjwnet/python-poetry-java8:py3.6.8
+
+    if: startsWith(github.event.issue.title, 'RELEASE project') && github.event.issue.user.login == 'mattjw'
+
+    #strategy:
+    #  matrix:
+    #    python: [3.6, 3.7]
+
+    steps:
+      - name: Code checkout (master)
+        uses: actions/checkout@v2
+        with:
+          ref: master
+
+      - name: Fetch all git tags
+        run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+        # This is required for commitizen to operate quickly (see the
+        # `find-releasable-changes` task)
