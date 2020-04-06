@@ -41,7 +41,7 @@ class TestStructImplements:
 
         assert str(err_info.value) == (
             "Struct 'ExampleStruct' implements field 'field_a' (required by struct 'SimpleStruct') but "
-            "field is not compatible. Required <String: nullable=True> but found <String: nullable=False>"
+            "field is not compatible. Required <Nullable String: field_a> but found <String: field_a>"
         )
 
     @staticmethod
