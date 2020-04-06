@@ -116,7 +116,7 @@ class BaseField(ABC):
             )
         return name
 
-    def _resolve_field_name(self) -> Optional[str]:
+    def _resolve_field_name(self, default=None) -> Optional[str]:
         """
         Resolve name for this field, or None if no concrete name set.
 
@@ -126,7 +126,7 @@ class BaseField(ABC):
             return self.__name_explicit
         if self.__name_contextual is not None:
             return self.__name_contextual
-        return None
+        return default
 
     #
     # Spark type management
@@ -175,7 +175,7 @@ class BaseField(ABC):
         """Returns the name of this field."""
         # stringifying a field as its field adds some convenience for cases where we need the field
         # name
-        return self._resolve_field_name()
+        return self._resolve_field_name("")
 
     def _info(self):
         """String formatted object with a more complete summary of this field, primarily for debugging."""
@@ -194,7 +194,7 @@ class BaseField(ABC):
         return f"<{nullable}{self.__class__.__name__}: {self._resolve_field_name()}>"
 
     def __hash__(self):
-        return hash((self._is_nullable, self._resolve_field_name()))
+        return hash((self._is_nullable, self._resolve_field_name("")))
 
     def __repr__(self):
         return self._short_info()
@@ -212,6 +212,8 @@ class AtomicField(BaseField):
      |- ...
     ```
     """
+
+    __hash__ = BaseField.__hash__
 
     @property
     @abstractmethod

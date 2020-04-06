@@ -2,22 +2,58 @@ import pytest
 
 from sparkql.exceptions import FieldParentError, FieldNameError
 from sparkql import Float, Struct
+from sparkql.fields.base import BaseField
+
+
+@pytest.fixture()
+def float_field() -> Float:
+    return Float()
 
 
 class TestBaseField:
     @staticmethod
-    def should_give_correct_info_string():
-        # given
-        float_field = Float()
-
-        # when
-        info_str = float_field._info()
-
-        # then
+    def should_give_correct_info_string(float_field: Float):
         assert (
-            info_str
+            float_field._info()
             == "<Float\n  spark type = FloatType\n  nullable = True\n  name = None <- [None, None]\n  parent = None\n>"
         )
+
+    @staticmethod
+    @pytest.mark.parametrize(
+        "instance,expected_str",
+        [
+            pytest.param(Float(name="name"), "name", id="named instance"),
+            pytest.param(Float(), "", id="nameless instance with default constructor"),
+        ],
+    )
+    def should_have_a_string_representation_for(instance, expected_str):
+        assert str(instance) == expected_str
+
+    @staticmethod
+    @pytest.mark.parametrize(
+        "instance",
+        [
+            pytest.param(Float(True, "name"), id="nullable instance"),
+            pytest.param(Float(False, "name"), id="non-nullable instance"),
+            pytest.param(Float(False), id="non-nullable nameless instance"),
+            pytest.param(Float(), id="instance with default constructor"),
+        ],
+    )
+    def should_be_hashable(instance: Float):
+        _field_can_be_used_as_a_key = {instance: "value"}
+
+    @staticmethod
+    @pytest.mark.parametrize(
+        "instance,expected_repr",
+        [
+            pytest.param(Float(True, "name"), "<Nullable Float: name>", id="nullable instance"),
+            pytest.param(Float(False, "name"), "<Float: name>", id="non-nullable instance"),
+            pytest.param(Float(False), "<Float: None>", id="non-nullable nameless instance"),
+            pytest.param(Float(), "<Nullable Float: None>", id="instance with default constructor"),
+        ],
+    )
+    def should_have_a_readable_repr_for(instance, expected_repr):
+        assert repr(instance) == expected_repr
 
     @staticmethod
     def should_reject_setting_a_set_parent():
@@ -32,9 +68,8 @@ class TestBaseField:
             float_field._replace_parent(another_struct)
 
     @staticmethod
-    def should_get_contextual_field_name():
+    def should_get_contextual_field_name(float_field: Float):
         # given
-        float_field = Float()
         float_field._set_contextual_name("contextual_name")
 
         # when
@@ -44,9 +79,8 @@ class TestBaseField:
         assert contextual_name == "contextual_name"
 
     @staticmethod
-    def should_reject_overriding_a_set_contextual_name():
+    def should_reject_overriding_a_set_contextual_name(float_field: Float):
         # given
-        float_field = Float()
         float_field._set_contextual_name("contextual_name")
 
         # when, then
@@ -54,11 +88,7 @@ class TestBaseField:
             float_field._set_contextual_name("another_name")
 
     @staticmethod
-    def test_field_name_should_raise_error_if_not_resolved():
-        # given
-        float_field = Float()
-
-        # when, then
+    def test_field_name_should_raise_error_if_not_resolved(float_field: Float):
         with pytest.raises(FieldNameError):
             float_field._field_name
 
