@@ -29,13 +29,6 @@ workflows:
             branches:
               only: master
 
-  ci_workflow:
-    description: |
-      CI for all branches. Executes a build and verify (including testing, linting, and so on).
-    jobs:
-      - build_verify
-
-
 jobs:
 
   build_verify:

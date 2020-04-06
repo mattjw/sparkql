@@ -58,7 +58,7 @@ Type hints are strongly encouraged, and are checked during CI.
 Coverage reports are uploaded to `codecov.io`
 [here](https://codecov.io/gh/mattjw/sparkql). The `test` task
 generates coverage reports to the `reports` directory. CI will
-deposit built reports on CircleCI, and also upload them to `codecov.io`.
+record coverage reports, and also upload them to `codecov.io`.
 The badge is configured
 [here](https://codecov.io/gh/mattjw/sparkql/settings/badge).
 
@@ -122,6 +122,16 @@ For example:
 - `fix/broken-arg-type`
 - `docs/diagram-for-inheritance`
 
+## CI runners
+
+This project is in the process of migrating from CircleCI to
+Github Actions. The status of the migration is as follows:
+
+- [Github Actions](https://github.com/mattjw/sparkql/actions): Run
+  tests. PRs are blocked until this workflow succeeds.
+- [CircleCI](https://circleci.com/gh/mattjw/workflows/sparkql/tree/master):
+  A utility workflow to support releasing a new version of the library.
+
 ## Creating a new release
 
 If you have accumulated releasable changes that you would like to
@@ -129,12 +139,12 @@ publish, the following instructions explain how to make a new release.
 
 ### Making a new release via CI
 
-A CircleCI workflow named `release_workflow` is executed on each
+_(Via CircleCI...)_ A CircleCI workflow named `release_workflow` is executed on each
 merge to `master`. To make a release, approve the `request_release`
 hold step via the
 [CircleCI interface](https://circleci.com/gh/mattjw/workflows/sparkql/tree/master).
 
-### Making a new releease by hand
+### Making a new release by hand
 
 First, ensure you are on an up-to-date `master` branch. 
 
