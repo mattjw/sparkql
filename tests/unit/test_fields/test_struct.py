@@ -7,6 +7,10 @@ from sparkql.exceptions import InvalidStructError
 from sparkql import Struct, String
 
 
+class MockStruct(Struct):
+    const = "HELLO"
+
+
 class TestStruct:
     @staticmethod
     def test_should_not_permit_field_overrides_of_internal_properties():
@@ -59,6 +63,13 @@ class TestStruct:
 
         # then
         assert value == "HELLO"
+
+    @staticmethod
+    @pytest.mark.parametrize(
+        "obj", [pytest.param(MockStruct(), id="as instance"), pytest.param(MockStruct, id="as class")]
+    )
+    def should_be_hashable(obj):
+        _field_can_be_used_as_a_key = {obj: "value"}
 
 
 class TestValidator:

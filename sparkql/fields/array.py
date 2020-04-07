@@ -27,6 +27,8 @@ class Array(Generic[ArrayElementType], BaseField):
         etype: Data type info for the element of this array. Should be an instance of a `BaseField`.
     """
 
+    __hash__ = BaseField.__hash__
+
     e: ArrayElementType  # pytype: disable=not-supported-yet  # pylint: disable=invalid-name
 
     def __init__(self, element: ArrayElementType, nullable: bool = True, name: Optional[str] = None):
