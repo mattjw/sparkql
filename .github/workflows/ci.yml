@@ -50,7 +50,7 @@ jobs:
         uses: codecov/codecov-action@v1
         with:
           file: reports/coverage.xml
-          fail_ci_if_error: true
+          fail_ci_if_error: false
 
       - name: Check for releasable changes (if any)
         run: poetry run find-releasable-changes
