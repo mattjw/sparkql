@@ -79,3 +79,16 @@ class TestArrayField:
         # when, then
         with pytest.raises(ValueError, match=re.escape("Array element must be a field. Found type: str")):
             Array(bad_element)
+
+    @staticmethod
+    @pytest.mark.parametrize(
+        "instance",
+        [
+            pytest.param(Array(Float(), True, "name"), id="nullable instance"),
+            pytest.param(Array(Float(), False, "name"), id="non-nullable instance"),
+            pytest.param(Array(Float(), False), id="non-nullable nameless instance"),
+            pytest.param(Array(Float()), id="instance with default constructor"),
+        ],
+    )
+    def should_be_hashable(instance: Array):
+        _field_can_be_used_as_a_key = {instance: "value"}

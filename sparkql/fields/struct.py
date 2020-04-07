@@ -54,6 +54,7 @@ class ValidationResult:
 class Struct(BaseField):
     """A struct; shadows StructType in the Spark API."""
 
+    __hash__ = BaseField.__hash__
     _struct_metadata: ClassVar[Optional["_StructInnerMetadata"]] = None
 
     @classmethod
