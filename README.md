@@ -213,11 +213,11 @@ requires a column.
 
 Function equivalents are also available, as summarised here:
 
-|  | Property style | Function style | Result (same for both styles) |
-| --- | --- | --- | --- |
-| Dot-delimited path to field | `Article.author.address.city.PATH` | `sparkql.path_str(Article.author.address.city)` | `"author.address.city"` |
-| Spark `Column` reference to field | `Article.author.address.city.COL` | `sparkql.path_col(Article.author.address.city)` | `Column` pointing to `author.address.city` |
-| Name of field (path is ignored) | `Article.author.address.city.NAME` | `sparkql.name(Article.author.address.city)` | `"city"` |
+| Property style | Function style | Result (same for both styles) |
+| --- | --- | --- |
+| `Article.author.address.city.PATH` | `sparkql.path_str(Article.author.address.city)` | `"author.address.city"` |
+| `Article.author.address.city.COL` | `sparkql.path_col(Article.author.address.city)` | `Column` pointing to `author.address.city` |
+| `Article.author.address.city.NAME` | `sparkql.name(Article.author.address.city)` | `"city"` |
 
 For paths that include an array, two approaches are provided:
 
