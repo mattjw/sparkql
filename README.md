@@ -211,7 +211,9 @@ author_city_str = Article.author.address.city.PATH
 object for the path, allowing it to be used in all places where Spark
 requires a column.
 
-Function equivalents are also available, as summarised here:
+Function equivalents `path_str`, `path_col`, and `name` are also available.
+This table demonstrates the equivalence of the property styles and the function
+styles:
 
 | Property style | Function style | Result (same for both styles) |
 | --- | --- | --- |
