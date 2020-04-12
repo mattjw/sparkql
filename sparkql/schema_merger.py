@@ -63,7 +63,7 @@ class _SchemaMerger:
         return StructField(
             name=field_a.name,
             dataType=cls.merge_types(field_a.dataType, field_b.dataType, parent_field_name=field_a.name),
-            nullable=field_a.nullable
+            nullable=field_a.nullable,
         )
 
     #
@@ -80,7 +80,7 @@ class _SchemaMerger:
         if type(type_a) is not type(type_b):
             raise ValueError(
                 _validation_error_message(
-                    "Types must match. " 
+                    "Types must match. "
                     f"Type of A is {type_a.__class__.__name__}. Type of B is {type_b.__class__.__name__}",
                     parent_field_name=parent_field_name,
                 )

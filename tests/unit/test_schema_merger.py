@@ -67,7 +67,10 @@ class TestMergeSchemas:
                 StructType([StructField("an_array", ArrayType(FloatType()))]),
                 pytest.raises(
                     ValueError,
-                    match=re.escape("Cannot merge due to incompatibility in field 'an_array': Types must match. Type of A is StringType. Type of B is FloatType")),
+                    match=re.escape(
+                        "Cannot merge due to incompatibility in field 'an_array': Types must match. Type of A is StringType. Type of B is FloatType"
+                    ),
+                ),
                 id="arrays-of-different-type",
             ),
             pytest.param(
@@ -76,7 +79,9 @@ class TestMergeSchemas:
                 pytest.raises(
                     ValueError,
                     match=re.escape(
-                        "Cannot merge due to incompatibility in field 'an_array': Arrays must have matching containsNull constraints. containsNull of array A is True. containsNull of array B is False")),
+                        "Cannot merge due to incompatibility in field 'an_array': Arrays must have matching containsNull constraints. containsNull of array A is True. containsNull of array B is False"
+                    ),
+                ),
                 id="arrays-of-different-containsNull",
             ),
             pytest.param(
@@ -85,7 +90,9 @@ class TestMergeSchemas:
                 pytest.raises(
                     ValueError,
                     match=re.escape(
-                        "Cannot merge due to incompatibility in field 'a_field': Fields must have matching nullability constraints. nullable of field A is True. nullable of field B is False")),
+                        "Cannot merge due to incompatibility in field 'a_field': Fields must have matching nullability constraints. nullable of field A is True. nullable of field B is False"
+                    ),
+                ),
                 id="fields-of-different-nullable",
             ),
             pytest.param(
@@ -94,7 +101,9 @@ class TestMergeSchemas:
                 pytest.raises(
                     ValueError,
                     match=re.escape(
-                        "Cannot merge due to incompatibility in field 'a_field': Types must match. Type of A is FloatType. Type of B is StringType")),
+                        "Cannot merge due to incompatibility in field 'a_field': Types must match. Type of A is FloatType. Type of B is StringType"
+                    ),
+                ),
                 id="fields-of-different-type",
             ),
         ],
