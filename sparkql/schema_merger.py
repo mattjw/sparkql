@@ -9,16 +9,19 @@ from pyspark.sql.types import StructType, StructField, ArrayType, DataType
 
 def merge_schemas(struct_a: StructType, struct_b: StructType) -> StructType:
     """
-    Merge two schemas.
+    Merge two schemas together and return the merged schema.
 
-    meerge schemas
+    Nested schemas are merged recursively. Fields shared between the two schemas must be compatible; specifically,
+    - fields containing atomic types must contain the same type,
+    - fields must have the same nullability,
+    - arrays must have the same containsNull.
 
     Args:
-        struct_a: TODO
-        struct_b: TODO
+        struct_a: A struct to be merged.
+        struct_b: A struct to be merged.
 
     Returns:
-        TODO
+        The merger of `struct_a` with `struct_b`.
     """
     return _SchemaMerger.merge_struct_types(struct_a, struct_b)
 
