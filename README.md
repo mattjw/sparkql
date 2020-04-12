@@ -67,7 +67,7 @@ Here's a summary of `sparkql`'s features.
   in its `Struct` is (by default) used as its field name. This name can
   be optionally overridden.
 - Programatically reference nested fields in your structs with the
-  `COL` and `STR` special properties. Avoid hand-constructing strings
+  `PATH` and `COL` special properties. Avoid hand-constructing strings
   (or `Column`s) to reference your nested fields.
 - Validate that a DataFrame matches a `sparkql` schema.
 - Reuse and build composite schemas with `inheritance`, `includes`, and
@@ -207,7 +207,7 @@ author_city_str = Article.author.address.city.PATH
 "author.address.city"
 ```
 
-`COL` is the counterpart to `PATH` and returns a Spark `Column`
+`COL` is a counterpart to `PATH` that returns a Spark `Column`
 object for the path, allowing it to be used in all places where Spark
 requires a column.
 
