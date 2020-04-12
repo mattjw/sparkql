@@ -1,4 +1,4 @@
-from sparkql import Struct, String, path_str, Array, path_col
+from sparkql import Struct, String, Array
 
 
 class Address(Struct):
@@ -22,18 +22,18 @@ class Article(Struct):
     comments = Array(Comment())
 
 
-author_city_str = path_str(Article.author.address.city)
+author_city_str = Article.author.address.city.PATH
 "author.address.city"
 
-comment_usernames_str = path_str(Article.comments.e.author.username)
+comment_usernames_str = Article.comments.e.author.username.PATH
 "comments.author.username"
 
-comment_usernames_str = path_str(Article.comments.author.username)
+comment_usernames_str = Article.comments.author.username.PATH
 "comments.author.username"
 
-comment_messages_str = path_str(Article.comments.message)
+comment_messages_str = Article.comments.message.PATH
 "comments.message"
 
-author_city_col = path_col(Article.author.address.city)
-comment_usernames_col = path_col(Article.comments.e.author.username)
-comment_messages_col = path_col(Article.comments.message)
+author_city_col = Article.author.address.city.COL
+comment_usernames_col = Article.comments.e.author.username.COL
+comment_messages_col = Article.comments.message.COL

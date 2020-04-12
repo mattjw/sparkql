@@ -2,8 +2,7 @@ import re
 
 import pytest
 
-from sparkql.exceptions import FieldValueValidationError
-from sparkql import String, Array, path_str, Struct, Float
+from sparkql import String, Array, Struct, Float
 
 
 class TestArrayField:
@@ -29,7 +28,7 @@ class TestArrayField:
             sequence = Array(ComplexElementStruct())
 
         # when
-        path = path_str(OuterObject.sequence.e.string_field)
+        path = OuterObject.sequence.e.string_field.PATH
 
         # then
         assert path == "sequence.string_field"
@@ -45,7 +44,7 @@ class TestArrayField:
             sequence = Array(ComplexElementStruct())
 
         # when
-        path = path_str(OuterObject.sequence.string_field)
+        path = OuterObject.sequence.string_field.PATH
 
         # then
         assert path == "sequence.string_field"
