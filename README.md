@@ -215,7 +215,7 @@ Function equivalents `path_str`, `path_col`, and `name` are also available.
 This table demonstrates the equivalence of the property styles and the function
 styles:
 
-| Property style | Function style | Result (same for both styles) |
+| Property style | Function style | Result (both styles are equivalent) |
 | --- | --- | --- |
 | `Article.author.address.city.PATH` | `sparkql.path_str(Article.author.address.city)` | `"author.address.city"` |
 | `Article.author.address.city.COL` | `sparkql.path_col(Article.author.address.city)` | `Column` pointing to `author.address.city` |
