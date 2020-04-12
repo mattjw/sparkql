@@ -1,10 +1,11 @@
 """Base field and abstract fields."""
 
 from abc import ABC, abstractmethod
-from typing import Optional, Type, Any, Tuple
+from typing import Optional, Type, Any, Tuple, Sequence
 import copy
 
-from pyspark.sql import types as sql_type
+from pyspark.sql import types as sql_type, Column
+from pyspark.sql import functions as sql_funcs
 from pyspark.sql.types import StructField, DataType
 
 from sparkql.exceptions import FieldNameError, FieldParentError, FieldValueValidationError
@@ -127,6 +128,53 @@ class BaseField(ABC):
         if self.__name_contextual is not None:
             return self.__name_contextual
         return default
+
+    #
+    # Public interface to accessing field names and paths
+
+    @property
+    def SEQ(self) -> Sequence[str]:
+        """
+        The sequence of items that constitute the path to this field.
+
+        The result is context-specific and depends on the path to this field through nested structs (if any).
+        """
+        fields = [self]
+        while fields[0]._parent is not None:  # pylint: disable=protected-access
+            fields.insert(0, fields[0]._parent)  # pylint: disable=protected-access
+
+        assert all(
+            field._resolve_field_name() is not None for field in fields  # pylint: disable=protected-access
+        ), f"Encountered an unset name while traversing path. Path is: {_pretty_path(fields)}"
+
+        return [f._field_name for f in fields]  # pylint: disable=protected-access
+
+    @property
+    def COL(self) -> Column:
+        """
+        The Spark column pointing to this field.
+
+        The result is context-specific and depends on the path to this field through nested structs (if any).
+        """
+        fields_seq = self.SEQ
+        col: Column = sql_funcs.col(fields_seq[0])  # pylint: disable=no-member
+        for col_field_name in fields_seq[1:]:
+            col = col[col_field_name]
+        return col
+
+    @property
+    def PATH(self) -> str:
+        """
+        The dot-delimited path to this field.
+
+        The result is context-specific and depends on the path to this field through nested structs (if any).
+        """
+        return ".".join(self.SEQ)
+
+    @property
+    def NAME(self) -> str:
+        """The name of this field."""
+        return self._field_name
 
     #
     # Spark type management
@@ -313,3 +361,9 @@ class FractionalField(NumericField):
     @abstractmethod
     def _validate_on_value(self, value: Any) -> None:
         super()._validate_on_value(value)
+
+
+def _pretty_path(path: Sequence[BaseField]):
+    """Build pretty string of path, for debug and/or error purposes."""
+    # pylint: disable=protected-access
+    return "< " + " -> ".join(f"'{field._resolve_field_name()}' ({type(field).__name__})" for field in path) + " >"

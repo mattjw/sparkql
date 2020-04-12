@@ -57,7 +57,7 @@ class Conference(Struct):
 As does dealing with nested fields:
 
 ```python
-dframe.withColumn("city_name", path_col(Conference.city.name))
+dframe.withColumn("city_name", Conference.city.name.COL)
 ```
 
 Here's a summary of `sparkql`'s features.
@@ -66,9 +66,9 @@ Here's a summary of `sparkql`'s features.
 - Automated field naming: The attribute name of a field as it appears
   in its `Struct` is (by default) used as its field name. This name can
   be optionally overridden.
-- Programatically reference field names in your structs with `path_col`
-  and `path_str`. Avoid hand-constructing strings (or `Column`s) to
-  reference your nested fields.
+- Programatically reference nested fields in your structs with the
+  `COL` and `STR` special properties. Avoid hand-constructing strings
+  (or `Column`s) to reference your nested fields.
 - Validate that a DataFrame matches a `sparkql` schema.
 - Reuse and build composite schemas with `inheritance`, `includes`, and
   `implements`.
@@ -199,20 +199,35 @@ class Article(Struct):
     comments = Array(Comment())
 ```
 
-We can use `path_str` to turn a path into a Spark-understandable string:
+We can use the special `PATH` property to turn a path into a
+Spark-understandable string:
 
 ```python
-author_city_str = path_str(Article.author.address.city)
+author_city_str = Article.author.address.city.PATH
 "author.address.city"
 ```
+
+`COL` is the counterpart to `PATH` and returns a Spark `Column`
+object for the path, allowing it to be used in all places where Spark
+requires a column.
+
+Function equivalents `path_str`, `path_col`, and `name` are also available.
+This table demonstrates the equivalence of the property styles and the function
+styles:
+
+| Property style | Function style | Result (both styles are equivalent) |
+| --- | --- | --- |
+| `Article.author.address.city.PATH` | `sparkql.path_str(Article.author.address.city)` | `"author.address.city"` |
+| `Article.author.address.city.COL` | `sparkql.path_col(Article.author.address.city)` | `Column` pointing to `author.address.city` |
+| `Article.author.address.city.NAME` | `sparkql.name(Article.author.address.city)` | `"city"` |
 
 For paths that include an array, two approaches are provided:
 
 ```python
-comment_usernames_str = path_str(Article.comments.e.author.username)
+comment_usernames_str = Article.comments.e.author.username.PATH
 "comments.author.username"
 
-comment_usernames_str = path_str(Article.comments.author.username)
+comment_usernames_str = Article.comments.author.username.PATH
 "comments.author.username"
 ```
 
@@ -222,10 +237,6 @@ field. Although this looks strange at first, it has the advantage of
 being inspectable by IDEs and other tools, allowing goodness such as
 IDE auto-completion, automated refactoring, and identifying errors
 before runtime.
-
-`path_col` is the counterpart to `path_str` and returns a Spark `Column`
-object for the path, allowing it to be used in all places where Spark
-requires a column.
 
 ### DataFrame validation
 

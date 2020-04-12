@@ -7,7 +7,7 @@ Partner to `test_struct.py`.
 from pyspark.sql.types import StructType, StructField, StringType
 
 from sparkql.exceptions import InvalidStructError
-from sparkql import Struct, String, schema, Integer, path_str, Float
+from sparkql import Struct, String, schema, Integer, Float
 
 import pytest
 
@@ -39,9 +39,9 @@ class RootStruct(Struct):
 class TestStructIncludes:
     @staticmethod
     def test_should_give_correct_path_when_referring_to_field_via_source_class():
-        assert path_str(RootStruct.sibling_a_field) == "sibling_a_field"
-        assert path_str(RootStruct.sibling_b_field) == "sibling_b_field"
-        assert path_str(RootStruct.cousin_field) == "cousin_field"
+        assert RootStruct.sibling_a_field.PATH == "sibling_a_field"
+        assert RootStruct.sibling_b_field.PATH == "sibling_b_field"
+        assert RootStruct.cousin_field.PATH == "cousin_field"
 
     @staticmethod
     def test_should_give_correct_field_object_when_referring_to_field_via_source_class():

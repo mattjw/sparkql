@@ -7,7 +7,7 @@ Partner to `test_struct.py`.
 from pyspark.sql.types import StructType, StructField, StringType, FloatType, IntegerType
 
 from sparkql.exceptions import InvalidStructError
-from sparkql import Struct, String, schema, Integer, path_str, Float
+from sparkql import Struct, String, schema, Integer, Float
 
 import pytest
 
@@ -23,8 +23,8 @@ class TestStructInheritancePathStr:
             child_field = Float()
 
         # when, then
-        assert path_str(ChildStruct.parent_field) == "parent_field"
-        assert path_str(ChildStruct.child_field) == "child_field"
+        assert ChildStruct.parent_field.PATH == "parent_field"
+        assert ChildStruct.child_field.PATH == "child_field"
 
 
 class TestStructInheritanceSchemaBuilding:
