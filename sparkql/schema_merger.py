@@ -30,7 +30,7 @@ class _SchemaMerger:
     """
     Merge two schemas.
 
-    See ``merge_schemas`` for detailed behaviour description.
+    See `merge_schemas` for detailed behaviour description.
     """
 
     @classmethod
