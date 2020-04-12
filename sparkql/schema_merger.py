@@ -2,7 +2,7 @@
 
 from collections import OrderedDict
 from copy import copy
-from typing import Dict
+from typing import Dict, Optional
 
 from pyspark.sql.types import StructType, StructField, ArrayType, DataType
 
@@ -48,31 +48,48 @@ class _SchemaMerger:
     def merge_fields(cls, field_a: StructField, field_b: StructField) -> StructField:
         assert field_a.name == field_b.name
         if field_a.nullable != field_b.nullable:
-            raise ValueError("XXX merging cannot change nullable XXX")
-
-        if type(field_a.dataType) is not type(field_a.dataType):
-            raise ValueError("XXX merging cannot change class of data type XXX")
+            raise ValueError(
+                _validation_error_message(
+                    "Fields must have matching nullability constraints. "
+                    f"nullable of field A is {field_a.nullable}. "
+                    f"nullable of field B is {field_b.nullable}",
+                    parent_field_name=field_a.name,
+                )
+            )
 
         return StructField(
-            name=field_a.name, dataType=cls.merge_types(field_a.dataType, field_b.dataType), nullable=field_a.nullable
+            name=field_a.name,
+            dataType=cls.merge_types(field_a.dataType, field_b.dataType, parent_field_name=field_a.name),
+            nullable=field_a.nullable
         )
 
     #
     # Merge by type
 
     @classmethod
-    def merge_types(cls, type_a: DataType, type_b: DataType) -> DataType:
-        """Merge two arbitrary types; delegates to corresponding methods."""
-        assert type(type_a) is type(type_b)
+    def merge_types(cls, type_a: DataType, type_b: DataType, parent_field_name: str) -> DataType:
+        """
+        Merge two arbitrary types; delegates to corresponding methods.
+
+        `parent_field_name` is the name of the field to which the types belong.
+        It is used to generate an intuitive message if validation fails.
+        """
+        if type(type_a) is not type(type_b):
+            raise ValueError(
+                _validation_error_message(
+                    "Types must match. " 
+                    f"Type of A is {type_a.__class__.__name__}. Type of B is {type_b.__class__.__name__}",
+                    parent_field_name=parent_field_name,
+                )
+            )
 
         if isinstance(type_a, StructType):
             assert isinstance(type_b, StructType)
             return cls.merge_struct_types(type_a, type_b)
         elif isinstance(type_a, ArrayType):
             assert isinstance(type_b, ArrayType)
-            return cls.merge_array_types(type_a, type_b)
+            return cls.merge_array_types(type_a, type_b, parent_field_name=parent_field_name)
 
-        assert type_a == type_b
         return copy(type_a)
 
     @classmethod
@@ -88,10 +105,28 @@ class _SchemaMerger:
         return StructType(list(fields.values()))
 
     @classmethod
-    def merge_array_types(cls, array_type_a: ArrayType, array_type_b: ArrayType) -> ArrayType:
+    def merge_array_types(
+        cls, array_type_a: ArrayType, array_type_b: ArrayType, parent_field_name: Optional[str] = None
+    ) -> ArrayType:
         assert all(isinstance(obj, ArrayType) for obj in [array_type_a, array_type_b])
 
         if array_type_a.containsNull != array_type_b.containsNull:
-            raise ValueError("XXX cannot change containsNull array type XXX")
+            raise ValueError(
+                _validation_error_message(
+                    "Arrays must have matching containsNull constraints. "
+                    f"containsNull of array A is {array_type_a.containsNull}. "
+                    f"containsNull of array B is {array_type_b.containsNull}",
+                    parent_field_name=parent_field_name,
+                )
+            )
 
-        return ArrayType(elementType=None, containsNull=array_type_a.containsNull)
+        return ArrayType(
+            elementType=cls.merge_types(
+                array_type_a.elementType, array_type_b.elementType, parent_field_name=parent_field_name
+            ),
+            containsNull=array_type_a.containsNull,
+        )
+
+
+def _validation_error_message(message: str, parent_field_name: str) -> str:
+    return f"Cannot merge due to incompatibility in field '{parent_field_name}': {message}"
