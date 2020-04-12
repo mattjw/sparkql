@@ -458,6 +458,47 @@ StructType(List(
         true)))
 ```
 
+### Merge two Spark `StructType` types
+
+It can be useful to build a composite schema from two `StructType`s. sparkql provides a
+`merge_schemas` function to do this.
+
+[For example](https://github.com/mattjw/sparkql/tree/master/examples/merge_struct_types/merge_struct_types.py):
+
+```python
+schema_a = StructType([
+    StructField("message", StringType()),
+    StructField("author", ArrayType(
+        StructType([
+            StructField("name", StringType())
+        ])
+    ))
+])
+
+schema_b = StructType([
+    StructField("author", ArrayType(
+        StructType([
+            StructField("address", StringType())
+        ])
+    ))
+])
+
+merged_schema = merge_schemas(schema_a, schema_b) 
+```
+
+results in a `merged_schema` that looks like:
+
+```text
+StructType(List(
+    StructField(message,StringType,true),
+    StructField(author,
+        ArrayType(StructType(List(
+            StructField(name,StringType,true),
+            StructField(address,StringType,true))),true),
+        true)))
+```
+
+
 ## Contributing
 
 Contributions are very welcome. Developers who'd like to contribute to

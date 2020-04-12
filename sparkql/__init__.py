@@ -20,6 +20,7 @@ from sparkql.fields import (
     Array,
     Struct,
 )
+from sparkql.schema_merger import merge_schemas
 from sparkql import exceptions
 
 
@@ -46,5 +47,6 @@ __all__ = [
     "Array",
     "Struct",
     "ValidationResult",
+    "merge_schemas",
     "exceptions",
 ]
