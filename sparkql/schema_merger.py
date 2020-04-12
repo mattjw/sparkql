@@ -89,7 +89,8 @@ class _SchemaMerger:
         if isinstance(type_a, StructType):
             assert isinstance(type_b, StructType)
             return cls.merge_struct_types(type_a, type_b)
-        elif isinstance(type_a, ArrayType):
+
+        if isinstance(type_a, ArrayType):
             assert isinstance(type_b, ArrayType)
             return cls.merge_array_types(type_a, type_b, parent_field_name=parent_field_name)
 
