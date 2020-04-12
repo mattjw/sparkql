@@ -2,7 +2,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql import functions as sql_funcs
 from pyspark.sql.types import StructField, StringType
 
-from sparkql import String, Struct, Array, Float
+from sparkql import String, Struct, Array
 from sparkql import accessors
 
 
@@ -84,13 +84,13 @@ class TestPathCol:
     def test_should_return_correct_column_for_nested_schemas(spark_session: SparkSession):
         # spark_session: Testing of `path_col` has implicit JVM Spark dependency
 
-        expected_col = sql_funcs.col("author")["full_name"]
-        # directly testing Column == Column is non trivial. it is easiest just to stringify each Column and compare
-        # the strings
+        # given (see above)
 
-        assert str(accessors.path_col(Article.author.full_name)) == str(expected_col)
-        # additionally, we test the COL alias here
-        assert str(Article.author.full_name.COL) == str(expected_col)
+        # when
+        col_ref = accessors.path_col(Article.author.full_name)
+
+        # then
+        assert str(col_ref) == str(sql_funcs.col("author")["full_name"])
 
 
 class TestPathCol:
@@ -139,16 +139,3 @@ class TestStructField:
 
         # then
         assert struct_field == StructField("biography", StringType(), False)
-
-
-class TestPrettyPath:
-    @staticmethod
-    def should_prettify_a_path():
-        # given (and above)
-        seq = [String(name="field_a"), Float(name="field_b")]
-
-        # when
-        pretty_path_str = accessors._pretty_path(seq)
-
-        # then
-        assert pretty_path_str == "< 'field_a' (String) -> 'field_b' (Float) >"

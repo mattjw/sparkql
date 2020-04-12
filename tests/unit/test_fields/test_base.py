@@ -1,8 +1,8 @@
 import pytest
 
+from sparkql.fields.base import _pretty_path
 from sparkql.exceptions import FieldParentError, FieldNameError
-from sparkql import Float, Struct
-from sparkql.fields.base import BaseField
+from sparkql import Float, Struct, String
 
 
 @pytest.fixture()
@@ -100,3 +100,16 @@ class TestBaseField:
         # wheb, then
         with pytest.raises(FieldNameError):
             float_field._replace_explicit_name("new_explicit_name")
+
+
+class TestPrettyPath:
+    @staticmethod
+    def should_prettify_a_path():
+        # given (and above)
+        seq = [String(name="field_a"), Float(name="field_b")]
+
+        # when
+        pretty_path_str = _pretty_path(seq)
+
+        # then
+        assert pretty_path_str == "< 'field_a' (String) -> 'field_b' (Float) >"
