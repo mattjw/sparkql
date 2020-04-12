@@ -84,13 +84,13 @@ class TestPathCol:
     def test_should_return_correct_column_for_nested_schemas(spark_session: SparkSession):
         # spark_session: Testing of `path_col` has implicit JVM Spark dependency
 
-        # given (see above)
+        expected_col = sql_funcs.col("author")["full_name"]
+        # directly testing Column == Column is non trivial. it is easiest just to stringify each Column and compare
+        # the strings
 
-        # when
-        col_ref = accessors.path_col(Article.author.full_name)
-
-        # then
-        assert str(col_ref) == str(sql_funcs.col("author")["full_name"])
+        assert str(accessors.path_col(Article.author.full_name)) == str(expected_col)
+        # additionally, we test the COL alias here
+        assert str(Article.author.full_name.COL) == str(expected_col)
 
 
 class TestPathCol:

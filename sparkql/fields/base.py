@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from typing import Optional, Type, Any, Tuple
 import copy
 
-from pyspark.sql import types as sql_type
+from pyspark.sql import types as sql_type, Column
 from pyspark.sql.types import StructField, DataType
 
 from sparkql.exceptions import FieldNameError, FieldParentError, FieldValueValidationError
@@ -127,6 +127,16 @@ class BaseField(ABC):
         if self.__name_contextual is not None:
             return self.__name_contextual
         return default
+
+    @property
+    def COL(self) -> Column:
+        """
+        Return Spark column pointing to this field.
+
+        An alias to `path_col`.
+        """
+        from sparkql import path_col  # UNDO THIS
+        return path_col(self)
 
     #
     # Spark type management
