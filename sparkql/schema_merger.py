@@ -2,14 +2,14 @@
 
 from collections import OrderedDict
 from copy import copy
-from typing import Dict, Optional
+from typing import Dict
 
 from pyspark.sql.types import StructType, StructField, ArrayType, DataType
 
 
 def merge_schemas(struct_a: StructType, struct_b: StructType) -> StructType:
     """
-    Merge two schemas together and return the merged schema.
+    Merge two schemas and return the merged schema.
 
     Nested schemas are merged recursively. Fields shared between the two schemas must be compatible; specifically,
     - fields containing atomic types must contain the same type,
@@ -109,9 +109,7 @@ class _SchemaMerger:
         return StructType(list(fields.values()))
 
     @classmethod
-    def merge_array_types(
-        cls, array_type_a: ArrayType, array_type_b: ArrayType, parent_field_name: Optional[str] = None
-    ) -> ArrayType:
+    def merge_array_types(cls, array_type_a: ArrayType, array_type_b: ArrayType, parent_field_name) -> ArrayType:
         assert all(isinstance(obj, ArrayType) for obj in [array_type_a, array_type_b])
 
         if array_type_a.containsNull != array_type_b.containsNull:
