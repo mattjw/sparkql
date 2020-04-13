@@ -2,28 +2,48 @@
 
 from collections import OrderedDict
 from copy import copy
-from typing import Dict
-
-from pyspark.sql.types import StructType, StructField, ArrayType, DataType
+from typing import Dict, Union, Optional, overload
 
 
-def merge_schemas(struct_a: StructType, struct_b: StructType) -> StructType:
+from pyspark.sql.types import StructType, StructField, ArrayType, AtomicType
+
+
+MergeableSparkDataType = Union[StructType, ArrayType, AtomicType]
+
+
+@overload
+def merge_schemas(type_a: StructType, type_b: StructType) -> StructType:  # noqa: D103 (pydocstyle missing docstring)
+    ...  # pragma: no cover
+
+
+@overload
+def merge_schemas(type_a: ArrayType, type_b: ArrayType) -> ArrayType:  # noqa: D103 (pydocstyle missing docstring)
+    ...  # pragma: no cover
+
+
+@overload
+def merge_schemas(type_a: AtomicType, type_b: AtomicType) -> AtomicType:  # noqa: D103 (pydocstyle missing docstring)
+    ...  # pragma: no cover
+
+
+def merge_schemas(type_a: MergeableSparkDataType, type_b: MergeableSparkDataType) -> MergeableSparkDataType:
     """
-    Merge two schemas and return the merged schema.
+    Merge two schemas (or any Spark types) and return the merged schema.
 
-    Nested schemas are merged recursively. Fields shared between the two schemas must be compatible; specifically,
+    When merging `StructType`s, nested schemas are merged recursively. Fields shared between the two schemas must be
+    compatible; specifically,
     - fields containing atomic types must contain the same type,
     - fields must have the same nullability,
     - arrays must have the same containsNull.
 
     Args:
-        struct_a: A struct to be merged.
-        struct_b: A struct to be merged.
+        type_a: A type to be merged.
+        type_b: A type to be merged.
 
     Returns:
-        The merger of `struct_a` with `struct_b`.
+        The merger of `type_a` with `type_b`.
     """
-    return _SchemaMerger.merge_struct_types(struct_a, struct_b)
+    return _SchemaMerger.merge_types(type_a, type_b, parent_field_name=None)
 
 
 class _SchemaMerger:
@@ -70,7 +90,9 @@ class _SchemaMerger:
     # Merge by type
 
     @classmethod
-    def merge_types(cls, type_a: DataType, type_b: DataType, parent_field_name: str) -> DataType:
+    def merge_types(
+        cls, type_a: MergeableSparkDataType, type_b: MergeableSparkDataType, parent_field_name: Optional[str]
+    ) -> MergeableSparkDataType:
         """
         Merge two arbitrary types; delegates to corresponding methods.
 
@@ -130,5 +152,7 @@ class _SchemaMerger:
         )
 
 
-def _validation_error_message(message: str, parent_field_name: str) -> str:
-    return f"Cannot merge due to incompatibility in field '{parent_field_name}': {message}"
+def _validation_error_message(message: str, parent_field_name: Optional[str]) -> str:
+    if parent_field_name is not None:
+        return f"Cannot merge due to incompatibility in field '{parent_field_name}': {message}"
+    return f"Cannot merge due to incompatibility: {message}"
