@@ -2,14 +2,31 @@
 
 from collections import OrderedDict
 from copy import copy
-from typing import Dict, Union, Optional
-
-from pyspark.sql.types import StructType, StructField, ArrayType, DataType
+from typing import Dict, Union, Optional, overload
 
 
-def merge_schemas(
-    data_type_a: Union[StructType, ArrayType, DataType], data_type_b: Union[StructType, ArrayType, DataType]
-) -> Union[StructType, ArrayType, DataType]:
+from pyspark.sql.types import StructType, StructField, ArrayType, DataType, AtomicType
+
+
+MergeableTypes = Union[StructType, ArrayType, AtomicType]
+
+
+@overload
+def merge_schemas(type_a: StructType, type_b: StructType) -> StructType:
+    ...
+
+
+@overload
+def merge_schemas(type_a: ArrayType, type_b: ArrayType) -> ArrayType:
+    ...
+
+
+@overload
+def merge_schemas(type_a: AtomicType, type_b: AtomicType) -> AtomicType:
+    ...
+
+
+def merge_schemas(type_a: MergeableTypes, type_b: MergeableTypes) -> MergeableTypes:
     """
     Merge two schemas (or any Spark types) and return the merged schema.
 
@@ -20,13 +37,13 @@ def merge_schemas(
     - arrays must have the same containsNull.
 
     Args:
-        data_type_a: A DataType to be merged.
-        data_type_b: A DataType to be merged.
+        type_a: A type to be merged.
+        type_b: A type to be merged.
 
     Returns:
-        The merger of `data_type_a` with `data_type_b`.
+        The merger of `type_a` with `type_b`.
     """
-    return _SchemaMerger.merge_types(data_type_a, data_type_b, parent_field_name=None)
+    return _SchemaMerger.merge_types(type_a, type_b, parent_field_name=None)
 
 
 class _SchemaMerger:
@@ -73,7 +90,9 @@ class _SchemaMerger:
     # Merge by type
 
     @classmethod
-    def merge_types(cls, type_a: DataType, type_b: DataType, parent_field_name: Optional[str]) -> DataType:
+    def merge_types(
+        cls, type_a: MergeableTypes, type_b: MergeableTypes, parent_field_name: Optional[str]
+    ) -> MergeableTypes:
         """
         Merge two arbitrary types; delegates to corresponding methods.
 

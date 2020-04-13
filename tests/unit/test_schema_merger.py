@@ -2,6 +2,7 @@ import re
 
 import pytest
 from pyspark.sql.types import StructType, StructField, StringType, ArrayType, FloatType, DataType
+from pytype.abstract import Union
 
 from sparkql import merge_schemas
 
@@ -46,7 +47,33 @@ class TestMergeSchemas:
             pytest.param(ArrayType(StringType()), ArrayType(StringType()), ArrayType(StringType()), id="root-arrays"),
         ],
     )
-    def should_successfully_merge_with(schema_a: DataType, schema_b: DataType, expected_schema: DataType):
+    def should_successfully_merge_struct_types_with(
+        schema_a: StructType, schema_b: StructType, expected_schema: StructType
+    ):
+        # given ^
+
+        # when
+        merged_schema = merge_schemas(schema_a, schema_b)
+
+        # then
+        assert merged_schema.jsonValue() == expected_schema.jsonValue()
+
+        # ...expect distinct objects
+        assert merged_schema is not schema_a
+        assert merged_schema is not schema_b
+
+    @staticmethod
+    @pytest.mark.parametrize(
+        "schema_a, schema_b, expected_schema",
+        [
+            pytest.param(
+                ArrayType(StringType()), ArrayType(StringType()), ArrayType(StringType()), id="empty-root-arrays"
+            )
+        ],
+    )
+    def should_successfully_merge_array_types_with(
+        schema_a: ArrayType, schema_b: ArrayType, expected_schema: ArrayType
+    ):
         # given ^
 
         # when
@@ -107,6 +134,19 @@ class TestMergeSchemas:
                 ),
                 id="fields-of-different-type",
             ),
+        ],
+    )
+    def should_fail_to_merge_array_types_with(schema_a: StructType, schema_b: StructType, expected_error):
+        # given ^
+
+        # when, then
+        with expected_error:
+            merge_schemas(schema_a, schema_b)
+
+    @staticmethod
+    @pytest.mark.parametrize(
+        "schema_a, schema_b, expected_error",
+        [
             pytest.param(
                 ArrayType(StringType()),
                 ArrayType(FloatType()),
@@ -116,10 +156,11 @@ class TestMergeSchemas:
                         "Cannot merge due to incompatibility: Types must match. Type of A is StringType. Type of B is FloatType"
                     ),
                 ),
-                id="root-arrays-of-different-elemenet-types"),
+                id="root-arrays-of-different-element-types",
+            )
         ],
     )
-    def should_fail_to_merge_with(schema_a: DataType, schema_b: DataType, expected_error):
+    def should_fail_to_merge_struct_types_with(schema_a: ArrayType, schema_b: ArrayType, expected_error):
         # given ^
 
         # when, then
