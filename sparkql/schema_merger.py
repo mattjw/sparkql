@@ -13,17 +13,17 @@ MergeableTypes = Union[StructType, ArrayType, AtomicType]
 
 @overload
 def merge_schemas(type_a: StructType, type_b: StructType) -> StructType:
-    ...
+    ...  # pragma: no cover
 
 
 @overload
 def merge_schemas(type_a: ArrayType, type_b: ArrayType) -> ArrayType:
-    ...
+    ...  # pragma: no cover
 
 
 @overload
 def merge_schemas(type_a: AtomicType, type_b: AtomicType) -> AtomicType:
-    ...
+    ...  # pragma: no cover
 
 
 def merge_schemas(type_a: MergeableTypes, type_b: MergeableTypes) -> MergeableTypes:
