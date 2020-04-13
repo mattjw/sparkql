@@ -3,8 +3,22 @@ from datetime import date, datetime
 
 import pytest
 from pyspark.sql import SparkSession
-from pyspark.sql.types import ByteType, IntegerType, LongType, ShortType, DecimalType, DoubleType, FloatType, \
-    StringType, BinaryType, BooleanType, DateType, TimestampType, StructType, StructField
+from pyspark.sql.types import (
+    ByteType,
+    IntegerType,
+    LongType,
+    ShortType,
+    DecimalType,
+    DoubleType,
+    FloatType,
+    StringType,
+    BinaryType,
+    BooleanType,
+    DateType,
+    TimestampType,
+    StructType,
+    StructField,
+)
 
 from sparkql.exceptions import FieldValueValidationError
 from sparkql.fields.base import BaseField

@@ -8,30 +8,26 @@ from tests.utilities import does_not_raise
 
 
 class TestArrayFieldValidateOnValue:
-
     @staticmethod
     @pytest.mark.parametrize(
         "array_field, value, expected_error_message",
         [
             pytest.param(
-                Array(Float()),
-                {},
-                "Value for an array must be a sequence, not 'dict'",
-                id="array-is-not-a-sequence"
+                Array(Float()), {}, "Value for an array must be a sequence, not 'dict'", id="array-is-not-a-sequence"
             ),
             pytest.param(
                 Array(Float()),
                 [3.5, "string"],
                 "Value 'string' has invalid type 'str'. Allowed types are: 'float'",
-                id="element-value-of-wrong-type"
+                id="element-value-of-wrong-type",
             ),
             pytest.param(
                 Array(Float(nullable=False)),
                 [None],
                 "Encountered None value in array, but the element field of this array is specified as non-nullable",
-                id="null-element-in-unnamed-array-that-accepts-nonnull-only"
+                id="null-element-in-unnamed-array-that-accepts-nonnull-only",
             ),
-        ]
+        ],
     )
     def should_raise_validation_error_when(array_field, value, expected_error_message):
         # given, when, then
