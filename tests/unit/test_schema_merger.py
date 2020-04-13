@@ -1,7 +1,7 @@
 import re
 
 import pytest
-from pyspark.sql.types import StructType, StructField, StringType, ArrayType, FloatType
+from pyspark.sql.types import StructType, StructField, StringType, ArrayType, FloatType, DataType
 
 from sparkql import merge_schemas
 
@@ -43,9 +43,15 @@ class TestMergeSchemas:
                 ),
                 id="arrays-of-disjoint-structs",
             ),
+            pytest.param(
+                ArrayType(StringType()),
+                ArrayType(StringType()),
+                ArrayType(StringType()),
+                id="root-arrays",
+            ),
         ],
     )
-    def should_successfully_merge_with(schema_a: StructType, schema_b: StructType, expected_schema: StructType):
+    def should_successfully_merge_with(schema_a: DataType, schema_b: DataType, expected_schema: DataType):
         # given ^
 
         # when
