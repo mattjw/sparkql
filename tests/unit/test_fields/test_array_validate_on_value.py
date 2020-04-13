@@ -8,39 +8,34 @@ from tests.utilities import does_not_raise
 
 
 class TestArrayFieldValidateOnValue:
-    @staticmethod
-    def should_reject_non_sequence():
-        # given
-        array_of_floats_field = Array(Float())
-        value = {}
-
-        # when, then
-        with pytest.raises(
-            FieldValueValidationError, match=re.escape("Value for an array must be a sequence, not 'dict'")
-        ):
-            array_of_floats_field._validate_on_value(value)
 
     @staticmethod
-    def should_reject_invalid_element_value():
-        # given
-        array_of_floats_field = Array(Float())
-        value = [3.5, "string"]
-
-        # when, then
-        with pytest.raises(
-            FieldValueValidationError,
-            match=re.escape("Value 'string' has invalid type 'str'. Allowed types are: 'float'"),
-        ):
-            array_of_floats_field._validate_on_value(value)
-
-    @staticmethod
-    def should_reject_null_element_in_unnamed_nonnullable_field():
-        # given
-        array_field = Array(Float(nullable=False))
-        value = [None]
-
-        # when, then
-        with pytest.raises(FieldValueValidationError, match=re.escape("Encountered None value in array, but the element field of this array is specified as non-nullable")):
+    @pytest.mark.parametrize(
+        "array_field, value, expected_error_message",
+        [
+            pytest.param(
+                Array(Float()),
+                {},
+                "Value for an array must be a sequence, not 'dict'",
+                id="array-is-not-a-sequence"
+            ),
+            pytest.param(
+                Array(Float()),
+                [3.5, "string"],
+                "Value 'string' has invalid type 'str'. Allowed types are: 'float'",
+                id="element-value-of-wrong-type"
+            ),
+            pytest.param(
+                Array(Float(nullable=False)),
+                [None],
+                "Encountered None value in array, but the element field of this array is specified as non-nullable",
+                id="null-element-in-unnamed-array-that-accepts-nonnull-only"
+            ),
+        ]
+    )
+    def should_raise_validation_error_when(array_field, value, expected_error_message):
+        # given, when, then
+        with pytest.raises(FieldValueValidationError, match=re.escape(expected_error_message)):
             array_field._validate_on_value(value)
 
     @staticmethod
@@ -51,7 +46,7 @@ class TestArrayFieldValidateOnValue:
                 Array(String(), name="name_of_array_field"),
                 None,
                 does_not_raise(),
-                id="array-of-nullable-elemets-should-accept-none",
+                id="array-of-nullable-elements-should-accept-none",
             ),
             pytest.param(
                 Array(String(), name="name_of_array_field"),
