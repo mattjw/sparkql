@@ -34,6 +34,16 @@ class TestArrayFieldValidateOnValue:
             array_of_floats_field._validate_on_value(value)
 
     @staticmethod
+    def should_reject_null_element_in_unnamed_nonnullable_field():
+        # given
+        array_field = Array(Float(nullable=False))
+        value = [None]
+
+        # when, then
+        with pytest.raises(FieldValueValidationError, match=re.escape("Encountered None value in array, but the element field of this array is specified as non-nullable")):
+            array_field._validate_on_value(value)
+
+    @staticmethod
     @pytest.mark.parametrize(
         "array_field, value, expected_error",
         [
