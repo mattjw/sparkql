@@ -12,17 +12,17 @@ MergeableSparkDataType = Union[StructType, ArrayType, AtomicType]
 
 
 @overload
-def merge_schemas(type_a: StructType, type_b: StructType) -> StructType:
+def merge_schemas(type_a: StructType, type_b: StructType) -> StructType:  # noqa: D103 (pydocstyle missing docstring)
     ...  # pragma: no cover
 
 
 @overload
-def merge_schemas(type_a: ArrayType, type_b: ArrayType) -> ArrayType:
+def merge_schemas(type_a: ArrayType, type_b: ArrayType) -> ArrayType:  # noqa: D103 (pydocstyle missing docstring)
     ...  # pragma: no cover
 
 
 @overload
-def merge_schemas(type_a: AtomicType, type_b: AtomicType) -> AtomicType:
+def merge_schemas(type_a: AtomicType, type_b: AtomicType) -> AtomicType:  # noqa: D103 (pydocstyle missing docstring)
     ...  # pragma: no cover
 
 
