@@ -66,6 +66,17 @@ Diff of struct -> data frame...
             SimpleStruct.validate_data_frame(dframe).raise_on_invalid()
 
     @staticmethod
+    def test_should_not_raise_when_valid(spark_session: SparkSession):
+        # given
+        class SimpleStruct(Struct):
+            string_field = String()
+
+        dframe = spark_session.createDataFrame([{"string_field": "abc"}])
+
+        # when, then
+        SimpleStruct.validate_data_frame(dframe).raise_on_invalid()
+
+    @staticmethod
     def test_mismatched_data_frame_with_nested_data(spark_session: SparkSession):
         # given (above), and
         dframe = spark_session.createDataFrame(
