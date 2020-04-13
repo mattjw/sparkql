@@ -8,7 +8,7 @@ from typing import Dict, Union, Optional, overload
 from pyspark.sql.types import StructType, StructField, ArrayType, AtomicType
 
 
-MergeableTypes = Union[StructType, ArrayType, AtomicType]
+MergeableSparkDataType = Union[StructType, ArrayType, AtomicType]
 
 
 @overload
@@ -26,7 +26,7 @@ def merge_schemas(type_a: AtomicType, type_b: AtomicType) -> AtomicType:
     ...  # pragma: no cover
 
 
-def merge_schemas(type_a: MergeableTypes, type_b: MergeableTypes) -> MergeableTypes:
+def merge_schemas(type_a: MergeableSparkDataType, type_b: MergeableSparkDataType) -> MergeableSparkDataType:
     """
     Merge two schemas (or any Spark types) and return the merged schema.
 
@@ -91,8 +91,8 @@ class _SchemaMerger:
 
     @classmethod
     def merge_types(
-        cls, type_a: MergeableTypes, type_b: MergeableTypes, parent_field_name: Optional[str]
-    ) -> MergeableTypes:
+        cls, type_a: MergeableSparkDataType, type_b: MergeableSparkDataType, parent_field_name: Optional[str]
+    ) -> MergeableSparkDataType:
         """
         Merge two arbitrary types; delegates to corresponding methods.
 
