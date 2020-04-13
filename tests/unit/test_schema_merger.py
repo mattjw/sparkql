@@ -43,12 +43,7 @@ class TestMergeSchemas:
                 ),
                 id="arrays-of-disjoint-structs",
             ),
-            pytest.param(
-                ArrayType(StringType()),
-                ArrayType(StringType()),
-                ArrayType(StringType()),
-                id="root-arrays",
-            ),
+            pytest.param(ArrayType(StringType()), ArrayType(StringType()), ArrayType(StringType()), id="root-arrays"),
         ],
     )
     def should_successfully_merge_with(schema_a: DataType, schema_b: DataType, expected_schema: DataType):
@@ -112,9 +107,19 @@ class TestMergeSchemas:
                 ),
                 id="fields-of-different-type",
             ),
+            pytest.param(
+                ArrayType(StringType()),
+                ArrayType(FloatType()),
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(
+                        "Cannot merge due to incompatibility: Types must match. Type of A is StringType. Type of B is FloatType"
+                    ),
+                ),
+                id="root-arrays-of-different-elemenet-types"),
         ],
     )
-    def should_fail_to_merge_with(schema_a: StructType, schema_b: StructType, expected_error):
+    def should_fail_to_merge_with(schema_a: DataType, schema_b: DataType, expected_error):
         # given ^
 
         # when, then
