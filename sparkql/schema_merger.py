@@ -5,7 +5,7 @@ from copy import copy
 from typing import Dict, Union, Optional, overload
 
 
-from pyspark.sql.types import StructType, StructField, ArrayType, DataType, AtomicType
+from pyspark.sql.types import StructType, StructField, ArrayType, AtomicType
 
 
 MergeableTypes = Union[StructType, ArrayType, AtomicType]

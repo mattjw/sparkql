@@ -94,6 +94,16 @@ class TestValidateOnValue:
         )
 
     @staticmethod
+    def should_reject_null_in_unnamed_nonnullable_field():
+        # given
+        string_field = String(nullable=False)
+        value = None
+
+        # when, then
+        with pytest.raises(FieldValueValidationError, match="Non-nullable field cannot have None value"):
+            string_field._validate_on_value(value)
+
+    @staticmethod
     @pytest.mark.parametrize(
         "sparkql_field_class, spark_type_class, value",
         [
