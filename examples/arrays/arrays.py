@@ -15,12 +15,12 @@ class Article(Struct):
 # Here's what the schema looks like
 
 prettified_schema = """
-StructType(List(
-    StructField(title,StringType,false),
-    StructField(tags,
-        ArrayType(StringType,true),
-        false),
-    StructField(comments,
-        ArrayType(StringType,false),
-        true)))
+StructType([
+    StructField('title', StringType(), False), 
+    StructField('tags', 
+        ArrayType(StringType(), True), 
+        False), 
+    StructField('comments', 
+        ArrayType(StringType(), False), 
+        True)])
 """

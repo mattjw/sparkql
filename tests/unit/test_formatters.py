@@ -24,39 +24,49 @@ class TestPrettySchema:
                     ),
                 ]
             ),
-            """StructType(List(
-    StructField(str_a#etc,StringType,true),
-    StructField(str b,StringType,true),
-    StructField(object_a,
-        StructType(List(
-            StructField(int_a,IntegerType,true),
-            StructField(int_b,IntegerType,true))),
-        true),
-    StructField(array_a,
-        ArrayType(StructType(List(
-            StructField(long_a,LongType,true),
-            StructField(long_b,LongType,true))),true),
-        true)))""",
+            """StructType([
+    StructField('str_a#etc', StringType(), True), 
+    StructField('str b', StringType(), True), 
+    StructField('object_a', 
+        StructType([
+            StructField('int_a', IntegerType(), True), 
+            StructField('int_b', IntegerType(), True)]), 
+        True), 
+    StructField('array_a', 
+        ArrayType(StructType([
+            StructField('long_a', LongType(), True), 
+            StructField('long_b', LongType(), True)]), True), 
+        True)])""",
             id="mixed nested structs and arrays",
         ),
         pytest.param(
             StructType([StructField("a", ArrayType(StringType()))]),
-            """StructType(List(
-    StructField(a,
-        ArrayType(StringType,true),
-        true)))""",
+            """StructType([
+    StructField('a', 
+        ArrayType(StringType(), True), 
+        True)])""",
             id="simple array",
         ),
         pytest.param(
             StructType([StructField("a", ArrayType(StringType(), containsNull=False))]),
-            """StructType(List(
-    StructField(a,
-        ArrayType(StringType,false),
-        true)))""",
+            """StructType([
+    StructField('a', 
+        ArrayType(StringType(), False), 
+        True)])""",
             id="array without nulls",
         ),
-        pytest.param(StructType([]), "StructType(List())", id="empty schema"),
+        pytest.param(StructType([]), "StructType([])", id="empty schema"),
     ]
+
+    @staticmethod
+    def diff_strings(a, b):
+        print('diff strings')
+        for i, (a, b) in enumerate(zip(a, b)):
+            if a != b:
+                print(f"diff at index {i}")
+                print(f"expected: {ord(a)}")
+                print(f"actual: {ord(b)}")
+                break
 
     @staticmethod
     @pytest.mark.parametrize("struct,expected_pretty_schema", TEST_CASES)

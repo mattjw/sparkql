@@ -2,7 +2,6 @@ import re
 
 import pytest
 from pyspark.sql.types import StructType, StructField, StringType, ArrayType, FloatType, DataType
-from pytype.abstract import Union
 
 from sparkql import merge_schemas
 

@@ -17,8 +17,8 @@ class RegistrationEvent(BaseEvent):
 # Here's what the schema looks like
 
 prettified_registration_event_schema = """
-StructType(List(
-    StructField(correlation_id,StringType,false),
-    StructField(event_time,TimestampType,false),
-    StructField(user_id,StringType,false)))
+StructType([
+    StructField('correlation_id', StringType(), False), 
+    StructField('event_time', TimestampType(), False), 
+    StructField('user_id', StringType(), False)])
 """

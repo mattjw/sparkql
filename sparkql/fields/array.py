@@ -1,7 +1,7 @@
 """Array field."""
 
 import copy
-from collections import Sequence
+from collections.abc import Sequence
 from typing import Optional, Generic, TypeVar, Any
 
 from pyspark.sql.types import ArrayType, StructField
