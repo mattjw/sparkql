@@ -127,14 +127,14 @@ Pretty printing the schema with the expression
 `sparkql.pretty_schema(pyspark_struct)` will give the following:
 
 ```text
-StructType(List(
-    StructField(title,StringType,false),
-    StructField(tags,
-        ArrayType(StringType,true),
-        false),
-    StructField(comments,
-        ArrayType(StringType,false),
-        true)))
+StructType([
+    StructField('title', StringType(), False),
+    StructField('tags',
+        ArrayType(StringType(), True),
+        False),
+    StructField('comments',
+        ArrayType(StringType(), False),
+        True)])
 ```
 
 ## Features
@@ -268,21 +268,21 @@ human-readable string describing the differences:
 ```text
 Struct schema...
 
-StructType(List(
-    StructField(title,StringType,true),
-    StructField(body,StringType,true)))
+StructType([
+    StructField('title', StringType(), True),
+    StructField('body', StringType(), True)])
 
 DataFrame schema...
 
-StructType(List(
-    StructField(title,StringType,true)))
+StructType([
+    StructField('title', StringType(), True)])
 
 Diff of struct -> data frame...
 
-  StructType(List(
--     StructField(title,StringType,true)))
-+     StructField(title,StringType,true),
-+     StructField(body,StringType,true)))
+  StructType([
+-     StructField('title', StringType(), True)])
++     StructField('title', StringType(), True),
++     StructField('body', StringType(), True)])
 ```
 
 For convenience,
@@ -391,10 +391,10 @@ class RegistrationEvent(BaseEvent):
 will produce the following `RegistrationEvent` schema:
 
 ```text
-StructType(List(
-    StructField(correlation_id,StringType,false),
-    StructField(event_time,TimestampType,false),
-    StructField(user_id,StringType,false)))
+StructType([
+    StructField('correlation_id', StringType(), False),
+    StructField('event_time', TimestampType(), False),
+    StructField('user_id', StringType(), False)])
 ```
 
 #### Using an `includes` declaration
@@ -416,9 +416,9 @@ will produce the `RegistrationEvent` schema:
 
 ```text
 StructType(List(
-    StructField(user_id,StringType,false),
-    StructField(correlation_id,StringType,false),
-    StructField(event_time,TimestampType,false)))
+    StructField('user_id', StringType(), False),
+    StructField('correlation_id', StringType(), False),
+    StructField('event_time', TimestampType(), False)))
 ```
 
 #### Using an `implements` declaration
@@ -443,30 +443,30 @@ class PageViewLogEntry(Struct):
     page_id = String(nullable=False)
 
 # the above class declaration will fail with the following StructImplementationError error:
-#   Struct 'RegistrationEvent' does not implement field 'correlation_id' required by struct 'EventMetadata'
+#   Struct 'PageViewLogEntry' does not implement field 'logged_at' required by struct 'LogEntryMetadata'
 ```
 
 
 ### Prettified Spark schema strings
 
-Spark's stringified schema representation isn't very user friendly, particularly for large schemas:
+Spark's stringified schema representation isn't very user-friendly, particularly for large schemas:
 
 
 ```text
-StructType(List(StructField(name,StringType,false),StructField(city,StructType(List(StructField(name,StringType,false),StructField(latitude,FloatType,true),StructField(longitude,FloatType,true))),true)))
+StructType([StructField('name', StringType(), False), StructField('city', StructType([StructField('name', StringType(), False), StructField('latitude', FloatType(), True), StructField('longitude', FloatType(), True)]), True)])
 ```
 
 The function `pretty_schema` will return something more useful:
 
 ```text
-StructType(List(
-    StructField(name,StringType,false),
-    StructField(city,
-        StructType(List(
-            StructField(name,StringType,false),
-            StructField(latitude,FloatType,true),
-            StructField(longitude,FloatType,true))),
-        true)))
+StructType([
+    StructField('name', StringType(), False),
+    StructField('city',
+        StructType([
+            StructField('name', StringType(), False),
+            StructField('latitude', FloatType(), True),
+            StructField('longitude', FloatType(), True)]),
+        True)])
 ```
 
 ### Merge two Spark `StructType` types
@@ -500,13 +500,13 @@ merged_schema = merge_schemas(schema_a, schema_b)
 results in a `merged_schema` that looks like:
 
 ```text
-StructType(List(
-    StructField(message,StringType,true),
-    StructField(author,
-        ArrayType(StructType(List(
-            StructField(name,StringType,true),
-            StructField(address,StringType,true))),true),
-        true)))
+StructType([
+    StructField('message', StringType(), True),
+    StructField('author',
+        ArrayType(StructType([
+            StructField('name', StringType(), True),
+            StructField('address', StringType(), True)]), True),
+        True)])
 ```
 
 
