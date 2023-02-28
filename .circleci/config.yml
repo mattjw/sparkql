@@ -35,7 +35,7 @@ jobs:
     description: "Build the project and run all tests and checks."
 
     docker:
-      - image: docker.pkg.github.com/mattjw/docker-images/circleci-python-java8:py3.6.8
+      - image: docker.pkg.github.com/mattjw/docker-images/circleci-python-java11:py3.10.1
         auth:
           username: ${GITHUB_USERNAME}
           password: ${GITHUB_DOCKER_READ_TOKEN}
@@ -101,7 +101,7 @@ jobs:
     #   Exempting administrators will allow CircleCI (via the PAT) to push to master as part of a release.
     description: "Bump and release package to PyPI"
     docker:
-      - image: docker.pkg.github.com/mattjw/docker-images/circleci-python-java8:py3.6.8
+      - image: docker.pkg.github.com/mattjw/docker-images/circleci-python-java11:py3.10.1
         auth:
           username: ${GITHUB_USERNAME}
           password: ${GITHUB_DOCKER_READ_TOKEN}
