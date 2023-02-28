@@ -9,7 +9,7 @@ jobs:
 
     runs-on: ubuntu-latest
     container:
-      image: mattjwnet/python-poetry-java11:py3.10.1  # Warning: Not uploaded yet. Use CircleCI instead.
+      image: docker.pkg.github.com/mattjw/docker-images/circleci-python-java11:py3.10.1
 
     #strategy:
     #  matrix:
