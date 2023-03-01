@@ -124,11 +124,10 @@ For example:
 
 ## CI runners
 
-This project is in the process of migrating from CircleCI to
-Github Actions. The status of the migration is as follows:
+Ideally, this project's CI would run entirely via Github Actions. Previously,
+the project was part-migrated to Actions (see commit history). However, in
+the interim, the project was migrated back to CircleCI exclusively.
 
-- [Github Actions](https://github.com/mattjw/sparkql/actions): Run
-  tests. PRs are blocked until this workflow succeeds.
 - [CircleCI](https://circleci.com/gh/mattjw/workflows/sparkql/tree/master):
   A utility workflow to support releasing a new version of the library.
 
