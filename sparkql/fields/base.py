@@ -1,7 +1,7 @@
 """Base field and abstract fields."""
 
 from abc import ABC, abstractmethod
-from typing import List, Optional, Type, Any, Tuple, Sequence
+from typing import Optional, Type, Any, Tuple, Sequence
 import copy
 
 from pyspark.sql import types as sql_type, Column
