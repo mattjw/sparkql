@@ -7,7 +7,6 @@ from sparkql import pretty_schema
 
 
 class TestPrettySchema:
-
     TEST_CASES = [
         pytest.param(
             StructType(
@@ -60,7 +59,7 @@ class TestPrettySchema:
 
     @staticmethod
     def diff_strings(a, b):
-        print('diff strings')
+        print("diff strings")
         for i, (a, b) in enumerate(zip(a, b)):
             if a != b:
                 print(f"diff at index {i}")
