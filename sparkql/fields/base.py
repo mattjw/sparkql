@@ -1,7 +1,7 @@
 """Base field and abstract fields."""
 
 from abc import ABC, abstractmethod
-from typing import Optional, Type, Any, Tuple, Sequence
+from typing import List, Optional, Type, Any, Tuple, Sequence
 import copy
 
 from pyspark.sql import types as sql_type, Column
@@ -141,7 +141,7 @@ class BaseField(ABC):
         The result is context-specific and depends on the path to this field through nested structs (if any).
         """
         # Next line has explicit type to avoid "No attribute '_parent' on None [attribute-error]"" on following line
-        fields: Sequence[BaseField] = [self]
+        fields: List[BaseField] = [self]
         while fields[0]._parent is not None:  # pylint: disable=protected-access
             fields.insert(0, fields[0]._parent)  # pylint: disable=protected-access
 
