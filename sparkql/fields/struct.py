@@ -573,7 +573,7 @@ class _DictMaker:
     def __post_init__(self):
         # extract `_struct_metadata.fields` for convenience
         inner_meta = self.struct_class._struct_metadata  # pylint: disable=protected-access
-        self._struct_property_to_field = inner_meta.fields  # pytype: disable=attribute-error
+        self._struct_property_to_field = inner_meta.fields  # pytype: disable=attribute-error,annotation-type-mismatch
         self._property_to_value = OrderedDict((property_name, []) for property_name in self._struct_property_to_field)
 
     def _process_positional_args(self):
