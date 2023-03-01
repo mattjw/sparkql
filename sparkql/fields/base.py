@@ -140,10 +140,11 @@ class BaseField(ABC):
 
         The result is context-specific and depends on the path to this field through nested structs (if any).
         """
-        # pytype: disable=attribute-error
         fields = [self]
-        while fields[0]._parent is not None:  # pylint: disable=protected-access
+        parent = fields[0]._parent
+        while parent is not None:  # pylint: disable=protected-access
             fields.insert(0, fields[0]._parent)  # pylint: disable=protected-access
+            parent = fields[0]._parent  # pytype: disable=attribute-error
 
         assert all(
             field._resolve_field_name() is not None for field in fields  # pylint: disable=protected-access
