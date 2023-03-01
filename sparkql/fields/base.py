@@ -140,7 +140,8 @@ class BaseField(ABC):
 
         The result is context-specific and depends on the path to this field through nested structs (if any).
         """
-        fields = [self]
+        # Next line has explicit type to avoid "No attribute '_parent' on None [attribute-error]"" on following line
+        fields: Sequence[BaseField] = [self]
         while fields[0]._parent is not None:  # pylint: disable=protected-access
             fields.insert(0, fields[0]._parent)  # pylint: disable=protected-access
 
