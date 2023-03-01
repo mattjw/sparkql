@@ -6,11 +6,23 @@ orbs:
 workflows:
   version: "2.1"
 
+  buid_and_test_workflow:
+    description: |
+      Build and test on any non-master branch.
+    jobs:
+      - build_verify:
+          filters:
+            branches:
+              ignore: master
+
   release_workflow:
     description: |
       Release all releasable changes, if any, on manual approval. Bump version and publish a release.
     jobs:
-      - build_verify
+      - build_verify:
+          filters:
+            branches:
+              only: master
       - request_release:
           type: approval
           requires:
