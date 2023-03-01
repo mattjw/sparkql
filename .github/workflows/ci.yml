@@ -9,7 +9,8 @@ jobs:
 
     runs-on: ubuntu-latest
     container:
-      image: docker.pkg.github.com/mattjw/docker-images/circleci-python-java11:py3.10.1
+      image: mattjwnet/circleci-python-java11:py3.10.1
+        # https://hub.docker.com/r/mattjwnet/circleci-python-java11
 
     #strategy:
     #  matrix:

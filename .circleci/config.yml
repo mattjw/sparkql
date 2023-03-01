@@ -35,7 +35,8 @@ jobs:
     description: "Build the project and run all tests and checks."
 
     docker:
-      - image: ghcr.io/mattjw/docker-images/circleci-python-java11:py3.10.1
+      - image: mattjwnet/circleci-python-java11:py3.10.1
+          # https://hub.docker.com/r/mattjwnet/circleci-python-java11
         auth:
           username: ${GITHUB_USERNAME}
           password: ${GITHUB_DOCKER_READ_TOKEN}
