@@ -10,10 +10,7 @@ workflows:
     description: |
       Release all releasable changes, if any, on manual approval. Bump version and publish a release.
     jobs:
-      - build_verify:
-          filters:
-            branches:
-              only: master
+      - build_verify
       - request_release:
           type: approval
           requires:
@@ -37,9 +34,9 @@ jobs:
     docker:
       - image: mattjwnet/circleci-python-java11:py3.10.1
           # https://hub.docker.com/r/mattjwnet/circleci-python-java11
-        auth:
-          username: ${GITHUB_USERNAME}
-          password: ${GITHUB_DOCKER_READ_TOKEN}
+        #auth:  #~
+        #  username: ${GITHUB_USERNAME}
+        #  password: ${GITHUB_DOCKER_READ_TOKEN}
         # This is a public image (via Github Packages), so shouldn't need auth, but Github Packages does not yet
         # support authless read from public images.
         # https://github.community/t5/GitHub-Actions/docker-pull-from-public-GitHub-Package-Registry-fail-with-quot/td-p/32782
