@@ -225,6 +225,7 @@ class Struct(BaseField):
     @classmethod
     def make_row(cls, *args, **kwargs) -> Row:
         """Reserved."""
+        # pylint: disable=broad-exception-raised
         raise Exception("Function name reserved.")
 
     #
@@ -461,8 +462,8 @@ class _Validator:
                 If class does not correctly implement any required structs.
         """
         root_struct_metadata: _StructInnerMetadata = (
-            self.struct_class._struct_metadata
-        )  # pylint: disable=protected-access
+            self.struct_class._struct_metadata  # pylint: disable=protected-access
+        )
         if root_struct_metadata is None:
             raise ValueError(f"Struct class {self.struct_class} has not had its inner metadata extracted")
 
@@ -653,6 +654,6 @@ class _DictMaker:
             try:
                 field._validate_on_value(value)  # pylint: disable=protected-access
             except FieldValueValidationError as ex:
-                raise StructInstantiationArgumentTypeError(str(ex))
+                raise StructInstantiationArgumentTypeError(str(ex)) from ex
 
         return dict(field_name_to_value)

@@ -10,7 +10,7 @@ from sparkql.exceptions import FieldValueValidationError
 from sparkql.fields.base import BaseField
 
 
-ArrayElementType = TypeVar("ArrayElementType", bound=BaseField)
+ArrayElementType = TypeVar("ArrayElementType", bound=BaseField)  # pylint: disable=invalid-name
 
 
 class Array(Generic[ArrayElementType], BaseField):
