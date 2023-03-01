@@ -160,7 +160,7 @@ class Struct(BaseField):
 
         Augment the attribute reference chain to ensure that a field's parent is set.
         """
-        attr_value = super().__getattribute__(attr_name)
+        attr_value = super().__getattribute__(attr_name)  # pytype: disable=attribute-error
 
         if attr_name == "_struct_metadata":
             return attr_value
