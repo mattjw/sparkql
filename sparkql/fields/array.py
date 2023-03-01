@@ -53,7 +53,7 @@ class Array(Generic[ArrayElementType], BaseField):
     #
     # Field path chaining
 
-    def _replace_parent(
+    def _replace_parent(  # pytype: disable=name-error
         self, parent: Optional["Struct"] = None  # pytype: disable=invalid-annotation,name-error
     ) -> "Struct":  # pytype: disable=invalid-annotation,name-error
         """Return a copy of this array with the parent attribute set."""
