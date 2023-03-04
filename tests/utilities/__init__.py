@@ -5,7 +5,7 @@ from contextlib import contextmanager
 
 @contextmanager
 def does_not_raise():
-    """For use in pytest """
+    """For use in pytest"""
     yield
 
 

@@ -160,7 +160,7 @@ class Struct(BaseField):
 
         Augment the attribute reference chain to ensure that a field's parent is set.
         """
-        attr_value = super().__getattribute__(attr_name)
+        attr_value = super().__getattribute__(attr_name)  # pytype: disable=attribute-error
 
         if attr_name == "_struct_metadata":
             return attr_value
@@ -225,6 +225,7 @@ class Struct(BaseField):
     @classmethod
     def make_row(cls, *args, **kwargs) -> Row:
         """Reserved."""
+        # pylint: disable=broad-exception-raised
         raise Exception("Function name reserved.")
 
     #
@@ -460,12 +461,13 @@ class _Validator:
             StructImplementationError:
                 If class does not correctly implement any required structs.
         """
-        root_struct_metadata: _StructInnerMetadata = self.struct_class._struct_metadata  # pylint: disable=protected-access
+        root_struct_metadata: _StructInnerMetadata = (
+            self.struct_class._struct_metadata  # pylint: disable=protected-access
+        )
         if root_struct_metadata is None:
             raise ValueError(f"Struct class {self.struct_class} has not had its inner metadata extracted")
 
         for required_struct in self._yield_implements_structs():
-
             req_fields = (
                 required_struct._struct_metadata.fields  # pylint: disable=protected-access  # pytype: disable=attribute-error
             )
@@ -571,7 +573,7 @@ class _DictMaker:
     def __post_init__(self):
         # extract `_struct_metadata.fields` for convenience
         inner_meta = self.struct_class._struct_metadata  # pylint: disable=protected-access
-        self._struct_property_to_field = inner_meta.fields  # pytype: disable=attribute-error
+        self._struct_property_to_field = inner_meta.fields  # pytype: disable=attribute-error,annotation-type-mismatch
         self._property_to_value = OrderedDict((property_name, []) for property_name in self._struct_property_to_field)
 
     def _process_positional_args(self):
@@ -652,6 +654,6 @@ class _DictMaker:
             try:
                 field._validate_on_value(value)  # pylint: disable=protected-access
             except FieldValueValidationError as ex:
-                raise StructInstantiationArgumentTypeError(str(ex))
+                raise StructInstantiationArgumentTypeError(str(ex)) from ex
 
         return dict(field_name_to_value)

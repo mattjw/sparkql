@@ -47,7 +47,7 @@ class SparkSchemaPrettifier:
             return cls._pretty_array_type(dtype, depth)
 
         # for all other data types, give the type name
-        return "{}()".format(dtype.__class__.__name__)
+        return f"{dtype.__class__.__name__}()"
 
     @classmethod
     def _pretty_struct_type(cls, struct: StructType, depth: int) -> str:
@@ -60,7 +60,8 @@ class SparkSchemaPrettifier:
             lines = []
             for field in struct.fields:
                 lines.append(f"{delim}{cls._pretty_struct_field(field, depth)}")
-            formatted = "StructType([{}])".format(", ".join(lines))
+            joined_lines = ", ".join(lines)
+            formatted = f"StructType([{joined_lines}])"
         return formatted
 
     @classmethod
@@ -68,15 +69,18 @@ class SparkSchemaPrettifier:
         """Handle the case where the data type is an array type."""
         assert isinstance(array, ArrayType)
         # also print out the `containsNull` ArrayType boolean
+
+        # pylint: disable=consider-using-f-string
         return "ArrayType({}, {})".format(
-            cls._pretty_data_type(array.elementType, depth), cls._boolean_as_str(array.containsNull)
+            cls._pretty_data_type(array.elementType, depth),
+            cls._boolean_as_str(array.containsNull),
         )
 
     @classmethod
     def _pretty_struct_field(cls, field: StructField, depth: int) -> str:
         """Helper for `_pretty_struct_type`, that formats a field."""
         assert isinstance(field, StructField)
-        formatted = "StructField('{}', ".format(field.name)
+        formatted = f"StructField('{field.name}', "
         if isinstance(field.dataType, (StructType, ArrayType)):
             formatted += "\n" + cls._indent(depth + 1)
 
@@ -84,7 +88,7 @@ class SparkSchemaPrettifier:
 
         if isinstance(field.dataType, (StructType, ArrayType)):
             formatted += "\n" + cls._indent(depth + 1)
-        formatted += "{})".format(cls._boolean_as_str(field.nullable))
+        formatted += f"{cls._boolean_as_str(field.nullable)})"
 
         return formatted
 

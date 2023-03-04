@@ -4,7 +4,6 @@ from sparkql import Struct, String, Array, Float
 
 
 class TestEquality:
-
     #
     # Atomics
 

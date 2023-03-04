@@ -7,7 +7,6 @@ from sparkql import pretty_schema
 
 
 class TestPrettySchema:
-
     TEST_CASES = [
         pytest.param(
             StructType(
@@ -57,16 +56,6 @@ class TestPrettySchema:
         ),
         pytest.param(StructType([]), "StructType([])", id="empty schema"),
     ]
-
-    @staticmethod
-    def diff_strings(a, b):
-        print('diff strings')
-        for i, (a, b) in enumerate(zip(a, b)):
-            if a != b:
-                print(f"diff at index {i}")
-                print(f"expected: {ord(a)}")
-                print(f"actual: {ord(b)}")
-                break
 
     @staticmethod
     @pytest.mark.parametrize("struct,expected_pretty_schema", TEST_CASES)

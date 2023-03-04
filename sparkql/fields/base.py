@@ -82,7 +82,7 @@ class BaseField(ABC):
         field: BaseField = copy.copy(self)
         if self.__name_explicit is not None:
             raise FieldNameError("Attempted to set an explicit name that has already been set")
-        field.__name_explicit = name  # pylint: disable=protected-access
+        field.__name_explicit = name  # pylint: disable=protected-access,unused-private-member
         return field
 
     #
@@ -110,6 +110,7 @@ class BaseField(ABC):
         """The name for this field."""
         name = self._resolve_field_name()
         if name is None:
+            # pylint: disable=consider-using-f-string
             raise FieldNameError(
                 "No field name found among: explicit name = {}, inferred name = {}".format(
                     self.__name_explicit, self.__name_contextual
@@ -140,8 +141,10 @@ class BaseField(ABC):
         The result is context-specific and depends on the path to this field through nested structs (if any).
         """
         fields = [self]
-        while fields[0]._parent is not None:  # pylint: disable=protected-access
+        parent = fields[0]._parent  # pylint: disable=protected-access
+        while parent is not None:  # pylint: disable=protected-access
             fields.insert(0, fields[0]._parent)  # pylint: disable=protected-access
+            parent = fields[0]._parent  # pytype: disable=attribute-error  # pylint: disable=protected-access
 
         assert all(
             field._resolve_field_name() is not None for field in fields  # pylint: disable=protected-access

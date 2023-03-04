@@ -10,7 +10,7 @@ from sparkql.exceptions import FieldValueValidationError
 from sparkql.fields.base import BaseField
 
 
-ArrayElementType = TypeVar("ArrayElementType", bound=BaseField)
+ArrayElementType = TypeVar("ArrayElementType", bound=BaseField)  # pylint: disable=invalid-name
 
 
 class Array(Generic[ArrayElementType], BaseField):
@@ -53,7 +53,7 @@ class Array(Generic[ArrayElementType], BaseField):
     #
     # Field path chaining
 
-    def _replace_parent(
+    def _replace_parent(  # pytype: disable=name-error
         self, parent: Optional["Struct"] = None  # pytype: disable=invalid-annotation,name-error
     ) -> "Struct":  # pytype: disable=invalid-annotation,name-error
         """Return a copy of this array with the parent attribute set."""

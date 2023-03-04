@@ -100,13 +100,13 @@ Diff of struct -> data frame...
     StructField('values', 
         ArrayType(StructType([
             StructField('value', FloatType(), True)]), True), 
-        True)])""", 
+        True)])""",
             """StructType([
     StructField('other_string_field', StringType(), True), 
     StructField('values', 
         ArrayType(StructType([
             StructField('value', FloatType(), True)]), True), 
-        True)])""", 
+        True)])""",
             """Struct schema...
 
 StructType([
