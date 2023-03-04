@@ -7,7 +7,6 @@ from sparkql import pretty_schema
 
 
 class TestPrettySchema:
-
     TEST_CASES = [
         pytest.param(
             StructType(
