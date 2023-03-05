@@ -17,21 +17,21 @@ def test_validation_example(spark_session: SparkSession):
     assert not validation_result.is_valid
     assert validation_result.report == """Struct schema...
 
-StructType(List(
-    StructField(title,StringType,true),
-    StructField(body,StringType,true)))
+StructType([
+    StructField('title', StringType(), True), 
+    StructField('body', StringType(), True)])
 
 DataFrame schema...
 
-StructType(List(
-    StructField(title,StringType,true)))
+StructType([
+    StructField('title', StringType(), True)])
 
 Diff of struct -> data frame...
 
-  StructType(List(
--     StructField(title,StringType,true)))
-+     StructField(title,StringType,true),
-+     StructField(body,StringType,true)))"""
+  StructType([
+-     StructField('title', StringType(), True)])
++     StructField('title', StringType(), True), 
++     StructField('body', StringType(), True)])"""
 
     with pytest.raises(InvalidDataFrameError):
         Article.validate_data_frame(dframe).raise_on_invalid()

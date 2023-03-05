@@ -33,8 +33,8 @@ class TestDataFrameValidation:
         # expect
         assert validation_result == ValidationResult(
             True,
-            "StructType(List(\n    StructField(string_field,StringType,true)))",
-            "StructType(List(\n    StructField(string_field,StringType,true)))",
+            "StructType([\n    StructField('string_field', StringType(), True)])",
+            "StructType([\n    StructField('string_field', StringType(), True)])",
             "",
         )
 
@@ -49,19 +49,19 @@ class TestDataFrameValidation:
         # when, then
         err_message = """Struct schema...
 
-StructType(List(
-    StructField(string_field,StringType,true)))
+StructType([
+    StructField('string_field', StringType(), True)])
 
 DataFrame schema...
 
-StructType(List(
-    StructField(other_field,StringType,true)))
+StructType([
+    StructField('other_field', StringType(), True)])
 
 Diff of struct -> data frame...
 
-  StructType(List(
--     StructField(other_field,StringType,true)))
-+     StructField(string_field,StringType,true)))"""
+  StructType([
+-     StructField('other_field', StringType(), True)])
++     StructField('string_field', StringType(), True)])"""
         with pytest.raises(InvalidDataFrameError, match=re.escape(err_message)):
             SimpleStruct.validate_data_frame(dframe).raise_on_invalid()
 
@@ -95,43 +95,43 @@ Diff of struct -> data frame...
         # expect
         assert validation_result == ValidationResult(
             False,
-            """StructType(List(
-    StructField(string_field,StringType,true),
-    StructField(values,
-        ArrayType(StructType(List(
-            StructField(value,FloatType,true))),true),
-        true)))""",
-            """StructType(List(
-    StructField(other_string_field,StringType,true),
-    StructField(values,
-        ArrayType(StructType(List(
-            StructField(value,FloatType,true))),true),
-        true)))""",
+            """StructType([
+    StructField('string_field', StringType(), True), 
+    StructField('values', 
+        ArrayType(StructType([
+            StructField('value', FloatType(), True)]), True), 
+        True)])""",
+            """StructType([
+    StructField('other_string_field', StringType(), True), 
+    StructField('values', 
+        ArrayType(StructType([
+            StructField('value', FloatType(), True)]), True), 
+        True)])""",
             """Struct schema...
 
-StructType(List(
-    StructField(string_field,StringType,true),
-    StructField(values,
-        ArrayType(StructType(List(
-            StructField(value,FloatType,true))),true),
-        true)))
+StructType([
+    StructField('string_field', StringType(), True), 
+    StructField('values', 
+        ArrayType(StructType([
+            StructField('value', FloatType(), True)]), True), 
+        True)])
 
 DataFrame schema...
 
-StructType(List(
-    StructField(other_string_field,StringType,true),
-    StructField(values,
-        ArrayType(StructType(List(
-            StructField(value,FloatType,true))),true),
-        true)))
+StructType([
+    StructField('other_string_field', StringType(), True), 
+    StructField('values', 
+        ArrayType(StructType([
+            StructField('value', FloatType(), True)]), True), 
+        True)])
 
 Diff of struct -> data frame...
 
-  StructType(List(
--     StructField(other_string_field,StringType,true),
-+     StructField(string_field,StringType,true),
-      StructField(values,
-          ArrayType(StructType(List(
-              StructField(value,FloatType,true))),true),
-          true)))""",
+  StructType([
+-     StructField('other_string_field', StringType(), True), 
++     StructField('string_field', StringType(), True), 
+      StructField('values', 
+          ArrayType(StructType([
+              StructField('value', FloatType(), True)]), True), 
+          True)])""",
         )

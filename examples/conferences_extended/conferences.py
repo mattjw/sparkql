@@ -21,22 +21,22 @@ class Conference(Struct):
 
 
 prettified_schema = """
-StructType(List(
-    StructField(name,StringType,false),
-    StructField(city,StringType,false),
-    StructField(city_location,
-        StructType(List(
-            StructField(latitude,FloatType,false),
-            StructField(longitude,FloatType,false))),
-        false),
-    StructField(country,StringType,false),
-    StructField(twitter,StringType,true),
-    StructField(start_date,TimestampType,false),
-    StructField(end_date,TimestampType,false),
-    StructField(url,StringType,true),
-    StructField(keywords,
-        ArrayType(StringType,false),
-        true)))
+StructType([
+    StructField('name', StringType(), False), 
+    StructField('city', StringType(), False), 
+    StructField('city_location', 
+        StructType([
+            StructField('latitude', FloatType(), False), 
+            StructField('longitude', FloatType(), False)]), 
+        False), 
+    StructField('country', StringType(), False), 
+    StructField('twitter', StringType(), True), 
+    StructField('start_date', TimestampType(), False), 
+    StructField('end_date', TimestampType(), False), 
+    StructField('url', StringType(), True), 
+    StructField('keywords', 
+        ArrayType(StringType(), False), 
+        True)])
 """
 
 

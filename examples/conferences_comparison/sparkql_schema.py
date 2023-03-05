@@ -20,14 +20,14 @@ class Conference(Struct):
 # Here's what the schema looks like
 
 prettified_schema = """
-StructType(List(
-    StructField(name,StringType,false),
-    StructField(city,
-        StructType(List(
-            StructField(name,StringType,false),
-            StructField(latitude,FloatType,true),
-            StructField(longitude,FloatType,true))),
-        true)))
+StructType([
+    StructField('name', StringType(), False), 
+    StructField('city', 
+        StructType([
+            StructField('name', StringType(), False), 
+            StructField('latitude', FloatType(), True), 
+            StructField('longitude', FloatType(), True)]), 
+        True)])
 """
 
 #

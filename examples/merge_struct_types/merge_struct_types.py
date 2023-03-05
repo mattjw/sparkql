@@ -24,11 +24,11 @@ merged_schema = merge_schemas(schema_a, schema_b)
 
 
 pretty_merged_schema = """
-StructType(List(
-    StructField(message,StringType,true),
-    StructField(author,
-        ArrayType(StructType(List(
-            StructField(name,StringType,true),
-            StructField(address,StringType,true))),true),
-        true)))
+StructType([
+    StructField('message', StringType(), True), 
+    StructField('author', 
+        ArrayType(StructType([
+            StructField('name', StringType(), True), 
+            StructField('address', StringType(), True)]), True), 
+        True)])
 """

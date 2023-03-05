@@ -56,7 +56,7 @@ class StructInstantiationArgumentsError(StructInstantiationError):
             )
         if surplus_keyword_args:
             msg += "There were surplus keyword arguments: " + ", ".join(surplus_keyword_args) + " \n"
-        msg += f"Properties required by this struct are: " + ", ".join(properties)
+        msg += "Properties required by this struct are: " + ", ".join(properties)
         if unfilled_properties:
             msg += "\nOmitted struct properties were defaulted to null: " + ", ".join(unfilled_properties)
         super().__init__(msg)
