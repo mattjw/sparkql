@@ -105,10 +105,8 @@ jobs:
     #   Exempting administrators will allow CircleCI (via the PAT) to push to master as part of a release.
     description: "Bump and release package to PyPI"
     docker:
-      - image: ghcr.io/mattjw/docker-images/circleci-python-java11:py3.10.1
-        auth:
-          username: ${GITHUB_USERNAME}
-          password: ${GITHUB_DOCKER_READ_TOKEN}
+      - image: mattjwnet/circleci-python-java11:py3.10.1
+          # https://hub.docker.com/r/mattjwnet/circleci-python-java11
     steps:
       - checkout
       - run:
