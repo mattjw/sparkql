@@ -509,7 +509,6 @@ StructType([
         True)])
 ```
 
-
 ## Contributing
 
 Contributions are very welcome. Developers who'd like to contribute to
