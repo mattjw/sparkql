@@ -143,6 +143,16 @@ merge to `master`. To make a release, approve the `request_release`
 hold step via the
 [CircleCI interface](https://circleci.com/gh/mattjw/workflows/sparkql/tree/master).
 
+#### CI setup
+
+The release process requires the following secrets:
+
+- `GITHUB_WRITE_TOKEN_ENV_VAR`:
+- `PYPI_USERNAME`
+- `PYPI_TOKEN`
+
+poetry publish --build --username "$PYPI_USERNAME" --password "$PYPI_TOKEN" --no-interaction
+
 ### Making a new release by hand
 
 First, ensure you are on an up-to-date `master` branch. 
