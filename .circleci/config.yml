@@ -95,20 +95,18 @@ jobs:
 
 
   release:
-    # Notes...
-    # - Requires a Github Personal Access Token as env var `GITHUB_WRITE_TOKEN`. Must have `repo` scope
-    # - The PAT is treated as Administrator. Suggested master branch protection rules as follows:
-    #     Require status checks to pass before merging = yes;
-    #     Require branches to be up to date before merging = yes;
-    #     Status checks = ci/circleci: build_verify (exclusively);
-    #     Include administrators = no
-    #   Exempting administrators will allow CircleCI (via the PAT) to push to master as part of a release.
     description: "Bump and release package to PyPI"
     docker:
       - image: mattjwnet/circleci-python-java11:py3.10.1
           # https://hub.docker.com/r/mattjwnet/circleci-python-java11
     steps:
       - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - "97:6d:ea:10:69:6d:d1:1c:b2:92:a5:a6:44:7f:cf:dd"
+            # Use read-write deploy key here. So that CircleCI can write to the Github repo
+            # CircleCI deploy keys: https://app.circleci.com/settings/project/github/mattjw/sparkql/ssh
+            # Github counterpart keys: https://github.com/mattjw/sparkql/settings/keys
       - run:
           name: Install dependencies
           command: |
