@@ -105,7 +105,7 @@ jobs:
           fingerprints:
             - "97:6d:ea:10:69:6d:d1:1c:b2:92:a5:a6:44:7f:cf:dd"
             # Use read-write deploy key here. So that CircleCI can write to the Github repo
-            # CircleCI deploy keys: https://app.circleci.com/settings/project/github/mattjw/sparkql/ssh?return-to=https%3A%2F%2Fapp.circleci.com%2Fpipelines%2Fgithub%2Fmattjw%2Fsparkql
+            # CircleCI deploy keys: https://app.circleci.com/settings/project/github/mattjw/sparkql/ssh
             # Github counterpart keys: https://github.com/mattjw/sparkql/settings/keys
       - run:
           name: Install dependencies
