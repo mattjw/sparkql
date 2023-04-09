@@ -61,6 +61,3 @@ def test_decimal_precision_and_scale():
 
     d = Decimal(12, 5)
     assert d._spark_data_type == DecimalType(12, 5)
-
-    d = Decimal(12, 5)
-    assert d._spark_data_type == DecimalType(12, 5)
