@@ -3,6 +3,7 @@ import os
 import re
 from dataclasses import dataclass
 from typing import Optional
+from datetime import datetime
 
 from invoke import Result
 import tomlkit
@@ -12,7 +13,6 @@ from .utils import run, PROJECT_INFO
 
 GITHUB_COMMITTER_USERNAME = "CI"
 GITHUB_COMMITTER_EMAIL = "mattjw+CI@mattjw.net"
-GITHUB_WRITE_TOKEN_ENV_VAR = "GITHUB_WRITE_TOKEN"
 
 #
 # Commands
@@ -102,27 +102,30 @@ def prepare_release():
     github_push(next_ver_info.next_tag)
 
 
+def debug_auto_git_tag():
+    """
+    Take the current commit, push it as a tag to the upstream Github repo.
+
+    For debug purposes, to verify if the CI runner can push to Github.
+    """
+    formatted_time = datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
+    tag_name = f"debug-gh-tagger-{formatted_time}"
+
+    print()
+    run(f"git tag {tag_name}", hide=None, echo=True)
+    github_push(tag_name)
+
+
 #
 # Utils
 
 
 def github_push(branch: str):
-    """Push to branch (or tag) `branch`, using github write token."""
-    origin_url = run("git config --get remote.origin.url", warn=True, hide="stdout").stdout
-    match = re.match(r"git@github.com:(.+.git)", origin_url)
-    if match is None:
-        print(f"Unexpected github origin URL format: {origin_url}")
-        exit(1)
-    remote_url = "@github.com/" + match.group(1)
-    print(f"Using git remote: {remote_url}")
-
-    token = os.getenv(GITHUB_WRITE_TOKEN_ENV_VAR)
-    if token is None:
-        print(f"Could not find Github token in env var '{GITHUB_WRITE_TOKEN_ENV_VAR}'")
-        exit(1)
-
-    print(f"Pushing: {branch}")
-    run(f"git push https://{token}@${remote_url} {branch}", echo=False)  # never echo this; contains github token
+    """Push to branch (or tag) `branch`."""
+    # This assumes that the host machine has permission to push. Or, more formally,
+    # the account (i.e., SSH identity) is auth'd to do that push
+    remote = "origin"
+    run(f"git push {remote} {branch}", echo=False)
 
 
 @dataclass

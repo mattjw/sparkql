@@ -145,13 +145,35 @@ hold step via the
 
 #### CI setup
 
-The release process requires the following secrets:
+The release process requires the following permissions and secrets.
 
-- `GITHUB_WRITE_TOKEN_ENV_VAR`:
-- `PYPI_USERNAME`
-- `PYPI_TOKEN`
+**Github repo**: The CI runner (i.e., CircleCI) needs read and write access to the upstream
+Github repo. This is currently implemented using a read-write deploy key. For more info, refer
+to the project's
+[CircleCI ssh page](https://app.circleci.com/settings/project/github/mattjw/sparkql/ssh)
+and the CircleCI docs on
+[Setting up new SSH keys](https://circleci.com/docs/github-integration/#create-additional-github-ssh-keys)
 
-poetry publish --build --username "$PYPI_USERNAME" --password "$PYPI_TOKEN" --no-interaction
+**Publishing to PyPI**: Two env vars should be set up. Via the CircleCI
+[env vars page](https://app.circleci.com/settings/project/github/mattjw/sparkql/environment-variables)
+for the
+project.
+
+- `PYPI_USERNAME`: Set to `__token__`. (Because this is using token-based auth.)
+- `PYPI_TOKEN`: The secret.
+
+#### Debugging interaction between CI runner and Github
+
+It can be useful to check that the CI runner (currently, CircleCI) can correctly
+write to the Github repo. And it is useful to do this without creating a genuine
+tag or release to PyPI.
+
+To debug this, a special branch `debug-github-tag-push` has an associated debug
+workflow that will attempt to push a git tag to the Github repo. For every commit,
+it will push a new `debug-gh-tagger-...` tag.
+
+It is good to clean these up from time to time. All tags can be found at on the
+[tags page](https://github.com/mattjw/sparkql/tags).
 
 ### Making a new release by hand
 
