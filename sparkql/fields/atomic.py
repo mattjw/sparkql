@@ -65,9 +65,21 @@ class Short(IntegralField):
 class Decimal(FractionalField):
     """Field for Spark's DecimalType."""
 
+    __precision: int
+    __scale: int
+
+    def __init__(self, precision: int = 10, scale: int = 0, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        self.__precision = precision
+        self.__scale = scale
+
     @property
     def _spark_type_class(self) -> Type[DataType]:
         return DecimalType
+
+    @property
+    def _spark_data_type(self) -> DataType:
+        return DecimalType(self.__precision, self.__scale)
 
     def _validate_on_value(self, value: Any) -> None:
         super()._validate_on_value(value)
