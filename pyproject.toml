@@ -36,6 +36,7 @@ typecheck = "tasks:typecheck"
 verify-all = "tasks:verify_all"
 find-releasable-changes = "tasks:find_releasable_changes"
 prepare-release = "tasks:prepare_release"
+debug-auto-git-tag = "tasks:debug_auto_git_tag"
 
 [tool.black]
 line-length = 120
