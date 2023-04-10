@@ -52,12 +52,13 @@ def test_atomics_have_correct_spark_type_classes(sparkql_field_class, spark_type
     assert field_instance._spark_type_class is spark_type_class
 
 
-def test_decimal_precision_and_scale():
-    d = Decimal()
-    assert d._spark_data_type == DecimalType(10, 0)
-
-    d = Decimal(12)
-    assert d._spark_data_type == DecimalType(12, 0)
-
-    d = Decimal(12, 5)
-    assert d._spark_data_type == DecimalType(12, 5)
+@pytest.mark.parametrize(
+    "sparkql_field, spark_type",
+    [
+        [Decimal(), DecimalType(10, 0)],
+        [Decimal(12), DecimalType(12, 0)],
+        [Decimal(12, 5), DecimalType(12, 5)],
+    ],
+)
+def test_decimal_precision_and_scale(sparkql_field, spark_type):
+    assert sparkql_field._spark_data_type == spark_type
