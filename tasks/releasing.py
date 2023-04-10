@@ -3,6 +3,7 @@ import os
 import re
 from dataclasses import dataclass
 from typing import Optional
+from datetime import datetime
 
 from invoke import Result
 import tomlkit
@@ -99,6 +100,20 @@ def prepare_release():
     print()
     run(f"git tag {next_ver_info.next_tag}", hide=None, echo=True)
     github_push(next_ver_info.next_tag)
+
+
+def debug_auto_git_tag():
+    """
+    Take the current commit, push it as a tag to the upstream Github repo.
+
+    For debug purposes, to verify if the CI runner can push to Github.
+    """
+    formatted_time = datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
+    tag_name = f"debug-gh-tagger-{formatted_time}"
+
+    print()
+    run(f"git tag {tag_name}", hide=None, echo=True)
+    github_push(tag_name)
 
 
 #
