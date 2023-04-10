@@ -143,6 +143,19 @@ merge to `master`. To make a release, approve the `request_release`
 hold step via the
 [CircleCI interface](https://circleci.com/gh/mattjw/workflows/sparkql/tree/master).
 
+### Debugging interaction between CI runner and Github
+
+It can be useful to check that the CI runner (currently, CircleCI) can correctly
+write to the Github repo. And it is useful to do this without creating a genuine
+tag or release to PyPI.
+
+To debug this, a special branch `debug-github-tag-push` has an associated debug
+workflow that will attempt to push a git tag to the Github repo. For every commit,
+it will push a new `debug-gh-tagger-...` tag.
+
+It is good to clean these up from time to time. All tags can be found at on the
+[tags page](https://github.com/mattjw/sparkql/tags).
+
 ### Making a new release by hand
 
 First, ensure you are on an up-to-date `master` branch. 
