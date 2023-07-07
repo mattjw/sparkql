@@ -84,6 +84,7 @@ class _SchemaMerger:
             name=field_a.name,
             dataType=cls.merge_types(field_a.dataType, field_b.dataType, parent_field_name=field_a.name),
             nullable=field_a.nullable,
+            metadata={**(field_a.metadata or {}), **(field_b.metadata or {})},
         )
 
     #
