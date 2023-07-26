@@ -31,8 +31,13 @@ class Array(Generic[ArrayElementType], BaseField):
 
     e: ArrayElementType  # pytype: disable=not-supported-yet  # pylint: disable=invalid-name
 
-    def __init__(self, element: ArrayElementType, nullable: bool = True,
-                 name: Optional[str] = None, metadata: Optional[Dict[str, Any]] = None):
+    def __init__(
+        self,
+        element: ArrayElementType,
+        nullable: bool = True,
+        name: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+    ):
         super().__init__(nullable=nullable, name=name, metadata=metadata)
 
         if not isinstance(element, BaseField):

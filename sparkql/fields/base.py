@@ -39,8 +39,7 @@ class BaseField(ABC):
     _parent_struct: Optional["Struct"] = None  # pytype: disable=name-error
     __metadata: Optional[dict] = None
 
-    def __init__(self, nullable: bool = True, name: Optional[str] = None,
-                 metadata: Optional[Dict[str, Any]] = None):
+    def __init__(self, nullable: bool = True, name: Optional[str] = None, metadata: Optional[Dict[str, Any]] = None):
         """
         Constructor for a base field.
 

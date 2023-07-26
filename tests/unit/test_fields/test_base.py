@@ -14,14 +14,13 @@ class TestBaseField:
     @staticmethod
     def should_give_correct_info_string(float_field: Float):
         assert (
-            float_field._info()
-            == "<Float\n"
-               "  spark type = FloatType\n"
-               "  nullable = True\n"
-               "  name = None <- [None, None]\n"
-               "  parent = None\n"
-               "  metadata = None\n"
-               ">"
+            float_field._info() == "<Float\n"
+            "  spark type = FloatType\n"
+            "  nullable = True\n"
+            "  name = None <- [None, None]\n"
+            "  parent = None\n"
+            "  metadata = None\n"
+            ">"
         )
 
     @staticmethod
