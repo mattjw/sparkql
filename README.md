@@ -240,7 +240,7 @@ before runtime.
 
 ### Field metadata
 
-Field metadata can be specified with the `metadata` argument to a field, which accepts a dictionary
+Field [metadata](https://spark.apache.org/docs/latest/api/python/reference/pyspark.sql/api/pyspark.sql.types.StructField.html) can be specified with the `metadata` argument to a field, which accepts a dictionary
 of key-value pairs.
 
 ```python
