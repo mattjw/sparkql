@@ -189,9 +189,7 @@ class BaseField(ABC):
 
     @property
     def METADATA(self) -> Dict[str, Any]:
-        """
-        The metadata for this field.
-        """
+        """The metadata for this field."""
         return self._metadata
 
     #
