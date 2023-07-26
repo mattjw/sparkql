@@ -15,6 +15,7 @@ from sparkql.fields.atomic import (
     Timestamp,
 )
 from sparkql.fields.array import Array
+from sparkql.fields.map import Map
 from sparkql.fields.struct import Struct
 
 
@@ -32,5 +33,6 @@ __all__ = [
     "Date",
     "Timestamp",
     "Array",
+    "Map",
     "Struct",
 ]
