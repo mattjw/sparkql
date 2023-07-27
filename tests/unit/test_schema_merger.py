@@ -165,3 +165,51 @@ class TestMergeSchemas:
         # when, then
         with expected_error:
             merge_schemas(schema_a, schema_b)
+
+    @staticmethod
+    @pytest.mark.parametrize(
+        "schema_a, schema_b, expected_error",
+        [
+            pytest.param(
+                StructType([StructField("a_field", StringType(), metadata={"key": "value"})]),
+                StructType([StructField("a_field", StringType(), metadata={"key": "another_value"})]),
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(
+                        "Cannot merge due to a conflict in field metadata. Metadata of field A is {'key': 'value'}. Metadata of field B is {'key': 'another_value'}. "
+                    ),
+                ),
+                id="fields-with-duplicate-metadata-keys",
+            )
+        ],
+    )
+    def should_fail_to_merge_when_metadata_keys_are_not_unique(schema_a: ArrayType, schema_b: ArrayType, expected_error):
+        # given ^
+
+        # when, then
+        with expected_error:
+            merge_schemas(schema_a, schema_b)
+
+    @staticmethod
+    @pytest.mark.parametrize(
+        "schema_a, schema_b, expected_schema",
+        [
+            pytest.param(
+                StructType([StructField("a_field", StringType(), metadata={"key": "value", "another_key": "value"})]),
+                StructType([StructField("a_field", StringType(), metadata={"key": "value"})]),
+                StructType([StructField("a_field", StringType(), metadata={"key": "value", "another_key": "value"})]),
+                id="fields-with-duplicate-metadata-keys-but-same-value",
+            ),
+        ],
+    )
+    def should_merge_when_shared_metadata_keys_have_same_value(schema_a: StructType, schema_b: StructType, expected_schema: StructType):
+        # given ^
+
+        merged_schema = merge_schemas(schema_a, schema_b)
+
+        # then
+        assert merged_schema.jsonValue() == expected_schema.jsonValue()
+
+        # ...expect distinct objects
+        assert merged_schema is not schema_a
+        assert merged_schema is not schema_b
