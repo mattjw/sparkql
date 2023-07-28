@@ -33,11 +33,15 @@ class BaseField(ABC):
     #   is responsible for setting the contextual name.
     # The explicit name, if provided, will override the contextual name.
 
+    # Placeholders for private instance variables received via the constructor. (Represented here
+    # for convenience only; these will be overwritten.)
     __nullable: bool = True
     __name_explicit: Optional[str] = None
     __name_contextual: Optional[str] = None
+    __metadata: dict = {}  # must be overwritten in constructor
+
+    # Placeholder for "protected" style variable. (Again, represented only for convenience.)
     _parent_struct: Optional["Struct"] = None  # pytype: disable=name-error
-    __metadata: Optional[dict] = None
 
     def __init__(self, nullable: bool = True, name: Optional[str] = None, metadata: Optional[Dict[str, Any]] = None):
         """
@@ -46,11 +50,13 @@ class BaseField(ABC):
         Args:
             nullable: Is this field nullable.
             name: Field name. If None, field name will be identified via ivar context resolution.
-            metadata: Metadata for this field; a native
+            metadata:
+                Metadata for this field. Metadata is a native feature of Spark and PySpark, allowing a field to be annotated.
+                If None, then metadata will be treated as an empty dictionary.
         """
         self.__nullable = nullable
         self.__name_explicit = name
-        self.__metadata = metadata
+        self.__metadata = {} if metadata is None else dict(metadata)
 
     #
     # Nullability
