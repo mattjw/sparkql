@@ -251,28 +251,28 @@ class TestMergeSchemas:
 
         # then
         assert merged_schema.jsonValue() == expected_schema.jsonValue()
-        assert merged_schema == expected_schema
+        assert merged_schema == expected_schema  # oops. this is actually just spark
         raise Exception(
             f"""
 schema_a
 {schema_a}
-{schema_a.some_field}
-{schema_a.some_field.METADATA}
+{schema_a["some_field"]}
+{schema_a["some_field"].metadata}
 
 schema_b
 {schema_b}
-{schema_b.some_field}
-{schema_b.some_field.METADATA}
+{schema_b["some_field"]}
+{schema_b["some_field"].metadata}
 
 merged_schema
 {merged_schema}
-{merged_schema.some_field}
-{merged_schema.some_field.METADATA}
+{merged_schema["some_field"]}
+{merged_schema["some_field"].metadata}
 
 expected_schema
 {expected_schema}
-{expected_schema.some_field}
-{expected_schema.some_field.METADATA}
+{expected_schema["some_field"]}
+{expected_schema["some_field"].metadata}
 """
         )
 
