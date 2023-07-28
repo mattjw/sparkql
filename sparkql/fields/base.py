@@ -46,7 +46,7 @@ class BaseField(ABC):
         Args:
             nullable: Is this field nullable.
             name: Field name. If None, field name will be identified via ivar context resolution.
-            metadata: Metadata for this field; a native 
+            metadata: Metadata for this field; a native
         """
         self.__nullable = nullable
         self.__name_explicit = name
