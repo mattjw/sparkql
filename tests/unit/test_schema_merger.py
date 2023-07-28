@@ -237,21 +237,13 @@ class TestMergeSchemas:
                 id="right-hand-schema-has-null-metadata",
             ),
             pytest.param(
-                StructType([
-                    StructField(
-                        "some_field",
-                        StructType([StructField("nested_field", StringType())]),
-                        metadata=None
-                    )
-                ]),
+                StructType(
+                    [StructField("some_field", StructType([StructField("nested_field", StringType())]), metadata=None)]
+                ),
                 StructType([StructField("some_field", StructType(), metadata=None)]),
-                StructType([
-                    StructField(
-                        "some_field",
-                        StructType([StructField("nested_field", StringType())]),
-                        metadata=None
-                    )
-                ]),
+                StructType(
+                    [StructField("some_field", StructType([StructField("nested_field", StringType())]), metadata=None)]
+                ),
                 id="left-hand-schema-has-null-metadata",
             ),
         ],
