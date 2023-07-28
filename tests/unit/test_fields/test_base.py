@@ -19,7 +19,7 @@ class TestBaseField:
             "  nullable = True\n"
             "  name = None <- [None, None]\n"
             "  parent = None\n"
-            "  metadata = None\n"
+            "  metadata = {}\n"
             ">"
         )
 
@@ -57,13 +57,18 @@ class TestBaseField:
             pytest.param(Float(), "<Nullable Float: None>", id="instance with default constructor"),
             pytest.param(
                 Float(metadata={}),
-                "<Nullable Float (with 0 metadata item(s)): None>",
+                "<Nullable Float: None>",
                 id="instance with empty metadata",
             ),
             pytest.param(
                 Float(metadata={"a": "b"}),
-                "<Nullable Float (with 1 metadata item(s)): None>",
-                id="instance with metadata",
+                "<Nullable Float [with 1 metadata item]: None>",
+                id="instance with one metadata item",
+            ),
+            pytest.param(
+                Float(metadata={"a": "b", "x": "y"}),
+                "<Nullable Float [with 2 metadata items]: None>",
+                id="instance with two metadata items",
             ),
         ],
     )

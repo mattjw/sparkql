@@ -137,7 +137,7 @@ class TestMetadata:
         [
             pytest.param(Article.author, {}, id="empty-dictionary-metadata"),
             pytest.param(User.bio, {"description": "Short biography"}, id="metadata-with-single-field"),
-            pytest.param(User.full_name, None, id="unset-metadata"),
+            pytest.param(User.full_name, {}, id="unset-metadata"),
         ],
     )
     def test_metadata_is_correct(input_field, expected_metadata):

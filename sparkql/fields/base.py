@@ -264,10 +264,13 @@ class BaseField(ABC):
         """Short info string for use in error messages."""
         nullable = "Nullable " if self._is_nullable else ""
 
-        if self.__metadata is not None:
-            metadata = f" (with {len(self.__metadata)} metadata item(s))"
-        else:
+        num_metadata_items = len(self.__metadata)
+        if num_metadata_items == 0:
             metadata = ""
+        elif num_metadata_items == 1:
+            metadata = f" [with {num_metadata_items} metadata item]"
+        else:
+            metadata = f" [with {num_metadata_items} metadata items]"
 
         return f"<{nullable}{self.__class__.__name__}{metadata}: {self._resolve_field_name()}>"
 
