@@ -251,6 +251,7 @@ class TestMergeSchemas:
 
         # then
         assert merged_schema.jsonValue() == expected_schema.jsonValue()
+        assert merged_schema == expected_schema
 
         # ...expect distinct objects
         assert merged_schema is not schema_a
