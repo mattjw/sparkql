@@ -256,7 +256,13 @@ class BaseField(ABC):
     def _short_info(self):
         """Short info string for use in error messages."""
         nullable = "Nullable " if self._is_nullable else ""
-        return f"<{nullable}{self.__class__.__name__}: {self._resolve_field_name()}>"
+
+        if self.__metadata is not None:
+            metadata = f" (with {len(self.__metadata)} metadata items(s))"
+        else:
+            metadata = ""
+
+        return f"<{nullable}{self.__class__.__name__}{metadata}: {self._resolve_field_name()}>"
 
     def __hash__(self):
         return hash((self._is_nullable, self._resolve_field_name(""), self._spark_type_class))
