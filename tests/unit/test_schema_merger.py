@@ -183,9 +183,7 @@ class TestMergeSchemas:
             )
         ],
     )
-    def should_fail_to_merge_metadata_when(
-        schema_a: ArrayType, schema_b: ArrayType, expected_error
-    ):
+    def should_fail_to_merge_metadata_when(schema_a: ArrayType, schema_b: ArrayType, expected_error):
         # given ^
 
         # when, then
@@ -204,9 +202,7 @@ class TestMergeSchemas:
             ),
         ],
     )
-    def should_merge_metadata_when(
-        schema_a: StructType, schema_b: StructType, expected_schema: StructType
-    ):
+    def should_merge_metadata_when(schema_a: StructType, schema_b: StructType, expected_schema: StructType):
         # given ^
 
         merged_schema = merge_schemas(schema_a, schema_b)
