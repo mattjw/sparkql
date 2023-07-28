@@ -219,3 +219,39 @@ class TestMergeSchemas:
         # ...expect distinct objects
         assert merged_schema is not schema_a
         assert merged_schema is not schema_b
+
+    @staticmethod
+    @pytest.mark.parametrize(
+        "schema_a, schema_b, expected_schema",
+        [
+            pytest.param(
+                StructType([StructField("some_field", StringType(), metadata={"key": "value"})]),
+                StructType([StructField("some_field", StringType(), metadata=None)]),
+                StructType([StructField("some_field", StringType(), metadata={"key": "value"})]),
+                id="right-hand-schema-has-null-metadata",
+            ),
+            pytest.param(
+                StructType([StructField("some_field", StringType(), metadata=None)]),
+                StructType([StructField("some_field", StringType(), metadata={"key": "value"})]),
+                StructType([StructField("some_field", StringType(), metadata={"key": "value"})]),
+                id="left-hand-schema-has-null-metadata",
+            ),
+            pytest.param(
+                StructType([StructField("some_field", StringType(), metadata=None)]),
+                StructType([StructField("some_field", StringType(), metadata=None)]),
+                StructType([StructField("some_field", StringType(), metadata=None)]),
+                id="both-schemas-have-null-metadata",
+            ),
+        ],
+    )
+    def should_correctly_merge_metadata_when(schema_a: StructType, schema_b: StructType, expected_schema: StructType):
+        # given ^
+
+        merged_schema = merge_schemas(schema_a, schema_b)
+
+        # then
+        assert merged_schema.jsonValue() == expected_schema.jsonValue()
+
+        # ...expect distinct objects
+        assert merged_schema is not schema_a
+        assert merged_schema is not schema_b
