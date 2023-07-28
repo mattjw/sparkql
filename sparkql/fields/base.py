@@ -40,7 +40,7 @@ class BaseField(ABC):
     __name_contextual: Optional[str] = None
     __metadata: dict = {}  # must be overwritten in constructor
 
-    # Placeholder for "protected" style variable. (Again, represented only for convenience.)
+    # Placeholder for "protected" style variables. (Again, represented only for convenience.)
     _parent_struct: Optional["Struct"] = None  # pytype: disable=name-error
 
     def __init__(self, nullable: bool = True, name: Optional[str] = None, metadata: Optional[Dict[str, Any]] = None):
