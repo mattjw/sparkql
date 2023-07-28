@@ -51,8 +51,8 @@ class BaseField(ABC):
             nullable: Is this field nullable.
             name: Field name. If None, field name will be identified via ivar context resolution.
             metadata:
-                Metadata for this field. Metadata is a native feature of Spark and PySpark, allowing a field to be annotated.
-                If None, then metadata will be treated as an empty dictionary.
+                Metadata for this field. Metadata is a native feature of Spark and PySpark, allowing a field to be
+                annotated. If None, then metadata will be treated as an empty dictionary.
         """
         self.__nullable = nullable
         self.__name_explicit = name
