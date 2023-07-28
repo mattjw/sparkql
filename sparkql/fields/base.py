@@ -38,7 +38,7 @@ class BaseField(ABC):
     __nullable: bool = True
     __name_explicit: Optional[str] = None
     __name_contextual: Optional[str] = None
-    __metadata: dict = {}  # must be overwritten in constructor
+    __metadata: Dict[str, Any] = {}  # must be overwritten in constructor
 
     # Placeholder for "protected" style variables. (Again, represented only for convenience.)
     _parent_struct: Optional["Struct"] = None  # pytype: disable=name-error
