@@ -258,7 +258,7 @@ class BaseField(ABC):
         nullable = "Nullable " if self._is_nullable else ""
 
         if self.__metadata is not None:
-            metadata = f" (with {len(self.__metadata)} metadata items(s))"
+            metadata = f" (with {len(self.__metadata)} metadata item(s))"
         else:
             metadata = ""
 
