@@ -1,3 +1,4 @@
+import pytest
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as sql_funcs
 from pyspark.sql.types import StructField, StringType
@@ -8,11 +9,11 @@ from sparkql import accessors
 
 class User(Struct):
     full_name = String(nullable=False)
-    bio = String(name="biography", nullable=False)
+    bio = String(name="biography", nullable=False, metadata={"description": "Short biography"})
 
 
 class Article(Struct):
-    author = User()
+    author = User(metadata={})
 
 
 class Message(Struct):
@@ -127,6 +128,29 @@ class TestName:
 
         # then
         assert field_name == "full_name"
+
+
+class TestMetadata:
+    @staticmethod
+    @pytest.mark.parametrize(
+        "input_field, expected_metadata",
+        [
+            (Article.author, {}),
+            (User.bio, {"description": "Short biography"}),
+            (User.full_name, None),
+        ],
+    )
+    def test_metadata_is_correct(input_field, expected_metadata):
+        # given (see above)
+
+        # when
+        metadata = accessors.metadata(input_field)
+
+        # then
+        if expected_metadata is None:
+            assert metadata is None
+        else:
+            assert metadata == expected_metadata
 
 
 class TestStructField:
