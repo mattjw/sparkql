@@ -252,7 +252,8 @@ class TestMergeSchemas:
         # then
         assert merged_schema.jsonValue() == expected_schema.jsonValue()
         assert merged_schema == expected_schema
-        raise Exception(f"""
+        raise Exception(
+            f"""
 schema_a
 {schema_a}
 {schema_a.some_field}
@@ -272,7 +273,8 @@ expected_schema
 {expected_schema}
 {expected_schema.some_field}
 {expected_schema.some_field.METADATA}
-""")
+"""
+        )
 
         # ...expect distinct objects
         assert merged_schema is not schema_a
