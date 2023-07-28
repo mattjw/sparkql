@@ -171,8 +171,8 @@ class TestMergeSchemas:
         "schema_a, schema_b, expected_error",
         [
             pytest.param(
-                StructType([StructField("a_field", StringType(), metadata={"key": "value"})]),
-                StructType([StructField("a_field", StringType(), metadata={"key": "another_value"})]),
+                StructType([StructField("some_field", StringType(), metadata={"key": "value"})]),
+                StructType([StructField("some_field", StringType(), metadata={"key": "another_value"})]),
                 pytest.raises(
                     ValueError,
                     match=re.escape(
@@ -183,7 +183,7 @@ class TestMergeSchemas:
             )
         ],
     )
-    def should_fail_to_merge_metadata_when(schema_a: ArrayType, schema_b: ArrayType, expected_error):
+    def should_fail_to_merge_overlapping_metadata_when(schema_a: ArrayType, schema_b: ArrayType, expected_error):
         # given ^
 
         # when, then
@@ -195,14 +195,14 @@ class TestMergeSchemas:
         "schema_a, schema_b, expected_schema",
         [
             pytest.param(
-                StructType([StructField("a_field", StringType(), metadata={"key": "value", "another_key": "value"})]),
-                StructType([StructField("a_field", StringType(), metadata={"key": "value"})]),
-                StructType([StructField("a_field", StringType(), metadata={"key": "value", "another_key": "value"})]),
+                StructType([StructField("some_field", StringType(), metadata={"key": "value", "another_key": "value"})]),
+                StructType([StructField("some_field", StringType(), metadata={"key": "value"})]),
+                StructType([StructField("some_field", StringType(), metadata={"key": "value", "another_key": "value"})]),
                 id="fields-have-duplicate-metadata-keys-but-same-value",
             ),
         ],
     )
-    def should_successfully_merge_metadata_when(schema_a: StructType, schema_b: StructType, expected_schema: StructType):
+    def should_successfully_merge_overlapping_metadata_when(schema_a: StructType, schema_b: StructType, expected_schema: StructType):
         # given ^
 
         merged_schema = merge_schemas(schema_a, schema_b)
