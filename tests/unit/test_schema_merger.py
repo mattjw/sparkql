@@ -273,6 +273,9 @@ expected_schema
 {expected_schema}
 {expected_schema["some_field"]}
 {expected_schema["some_field"].metadata}
+
+spark's idea of equality by metadata
+{StructType([StructField("some_field", StringType(), metadata=None)]) == StructType([StructField("some_field", StringType(), metadata={})])}
 """
         )
 
