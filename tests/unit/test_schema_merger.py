@@ -238,20 +238,8 @@ class TestMergeSchemas:
             ),
             pytest.param(
                 StructType([StructField("some_field", StringType(), metadata=None)]),
-                StructType(
-                    [
-                        StructField("some_field", StringType(), metadata=None),
-                        StructField(
-                            "other_field", StringType(), metadata=None
-                        ),  # ^ field not relevant to the comparison of 'some_field'. Just here to ensure that merging happens
-                    ]
-                ),
-                StructType(
-                    [
-                        StructField("some_field", StringType(), metadata=None),
-                        StructField("other_field", StringType(), metadata=None),
-                    ]
-                ),
+                StructType([StructField("some_field", StringType(), metadata=None)]),
+                StructType([StructField("some_field", StringType(), metadata=None)]),
                 id="both-schemas-have-null-metadata",
             ),
         ],

@@ -92,16 +92,11 @@ class _SchemaMerger:
                     )
                 )
 
-        if (field_a.metadata is None) and (field_b.metadata is None):
-            metadata = None
-        else:
-            metadata = {**(field_a.metadata or {}), **(field_b.metadata or {})}
-
         return StructField(
             name=field_a.name,
             dataType=cls.merge_types(field_a.dataType, field_b.dataType, parent_field_name=field_a.name),
             nullable=field_a.nullable,
-            metadata=metadata,
+            metadata={**(field_a.metadata or {}), **(field_b.metadata or {})},
         )
 
     #
