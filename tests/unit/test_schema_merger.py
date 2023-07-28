@@ -183,7 +183,9 @@ class TestMergeSchemas:
             )
         ],
     )
-    def should_fail_to_merge_when_metadata_keys_are_not_unique(schema_a: ArrayType, schema_b: ArrayType, expected_error):
+    def should_fail_to_merge_when_metadata_keys_are_not_unique(
+        schema_a: ArrayType, schema_b: ArrayType, expected_error
+    ):
         # given ^
 
         # when, then
@@ -202,7 +204,9 @@ class TestMergeSchemas:
             ),
         ],
     )
-    def should_merge_when_shared_metadata_keys_have_same_value(schema_a: StructType, schema_b: StructType, expected_schema: StructType):
+    def should_merge_when_shared_metadata_keys_have_same_value(
+        schema_a: StructType, schema_b: StructType, expected_schema: StructType
+    ):
         # given ^
 
         merged_schema = merge_schemas(schema_a, schema_b)
