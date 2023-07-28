@@ -240,7 +240,7 @@ class TestMergeSchemas:
                 StructType([StructField("some_field", StringType(), metadata=None)]),
                 StructType([StructField("some_field", StringType(), metadata={"key": "value"})]),
                 StructType([StructField("some_field", StringType(), metadata={"key": "value"})]),
-                id="right-hand-schema-has-null-metadata",
+                id="left-hand-schema-has-null-metadata",
             ),
         ],
     )
@@ -252,6 +252,27 @@ class TestMergeSchemas:
         # then
         assert merged_schema.jsonValue() == expected_schema.jsonValue()
         assert merged_schema == expected_schema
+        raise Exception(f"""
+schema_a
+{schema_a}
+{schema_a.some_field}
+{schema_a.some_field.METADATA}
+
+schema_b
+{schema_b}
+{schema_b.some_field}
+{schema_b.some_field.METADATA}
+
+merged_schema
+{merged_schema}
+{merged_schema.some_field}
+{merged_schema.some_field.METADATA}
+
+expected_schema
+{expected_schema}
+{expected_schema.some_field}
+{expected_schema.some_field.METADATA}
+""")
 
         # ...expect distinct objects
         assert merged_schema is not schema_a
