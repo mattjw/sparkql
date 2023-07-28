@@ -176,7 +176,7 @@ class TestMergeSchemas:
                 pytest.raises(
                     ValueError,
                     match=re.escape(
-                        "Cannot merge due to a conflict in field metadata. metadata of field A is {'key': 'value'}. metadata of field B is {'key': 'another_value'}. "
+                        "Cannot merge due to a conflict in field metadata. If both metadata share the same keys, those keys must have the same values. metadata of field A is {'key': 'value'}. metadata of field B is {'key': 'another_value'}. "
                     ),
                 ),
                 id="fields-have-duplicate-metadata-keys",
