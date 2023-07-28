@@ -202,7 +202,7 @@ class TestMergeSchemas:
             ),
         ],
     )
-    def should_merge_metadata_when(schema_a: StructType, schema_b: StructType, expected_schema: StructType):
+    def should_successfully_merge_metadata_when(schema_a: StructType, schema_b: StructType, expected_schema: StructType):
         # given ^
 
         merged_schema = merge_schemas(schema_a, schema_b)
