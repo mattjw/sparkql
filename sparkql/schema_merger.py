@@ -86,8 +86,8 @@ class _SchemaMerger:
                 raise ValueError(
                     _validation_error_message(
                         "Cannot merge due to a conflict in field metadata. "
-                        f"Metadata of field A is {field_a.metadata}. "
-                        f"Metadata of field B is {field_b.metadata}. ",
+                        f"metadata of field A is {field_a.metadata}. "
+                        f"metadata of field B is {field_b.metadata}. ",
                         parent_field_name=field_a.name,
                     )
                 )
