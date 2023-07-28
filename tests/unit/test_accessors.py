@@ -147,10 +147,7 @@ class TestMetadata:
         metadata = accessors.metadata(input_field)
 
         # then
-        if expected_metadata is None:
-            assert metadata is None
-        else:
-            assert metadata == expected_metadata
+        metadata == expected_metadata
 
 
 class TestStructField:
