@@ -179,11 +179,11 @@ class TestMergeSchemas:
                         "Cannot merge due to a conflict in field metadata. Metadata of field A is {'key': 'value'}. Metadata of field B is {'key': 'another_value'}. "
                     ),
                 ),
-                id="fields-with-duplicate-metadata-keys",
+                id="fields-have-duplicate-metadata-keys",
             )
         ],
     )
-    def should_fail_to_merge_when_metadata_keys_are_not_unique(
+    def should_fail_to_merge_metadata_when(
         schema_a: ArrayType, schema_b: ArrayType, expected_error
     ):
         # given ^
@@ -200,11 +200,11 @@ class TestMergeSchemas:
                 StructType([StructField("a_field", StringType(), metadata={"key": "value", "another_key": "value"})]),
                 StructType([StructField("a_field", StringType(), metadata={"key": "value"})]),
                 StructType([StructField("a_field", StringType(), metadata={"key": "value", "another_key": "value"})]),
-                id="fields-with-duplicate-metadata-keys-but-same-value",
+                id="fields-have-duplicate-metadata-keys-but-same-value",
             ),
         ],
     )
-    def should_merge_when_shared_metadata_keys_have_same_value(
+    def should_merge_metadata_when(
         schema_a: StructType, schema_b: StructType, expected_schema: StructType
     ):
         # given ^
