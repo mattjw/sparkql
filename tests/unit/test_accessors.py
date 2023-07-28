@@ -147,7 +147,7 @@ class TestMetadata:
         metadata = accessors.metadata(input_field)
 
         # then
-        metadata == expected_metadata
+        assert metadata == expected_metadata
 
 
 class TestStructField:
