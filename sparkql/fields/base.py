@@ -233,6 +233,7 @@ class BaseField(ABC):
             and self._is_nullable == other._is_nullable
             and self._resolve_field_name() == other._resolve_field_name()  # may be None == None
             and self._spark_type_class == other._spark_type_class
+            and self._metadata == other._metadata  # may be None == None
         )
 
     def __str__(self):
