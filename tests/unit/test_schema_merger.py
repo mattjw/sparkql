@@ -225,9 +225,13 @@ class TestMergeSchemas:
         "schema_a, schema_b, expected_schema",
         [
             pytest.param(
-                StructType([StructField("some_field", StringType(), metadata=None)]),
-                StructType([StructField("some_field", StringType(), metadata=None)]),
-                StructType([StructField("some_field", StringType(), metadata=None)]),
+                StructType(
+                    [StructField("some_field", StructType([StructField("nested_field", StringType())]), metadata=None)]
+                ),
+                StructType([StructField("some_field", StructType(), metadata=None)]),
+                StructType(
+                    [StructField("some_field", StructType([StructField("nested_field", StringType())]), metadata=None)]
+                ),
                 id="both-schemas-have-null-metadata",
             ),
             pytest.param(
@@ -237,14 +241,10 @@ class TestMergeSchemas:
                 id="right-hand-schema-has-null-metadata",
             ),
             pytest.param(
-                StructType(
-                    [StructField("some_field", StructType([StructField("nested_field", StringType())]), metadata=None)]
-                ),
-                StructType([StructField("some_field", StructType(), metadata=None)]),
-                StructType(
-                    [StructField("some_field", StructType([StructField("nested_field", StringType())]), metadata=None)]
-                ),
-                id="left-hand-schema-has-null-metadata",
+                StructType([StructField("some_field", StringType(), metadata=None)]),
+                StructType([StructField("some_field", StringType(), metadata={"key": "value"})]),
+                StructType([StructField("some_field", StringType(), metadata={"key": "value"})]),
+                id="right-hand-schema-has-null-metadata",
             ),
         ],
     )
@@ -255,6 +255,18 @@ class TestMergeSchemas:
 
         # then
         assert merged_schema.jsonValue() == expected_schema.jsonValue()
+        raise Exception(
+            f"""
+schema_a
+{schema_a.jsonValue()}
+
+schema_b
+{merged_schema.jsonValue()}
+
+merged_schema
+{merged_schema.jsonValue()}
+"""
+        )
 
         # ...expect distinct objects
         assert merged_schema is not schema_a
