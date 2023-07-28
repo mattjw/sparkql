@@ -237,9 +237,21 @@ class TestMergeSchemas:
                 id="right-hand-schema-has-null-metadata",
             ),
             pytest.param(
-                StructType([StructField("some_field", StringType(), metadata=None)]),
-                StructType([StructField("some_field", StringType(), metadata={"key": "value"})]),
-                StructType([StructField("some_field", StringType(), metadata={"key": "value"})]),
+                StructType([
+                    StructField(
+                        "some_field",
+                        StructType([StructField("nested_field", StringType())]),
+                        metadata=None
+                    )
+                ]),
+                StructType([StructField("some_field", StructType(), metadata=None)]),
+                StructType([
+                    StructField(
+                        "some_field",
+                        StructType([StructField("nested_field", StringType())]),
+                        metadata=None
+                    )
+                ]),
                 id="left-hand-schema-has-null-metadata",
             ),
         ],
@@ -251,15 +263,6 @@ class TestMergeSchemas:
 
         # then
         assert merged_schema.jsonValue() == expected_schema.jsonValue()
-        raise Exception(
-            f"""
-val: {merged_schema.jsonValue()}                     
-
-schema: {merged_schema}
-
-metadata: {merged_schema.some_field.METADATA}
-"""
-        )
 
         # ...expect distinct objects
         assert merged_schema is not schema_a
