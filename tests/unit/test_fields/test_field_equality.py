@@ -92,10 +92,10 @@ class TestEquality:
     @pytest.mark.parametrize(
         "value_a, value_b, expected_is_equal",
         [
-            pytest.param(String(), String(metadata={}), False, id="default-versus-empty-dict-lhs"),
-            pytest.param(String(metadata={}), String(), False, id="default-versus-empty-dict-rhs"),
-            pytest.param(String(metadata={}), String(metadata={"some_key": "some_value"}), False, id="different-dicts"),
-            pytest.param(String(metadata={}), String(metadata={}), True, id="both-empty-dicts"),
+            pytest.param(String(), String(metadata={}), True, id="default versus explicit empty dict lhs"),
+            pytest.param(String(metadata={}), String(), True, id="default versus explicit empty dict rhs"),
+            pytest.param(String(metadata={}), String(metadata={"some_key": "some_value"}), False, id="different dicts"),
+            pytest.param(String(metadata={}), String(metadata={}), True, id="both empty dicts"),
         ],
     )
     def test_comparison_by_metadata(value_a, value_b, expected_is_equal):
