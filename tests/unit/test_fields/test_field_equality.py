@@ -97,7 +97,7 @@ class TestEquality:
             pytest.param(String(), String(), True),
             pytest.param(String(metadata={}), String(metadata={}), True),
             pytest.param(String(metadata={}), String(metadata={"some_key": "some_value"}), True),
-        ]
+        ],
     )
     def test_comparison_by_metadata(value_a, value_b, expected_is_equal):
         # ^ given
