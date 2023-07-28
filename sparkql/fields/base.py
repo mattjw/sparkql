@@ -264,6 +264,7 @@ class BaseField(ABC):
         """Short info string for use in error messages."""
         nullable = "Nullable " if self._is_nullable else ""
 
+        # Good candidate for python pattern matching once <3.10 support no longer required
         num_metadata_items = len(self.__metadata)
         if num_metadata_items == 0:
             metadata = ""
