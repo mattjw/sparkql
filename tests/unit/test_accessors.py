@@ -162,4 +162,4 @@ class TestStructField:
         struct_field = accessors.struct_field(Article.author.bio)
 
         # then
-        assert struct_field == StructField("biography", StringType(), False)
+        assert struct_field == StructField("biography", StringType(), False, {"description": "Short biography"})
