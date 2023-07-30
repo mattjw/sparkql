@@ -2,7 +2,7 @@
 
 import copy
 from collections.abc import Sequence
-from typing import Optional, Generic, TypeVar, Any
+from typing import Optional, Generic, TypeVar, Any, Dict
 
 from pyspark.sql.types import ArrayType, StructField
 
@@ -31,8 +31,14 @@ class Array(Generic[ArrayElementType], BaseField):
 
     e: ArrayElementType  # pytype: disable=not-supported-yet  # pylint: disable=invalid-name
 
-    def __init__(self, element: ArrayElementType, nullable: bool = True, name: Optional[str] = None):
-        super().__init__(nullable=nullable, name=name)
+    def __init__(
+        self,
+        element: ArrayElementType,
+        nullable: bool = True,
+        name: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+    ):
+        super().__init__(nullable=nullable, name=name, metadata=metadata)
 
         if not isinstance(element, BaseField):
             raise ValueError(f"Array element must be a field. Found type: {type(element).__name__}")
@@ -107,6 +113,7 @@ class Array(Generic[ArrayElementType], BaseField):
                 containsNull=self.e._is_nullable,  # pylint: disable=protected-access
             ),
             nullable=self._is_nullable,
+            metadata=self._metadata,
         )
 
     def _validate_on_value(self, value: Any) -> None:

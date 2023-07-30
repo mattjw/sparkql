@@ -80,10 +80,24 @@ class _SchemaMerger:
                 )
             )
 
+        shared_metadata_keys = set(field_a.metadata.keys()) & set(field_b.metadata.keys())
+        if shared_metadata_keys:
+            if any(field_a.metadata[key] != field_b.metadata[key] for key in shared_metadata_keys):
+                raise ValueError(
+                    _validation_error_message(
+                        "Cannot merge due to a conflict in field metadata. "
+                        "If both metadata share the same keys, those keys must have the same values. "
+                        f"metadata of field A is {field_a.metadata}. "
+                        f"metadata of field B is {field_b.metadata}. ",
+                        parent_field_name=field_a.name,
+                    )
+                )
+
         return StructField(
             name=field_a.name,
             dataType=cls.merge_types(field_a.dataType, field_b.dataType, parent_field_name=field_a.name),
             nullable=field_a.nullable,
+            metadata={**(field_a.metadata or {}), **(field_b.metadata or {})},
         )
 
     #

@@ -1,3 +1,4 @@
+import pytest
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as sql_funcs
 from pyspark.sql.types import StructField, StringType
@@ -8,11 +9,11 @@ from sparkql import accessors
 
 class User(Struct):
     full_name = String(nullable=False)
-    bio = String(name="biography", nullable=False)
+    bio = String(name="biography", nullable=False, metadata={"description": "Short biography"})
 
 
 class Article(Struct):
-    author = User()
+    author = User(metadata={})
 
 
 class Message(Struct):
@@ -129,6 +130,26 @@ class TestName:
         assert field_name == "full_name"
 
 
+class TestMetadata:
+    @staticmethod
+    @pytest.mark.parametrize(
+        "input_field, expected_metadata",
+        [
+            pytest.param(Article.author, {}, id="empty dictionary metadata"),
+            pytest.param(User.bio, {"description": "Short biography"}, id="metadata with single field"),
+            pytest.param(User.full_name, {}, id="unset metadata"),
+        ],
+    )
+    def test_metadata_is_correct(input_field, expected_metadata):
+        # given (see above)
+
+        # when
+        metadata = accessors.metadata(input_field)
+
+        # then
+        assert metadata == expected_metadata
+
+
 class TestStructField:
     @staticmethod
     def test_struct_field_is_correct():
@@ -138,4 +159,4 @@ class TestStructField:
         struct_field = accessors.struct_field(Article.author.bio)
 
         # then
-        assert struct_field == StructField("biography", StringType(), False)
+        assert struct_field == StructField("biography", StringType(), False, {"description": "Short biography"})
