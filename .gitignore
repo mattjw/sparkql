@@ -275,6 +275,5 @@ dmypy.json
 
 # End of https://www.gitignore.io/api/macos,python,pycharm+all,intellij+all
 
-.pytype
 reports/
 .venv

@@ -1,20 +1,19 @@
 """Base field and abstract fields."""
 
 from abc import ABC, abstractmethod
-from typing import Optional, Type, Any, Tuple, Sequence
+from typing import Optional, Type, Any, Tuple, Sequence, TYPE_CHECKING, cast
 import copy
 
 from pyspark.sql import types as sql_type, Column
 from pyspark.sql import functions as sql_funcs
 from pyspark.sql.types import StructField, DataType
 
+if TYPE_CHECKING:
+    from sparkql import Struct
 from sparkql.exceptions import FieldNameError, FieldParentError, FieldValueValidationError
 
 
-# pytype: disable=invalid-annotation
-
-
-def _validate_value_type_for_field(accepted_types: Tuple[Type, ...], value: Any):
+def _validate_value_type_for_field(accepted_types: Tuple[Type[Any], ...], value: Any) -> None:
     """Raise error if `value` is not compatible with types; None values are always permitted."""
     if value is not None and not isinstance(value, accepted_types):
         pretty_types = " ,".join("'" + accepted_type.__name__ + "'" for accepted_type in accepted_types)
@@ -36,7 +35,7 @@ class BaseField(ABC):
     __nullable: bool = True
     __name_explicit: Optional[str] = None
     __name_contextual: Optional[str] = None
-    _parent_struct: Optional["Struct"] = None  # pytype: disable=name-error
+    _parent_struct: Optional["Struct"] = None
 
     def __init__(self, nullable: bool = True, name: Optional[str] = None):
         """
@@ -61,10 +60,10 @@ class BaseField(ABC):
     # Field path chaining
 
     @property
-    def _parent(self) -> Optional["Struct"]:  # pytype: disable=name-error
+    def _parent(self) -> Optional["Struct"]:
         return self._parent_struct
 
-    def _replace_parent(self, parent: Optional["Struct"] = None) -> "BaseField":  # pytype: disable=name-error
+    def _replace_parent(self, parent: Optional["Struct"] = None) -> "BaseField":
         """Return a copy of this Field with the parent attribute set."""
         field = copy.copy(self)
         if self._parent_struct is not None:
@@ -96,7 +95,7 @@ class BaseField(ABC):
     def _contextual_name(self) -> Optional[str]:
         return self.__name_contextual
 
-    def _set_contextual_name(self, value: str):
+    def _set_contextual_name(self, value: str) -> None:
         # Intentionally not using an implicit setter here
         if self.__name_contextual is not None:
             raise FieldNameError(
@@ -118,7 +117,7 @@ class BaseField(ABC):
             )
         return name
 
-    def _resolve_field_name(self, default=None) -> Optional[str]:
+    def _resolve_field_name(self, default: Optional[str] = None) -> Optional[str]:
         """
         Resolve name for this field, or None if no concrete name set.
 
@@ -141,10 +140,10 @@ class BaseField(ABC):
         The result is context-specific and depends on the path to this field through nested structs (if any).
         """
         fields = [self]
-        parent = fields[0]._parent  # pylint: disable=protected-access
+        parent = self._parent  # pylint: disable=protected-access
         while parent is not None:  # pylint: disable=protected-access
-            fields.insert(0, fields[0]._parent)  # pylint: disable=protected-access
-            parent = fields[0]._parent  # pytype: disable=attribute-error  # pylint: disable=protected-access
+            fields.insert(0, parent)
+            parent = parent._parent  # pylint: disable=protected-access
 
         assert all(
             field._resolve_field_name() is not None for field in fields  # pylint: disable=protected-access
@@ -199,9 +198,6 @@ class BaseField(ABC):
 
         Incompatibility may be due to incorrect nullability or incorrect type.
         """
-        # for acceptable type declarations according to pytype, see pytype source code:
-        #   types.py:1183
-        #   _acceptable_types = {...}
         if not self._is_nullable and value is None:
             msg = "Non-nullable field cannot have None value"
             if self._resolve_field_name() is not None:
@@ -222,13 +218,13 @@ class BaseField(ABC):
             and self._spark_type_class == other._spark_type_class
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Returns the name of this field."""
         # stringifying a field as its field adds some convenience for cases where we need the field
         # name
-        return self._resolve_field_name("")
+        return cast(str, self._resolve_field_name(""))
 
-    def _info(self):
+    def _info(self) -> str:
         """String formatted object with a more complete summary of this field, primarily for debugging."""
         return (
             f"<{self.__class__.__name__}\n"
@@ -239,15 +235,15 @@ class BaseField(ABC):
             ">"
         )
 
-    def _short_info(self):
+    def _short_info(self) -> str:
         """Short info string for use in error messages."""
         nullable = "Nullable " if self._is_nullable else ""
         return f"<{nullable}{self.__class__.__name__}: {self._resolve_field_name()}>"
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((self._is_nullable, self._resolve_field_name(""), self._spark_type_class))
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self._short_info()
 
 
@@ -366,7 +362,7 @@ class FractionalField(NumericField):
         super()._validate_on_value(value)
 
 
-def _pretty_path(path: Sequence[BaseField]):
+def _pretty_path(path: Sequence[BaseField]) -> str:
     """Build pretty string of path, for debug and/or error purposes."""
     # pylint: disable=protected-access
     return "< " + " -> ".join(f"'{field._resolve_field_name()}' ({type(field).__name__})" for field in path) + " >"

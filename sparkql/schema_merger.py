@@ -2,11 +2,9 @@
 
 from collections import OrderedDict
 from copy import copy
-from typing import Dict, Union, Optional, overload
+from typing import Dict, Union, Optional, overload, get_args, cast
 
-
-from pyspark.sql.types import StructType, StructField, ArrayType, AtomicType
-
+from pyspark.sql.types import StructType, StructField, ArrayType, AtomicType, DataType
 
 MergeableSparkDataType = Union[StructType, ArrayType, AtomicType]
 
@@ -47,6 +45,14 @@ def merge_schemas(type_a: MergeableSparkDataType, type_b: MergeableSparkDataType
 
 
 class _SchemaMerger:
+    @classmethod
+    def __validate_mergeable(cls, data_type: DataType) -> MergeableSparkDataType:
+        if not isinstance(data_type, get_args(MergeableSparkDataType)):
+            raise ValueError(
+                f"Data type is not mergeable, expected one of {get_args(MergeableSparkDataType)} but got {data_type}"
+            )
+        return cast(MergeableSparkDataType, data_type)
+
     """
     Merge two schemas.
 
@@ -82,7 +88,11 @@ class _SchemaMerger:
 
         return StructField(
             name=field_a.name,
-            dataType=cls.merge_types(field_a.dataType, field_b.dataType, parent_field_name=field_a.name),
+            dataType=cls.merge_types(
+                cls.__validate_mergeable(field_a.dataType),
+                cls.__validate_mergeable(field_b.dataType),
+                parent_field_name=field_a.name,
+            ),
             nullable=field_a.nullable,
         )
 
@@ -131,7 +141,9 @@ class _SchemaMerger:
         return StructType(list(fields.values()))
 
     @classmethod
-    def merge_array_types(cls, array_type_a: ArrayType, array_type_b: ArrayType, parent_field_name) -> ArrayType:
+    def merge_array_types(
+        cls, array_type_a: ArrayType, array_type_b: ArrayType, parent_field_name: Optional[str]
+    ) -> ArrayType:
         assert all(isinstance(obj, ArrayType) for obj in [array_type_a, array_type_b])
 
         if array_type_a.containsNull != array_type_b.containsNull:
@@ -146,7 +158,9 @@ class _SchemaMerger:
 
         return ArrayType(
             elementType=cls.merge_types(
-                array_type_a.elementType, array_type_b.elementType, parent_field_name=parent_field_name
+                cls.__validate_mergeable(array_type_a.elementType),
+                cls.__validate_mergeable(array_type_b.elementType),
+                parent_field_name=parent_field_name,
             ),
             containsNull=array_type_a.containsNull,
         )
