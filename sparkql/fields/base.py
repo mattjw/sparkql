@@ -66,7 +66,7 @@ class BaseField(ABC):
         return self.__nullable
 
     @property
-    def _metadata(self) -> Optional[Dict[str, Any]]:
+    def _metadata(self) -> Dict[str, Any]:
         """The metadata of this field."""
         return self.__metadata
 
