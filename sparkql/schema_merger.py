@@ -45,6 +45,12 @@ def merge_schemas(type_a: MergeableSparkDataType, type_b: MergeableSparkDataType
 
 
 class _SchemaMerger:
+    """
+    Merge two schemas.
+
+    See `merge_schemas` for detailed behaviour description.
+    """
+
     @classmethod
     def __validate_mergeable(cls, data_type: DataType) -> MergeableSparkDataType:
         if not isinstance(data_type, get_args(MergeableSparkDataType)):
@@ -52,12 +58,6 @@ class _SchemaMerger:
                 f"Data type is not mergeable, expected one of {get_args(MergeableSparkDataType)} but got {data_type}"
             )
         return cast(MergeableSparkDataType, data_type)
-
-    """
-    Merge two schemas.
-
-    See `merge_schemas` for detailed behaviour description.
-    """
 
     @classmethod
     def append_to_fields(cls, fields: Dict[str, StructField], field: StructField) -> None:

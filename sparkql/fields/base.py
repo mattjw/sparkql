@@ -7,10 +7,10 @@ import copy
 from pyspark.sql import types as sql_type, Column
 from pyspark.sql import functions as sql_funcs
 from pyspark.sql.types import StructField, DataType
+from sparkql.exceptions import FieldNameError, FieldParentError, FieldValueValidationError
 
 if TYPE_CHECKING:
     from sparkql import Struct
-from sparkql.exceptions import FieldNameError, FieldParentError, FieldValueValidationError
 
 
 def _validate_value_type_for_field(accepted_types: Tuple[Type[Any], ...], value: Any) -> None:

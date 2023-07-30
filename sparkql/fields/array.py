@@ -6,10 +6,11 @@ from typing import Optional, Generic, TypeVar, Any, Dict, Type, cast, TYPE_CHECK
 
 from pyspark.sql.types import ArrayType, StructField, DataType
 
-if TYPE_CHECKING:
-    from sparkql import Struct
 from sparkql.exceptions import FieldValueValidationError
 from sparkql.fields.base import BaseField
+
+if TYPE_CHECKING:
+    from sparkql import Struct
 
 
 ArrayElementType = TypeVar("ArrayElementType", bound=BaseField)  # pylint: disable=invalid-name
