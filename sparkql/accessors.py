@@ -28,6 +28,11 @@ def name(field: BaseField) -> str:
     return field.NAME
 
 
+def metadata(field: BaseField) -> dict:
+    """Return field metadata of field `field`; an alias of `BaseField.METADATA`."""
+    return field.METADATA
+
+
 def struct_field(field: BaseField) -> StructField:
     """Return the equivalent PySpark StructField of field `field`."""
     return field._spark_struct_field  # pylint: disable=protected-access

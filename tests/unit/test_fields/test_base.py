@@ -14,8 +14,13 @@ class TestBaseField:
     @staticmethod
     def should_give_correct_info_string(float_field: Float):
         assert (
-            float_field._info()
-            == "<Float\n  spark type = FloatType\n  nullable = True\n  name = None <- [None, None]\n  parent = None\n>"
+            float_field._info() == "<Float\n"
+            "  spark type = FloatType\n"
+            "  nullable = True\n"
+            "  name = None <- [None, None]\n"
+            "  parent = None\n"
+            "  metadata = {}\n"
+            ">"
         )
 
     @staticmethod
@@ -50,6 +55,21 @@ class TestBaseField:
             pytest.param(Float(False, "name"), "<Float: name>", id="non-nullable instance"),
             pytest.param(Float(False), "<Float: None>", id="non-nullable nameless instance"),
             pytest.param(Float(), "<Nullable Float: None>", id="instance with default constructor"),
+            pytest.param(
+                Float(metadata={}),
+                "<Nullable Float: None>",
+                id="instance with empty metadata",
+            ),
+            pytest.param(
+                Float(metadata={"a": "b"}),
+                "<Nullable Float [with 1 metadata item]: None>",
+                id="instance with one metadata item",
+            ),
+            pytest.param(
+                Float(metadata={"a": "b", "x": "y"}),
+                "<Nullable Float [with 2 metadata items]: None>",
+                id="instance with two metadata items",
+            ),
         ],
     )
     def should_have_a_readable_repr_for(instance, expected_repr):

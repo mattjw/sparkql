@@ -1,7 +1,7 @@
 """Base field and abstract fields."""
 
 from abc import ABC, abstractmethod
-from typing import Optional, Type, Any, Tuple, Sequence, TYPE_CHECKING, cast
+from typing import Optional, Type, Any, Tuple, Sequence, Dict, TYPE_CHECKING, cast
 import copy
 
 from pyspark.sql import types as sql_type, Column
@@ -32,21 +32,30 @@ class BaseField(ABC):
     #   is responsible for setting the contextual name.
     # The explicit name, if provided, will override the contextual name.
 
+    # Placeholders for private instance variables received via the constructor. (Represented here
+    # for convenience only; these will be overwritten.)
     __nullable: bool = True
     __name_explicit: Optional[str] = None
     __name_contextual: Optional[str] = None
+    __metadata: Dict[str, Any] = {}  # must be overwritten in constructor
+
+    # Placeholder for "protected" style variables. (Again, represented only for convenience.)
     _parent_struct: Optional["Struct"] = None
 
-    def __init__(self, nullable: bool = True, name: Optional[str] = None):
+    def __init__(self, nullable: bool = True, name: Optional[str] = None, metadata: Optional[Dict[str, Any]] = None):
         """
         Constructor for a base field.
 
         Args:
             nullable: Is this field nullable.
             name: Field name. If None, field name will be identified via ivar context resolution.
+            metadata:
+                Metadata for this field. Metadata is a native feature of Spark and PySpark, allowing a field to be
+                annotated. If None, then metadata will be treated as an empty dictionary.
         """
         self.__nullable = nullable
         self.__name_explicit = name
+        self.__metadata = {} if metadata is None else dict(metadata)
 
     #
     # Nullability
@@ -55,6 +64,11 @@ class BaseField(ABC):
     def _is_nullable(self) -> bool:
         """The nullability status of this field."""
         return self.__nullable
+
+    @property
+    def _metadata(self) -> Optional[Dict[str, Any]]:
+        """The metadata of this field."""
+        return self.__metadata
 
     #
     # Field path chaining
@@ -178,6 +192,11 @@ class BaseField(ABC):
         """The name of this field."""
         return self._field_name
 
+    @property
+    def METADATA(self) -> Dict[str, Any]:
+        """The metadata for this field."""
+        return self._metadata
+
     #
     # Spark type management
 
@@ -216,6 +235,7 @@ class BaseField(ABC):
             and self._is_nullable == other._is_nullable
             and self._resolve_field_name() == other._resolve_field_name()  # may be None == None
             and self._spark_type_class == other._spark_type_class
+            and self._metadata == other._metadata  # may be None == None
         )
 
     def __str__(self) -> str:
@@ -232,13 +252,24 @@ class BaseField(ABC):
             f"  nullable = {self._is_nullable}\n"
             f"  name = {self._resolve_field_name()} <- {[self.__name_explicit, self.__name_contextual]}\n"
             f"  parent = {self._parent}\n"
+            f"  metadata = {self._metadata}\n"
             ">"
         )
 
     def _short_info(self) -> str:
         """Short info string for use in error messages."""
         nullable = "Nullable " if self._is_nullable else ""
-        return f"<{nullable}{self.__class__.__name__}: {self._resolve_field_name()}>"
+
+        # Good candidate for python pattern matching once <3.10 support no longer required
+        num_metadata_items = len(self.__metadata)
+        if num_metadata_items == 0:
+            metadata = ""
+        elif num_metadata_items == 1:
+            metadata = f" [with {num_metadata_items} metadata item]"
+        else:
+            metadata = f" [with {num_metadata_items} metadata items]"
+
+        return f"<{nullable}{self.__class__.__name__}{metadata}: {self._resolve_field_name()}>"
 
     def __hash__(self) -> int:
         return hash((self._is_nullable, self._resolve_field_name(""), self._spark_type_class))
@@ -275,7 +306,12 @@ class AtomicField(BaseField):
     @property
     def _spark_struct_field(self) -> StructField:
         """The StructField for this object."""
-        return StructField(name=self._field_name, dataType=self._spark_data_type, nullable=self._is_nullable)
+        return StructField(
+            name=self._field_name,
+            dataType=self._spark_data_type,
+            nullable=self._is_nullable,
+            metadata=self._metadata,
+        )
 
     def __eq__(self, other: Any) -> bool:
         """True if `self` equals `other`."""

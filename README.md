@@ -238,6 +238,24 @@ being inspectable by IDEs and other tools, allowing goodness such as
 IDE auto-completion, automated refactoring, and identifying errors
 before runtime.
 
+### Field metadata
+
+Field [metadata](https://spark.apache.org/docs/latest/api/python/reference/pyspark.sql/api/pyspark.sql.types.StructField.html) can be specified with the `metadata` argument to a field, which accepts a dictionary
+of key-value pairs.
+
+```python
+class Article(Struct):
+    title = String(nullable=False,
+                   metadata={"description": "The title of the article", "max_length": 100})
+```
+
+The metadata can be accessed with the `METADATA` property of the field:
+
+```python
+Article.title.METADATA
+{"description": "The title of the article", "max_length": 100}
+```
+
 ### DataFrame validation
 
 Struct method `validate_data_frame` will verify if a given DataFrame's

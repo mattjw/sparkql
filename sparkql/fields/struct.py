@@ -104,7 +104,10 @@ class Struct(BaseField):
     def _spark_struct_field(self) -> StructField:
         """The Spark StructField for this field."""
         return StructField(
-            name=self._field_name, dataType=self._valid_struct_metadata().spark_struct, nullable=self._is_nullable
+            name=self._field_name,
+            dataType=self._valid_struct_metadata().spark_struct,
+            nullable=self._is_nullable,
+            metadata=self._metadata,
         )
 
     def _validate_on_value(self, value: Any) -> None:
