@@ -50,9 +50,9 @@ tag_format = "v$version"
 branch = true
 
 [tool.coverage.report]
-exclude_also = """
-    if TYPE_CHECKING:
-"""
+exclude_also = [
+    "if TYPE_CHECKING:"
+]
 
 [build-system]
 requires = ["poetry>=1.3"]
