@@ -1,7 +1,7 @@
 import re
 
 import pytest
-from pyspark.sql.types import StructType, StructField, StringType, ArrayType, FloatType, DataType
+from pyspark.sql.types import StructType, StructField, StringType, ArrayType, FloatType, UserDefinedType
 
 from sparkql import merge_schemas
 
@@ -133,9 +133,20 @@ class TestMergeSchemas:
                 ),
                 id="fields-of-different-type",
             ),
+            pytest.param(
+                StructType([StructField("a_field", UserDefinedType())]),
+                StructType([StructField("a_field", UserDefinedType())]),
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(
+                        "Data type is not mergeable, expected one of: ['StructType', 'ArrayType', 'AtomicType'] but got 'UserDefinedType'"
+                    ),
+                ),
+                id="fields-not-mergeable",
+            ),
         ],
     )
-    def should_fail_to_merge_array_types_with(schema_a: StructType, schema_b: StructType, expected_error):
+    def should_fail_to_merge_struct_types_with(schema_a: StructType, schema_b: StructType, expected_error):
         # given ^
 
         # when, then
@@ -156,10 +167,21 @@ class TestMergeSchemas:
                     ),
                 ),
                 id="root-arrays-of-different-element-types",
-            )
+            ),
+            pytest.param(
+                ArrayType(UserDefinedType()),
+                ArrayType(UserDefinedType()),
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(
+                        "Data type is not mergeable, expected one of: ['StructType', 'ArrayType', 'AtomicType'] but got 'UserDefinedType'"
+                    ),
+                ),
+                id="fields-not-mergeable",
+            ),
         ],
     )
-    def should_fail_to_merge_struct_types_with(schema_a: ArrayType, schema_b: ArrayType, expected_error):
+    def should_fail_to_merge_array_types_with(schema_a: ArrayType, schema_b: ArrayType, expected_error):
         # given ^
 
         # when, then

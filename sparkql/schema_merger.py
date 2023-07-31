@@ -55,7 +55,9 @@ class _SchemaMerger:
     def __validate_mergeable(cls, data_type: DataType) -> MergeableSparkDataType:
         if not isinstance(data_type, get_args(MergeableSparkDataType)):
             raise ValueError(
-                f"Data type is not mergeable, expected one of {get_args(MergeableSparkDataType)} but got {data_type}"
+                "Data type is not mergeable, expected one of: "
+                f"{[t.__name__ for t in get_args(MergeableSparkDataType)]} "
+                f"but got '{type(data_type).__name__}'"
             )
         return cast(MergeableSparkDataType, data_type)
 
