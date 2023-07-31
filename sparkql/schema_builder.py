@@ -4,7 +4,7 @@ from typing import Union, Type, TYPE_CHECKING
 
 from pyspark.sql.types import StructType
 
-if TYPE_CHECKING:  # pragma: no cover
+if TYPE_CHECKING:
     from sparkql import Struct
 
 

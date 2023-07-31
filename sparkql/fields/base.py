@@ -9,7 +9,7 @@ from pyspark.sql import functions as sql_funcs
 from pyspark.sql.types import StructField, DataType
 from sparkql.exceptions import FieldNameError, FieldParentError, FieldValueValidationError
 
-if TYPE_CHECKING:  # pragma: no cover
+if TYPE_CHECKING:
     from sparkql import Struct
 
 
