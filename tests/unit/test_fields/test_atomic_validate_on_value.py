@@ -22,7 +22,7 @@ from pyspark.sql.types import (
 
 from sparkql.exceptions import FieldValueValidationError
 from sparkql.fields.base import BaseField
-from sparkql import Byte, Integer, Long, Short, Decimal, Double, Float, String, Binary, Boolean, Date, Timestamp
+from sparkql import Byte, Integer, Long, Short, Decimal, Double, Float, String, Binary, Boolean, Date, Timestamp, Map
 
 
 class TestValidateOnValue:
