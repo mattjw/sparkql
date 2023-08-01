@@ -7,8 +7,8 @@ from difflib import ndiff
 from inspect import isclass
 from typing import ClassVar, Optional, Mapping, Type, Any, Generator, Tuple, MutableMapping, Dict, List
 
-from pyspark.sql import types as sql_types, DataFrame
-from pyspark.sql.types import DataType, StructField, Row
+from pyspark.sql import DataFrame
+from pyspark.sql.types import StructType, StructField, Row
 
 from sparkql.formatters import pretty_schema
 from sparkql.schema_builder import schema as schematise
@@ -108,8 +108,8 @@ class Struct(BaseField):
     # Handle type management and Spark representations for a Struct object
 
     @property
-    def _spark_type_class(self) -> Type[DataType]:
-        return sql_types.StructType
+    def _spark_type_class(self) -> Type[StructType]:
+        return StructType
 
     @property
     def _spark_struct_field(self) -> StructField:
@@ -274,9 +274,9 @@ class _StructInnerMetadata:
         return _StructInnerMetadata(fields=_FieldsExtractor(struct_class).extract())
 
     @property
-    def spark_struct(self) -> sql_types.StructType:
+    def spark_struct(self) -> StructType:
         """Complete Spark StructType for the sparkql Struct."""
-        return sql_types.StructType(
+        return StructType(
             [field._spark_struct_field for field in self.fields.values()]  # pylint: disable=protected-access
         )
 

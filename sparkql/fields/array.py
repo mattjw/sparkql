@@ -4,7 +4,7 @@ import copy
 from collections.abc import Sequence
 from typing import Optional, Generic, TypeVar, Any, Dict, Type, cast, TYPE_CHECKING
 
-from pyspark.sql.types import ArrayType, StructField, DataType
+from pyspark.sql.types import ArrayType, StructField
 
 from sparkql.exceptions import FieldValueValidationError
 from sparkql.fields.base import BaseField
@@ -101,7 +101,7 @@ class Array(Generic[ArrayElementType], BaseField):
     # Spark type management
 
     @property
-    def _spark_type_class(self) -> Type[DataType]:
+    def _spark_type_class(self) -> Type[ArrayType]:
         return ArrayType
 
     @property
