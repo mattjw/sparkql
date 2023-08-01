@@ -27,7 +27,9 @@ class Array(Generic[ArrayElementType], BaseField):
       `Array.element.nullable`.
 
     Attributes:
-        etype: Data type info for the element of this array. Should be an instance of a `BaseField`.
+        e:
+            Data type info for the element of this array. Should be an instance of a `BaseField`.
+            Received in constructor as "element".
     """
 
     __hash__ = BaseField.__hash__
