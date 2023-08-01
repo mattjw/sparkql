@@ -402,7 +402,7 @@ class _FieldsExtractor:
     # Handle inheritance from super class
 
     def _get_super_class(self) -> Type[Struct]:
-        """Obtain super class."""
+        """Obtain super class; this will be the Struct class, or a class that is a subclass (/descendant) of Struct."""
         root_class = self.struct_class
 
         assert len(root_class.__mro__) >= 2
