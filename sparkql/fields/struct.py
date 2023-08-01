@@ -59,6 +59,17 @@ class Struct(BaseField):
 
     @classmethod
     def _valid_struct_metadata(cls) -> "_StructInnerMetadata":
+        """
+        A wrapper for the `_struct_metadata` class variable, which ensures a non-None return, failing if None.
+
+        Raises:
+            ValueError:
+                If the class's `_struct_metadata` is None, which means its inner metadata has not been set. The
+                noneness of `_struct_metadata` is managed by sparkql under-the-hood. In normal use of sparkql,
+                this should never occur
+        """
+        # using this method instead of `_struct_metadata` (in appropriate contexts) simplifies type hinting by ensuring
+        # other functions are always dealing with a non-null `_struct_metadata`
         if cls._struct_metadata is None:
             raise ValueError(f"Struct class {cls.__name__} has not had its inner metadata extracted")
         return cls._struct_metadata
