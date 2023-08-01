@@ -64,7 +64,7 @@ class Array(Generic[ArrayElementType], BaseField):
     #
     # Field path chaining
 
-    def _replace_parent(self, parent: Optional["Struct"] = None) -> BaseField:
+    def _replace_parent(self, parent: Optional["Struct"] = None) -> "Array[ArrayElementType]":
         """Return a copy of this array with the parent attribute set."""
         self_copy = copy.copy(self)
         self_copy._parent_struct = parent  # pylint: disable=protected-access
