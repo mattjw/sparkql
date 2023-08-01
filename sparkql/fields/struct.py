@@ -66,7 +66,7 @@ class Struct(BaseField):
             ValueError:
                 If the class's `_struct_metadata` is None, which means its inner metadata has not been set. The
                 noneness of `_struct_metadata` is managed by sparkql under-the-hood. In normal use of sparkql,
-                this should never occur
+                this should never occur.
         """
         # using this method instead of `_struct_metadata` (in appropriate contexts) simplifies type hinting by ensuring
         # other functions are always dealing with a non-null `_struct_metadata`
