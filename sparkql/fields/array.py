@@ -2,12 +2,15 @@
 
 import copy
 from collections.abc import Sequence
-from typing import Optional, Generic, TypeVar, Any, Dict
+from typing import Optional, Generic, TypeVar, Any, Dict, Type, cast, TYPE_CHECKING
 
 from pyspark.sql.types import ArrayType, StructField
 
 from sparkql.exceptions import FieldValueValidationError
 from sparkql.fields.base import BaseField
+
+if TYPE_CHECKING:
+    from sparkql import Struct
 
 
 ArrayElementType = TypeVar("ArrayElementType", bound=BaseField)  # pylint: disable=invalid-name
@@ -24,12 +27,14 @@ class Array(Generic[ArrayElementType], BaseField):
       `Array.element.nullable`.
 
     Attributes:
-        etype: Data type info for the element of this array. Should be an instance of a `BaseField`.
+        e:
+            Data type info for the element of this array. Should be an instance of a `BaseField`.
+            Received in constructor as "element".
     """
 
     __hash__ = BaseField.__hash__
 
-    e: ArrayElementType  # pytype: disable=not-supported-yet  # pylint: disable=invalid-name
+    e: ArrayElementType  # pylint: disable=invalid-name
 
     def __init__(
         self,
@@ -53,25 +58,23 @@ class Array(Generic[ArrayElementType], BaseField):
 
         # hand down this array's explicit name to its child element
         # this is to ensure correct naming in path chaining (see `self._replace_parent` and `path_seq`)
-        element = element._replace_explicit_name(name=self._explicit_name)
+        element = cast(ArrayElementType, element._replace_explicit_name(name=self._explicit_name))
         self.e = element  # pylint: disable=invalid-name
 
     #
     # Field path chaining
 
-    def _replace_parent(  # pytype: disable=name-error
-        self, parent: Optional["Struct"] = None  # pytype: disable=invalid-annotation,name-error
-    ) -> "Struct":  # pytype: disable=invalid-annotation,name-error
+    def _replace_parent(self, parent: Optional["Struct"] = None) -> "Array[ArrayElementType]":
         """Return a copy of this array with the parent attribute set."""
         self_copy = copy.copy(self)
         self_copy._parent_struct = parent  # pylint: disable=protected-access
-        self_copy.e = self.e._replace_parent(parent=parent)  # pylint: disable=protected-access
+        self_copy.e = cast(ArrayElementType, self.e._replace_parent(parent=parent))  # pylint: disable=protected-access
         return self_copy
 
     #
     # Field name management
 
-    def _set_contextual_name(self, value: str):
+    def _set_contextual_name(self, value: str) -> None:
         super()._set_contextual_name(value)
         # set child to same name as parent; i.e., propagate contextual name downwards:
         self.e._set_contextual_name(value)  # pylint: disable=protected-access
@@ -79,7 +82,7 @@ class Array(Generic[ArrayElementType], BaseField):
     #
     # Pass through to the element, for users who don't want to use the `.e` field
 
-    def __getattribute__(self, attr_name: str):
+    def __getattribute__(self, attr_name: str) -> Any:
         """Custom get attirubte behaviour."""
         if attr_name.startswith("_"):
             return super().__getattribute__(attr_name)
@@ -98,7 +101,7 @@ class Array(Generic[ArrayElementType], BaseField):
     # Spark type management
 
     @property
-    def _spark_type_class(self):
+    def _spark_type_class(self) -> Type[ArrayType]:
         return ArrayType
 
     @property
