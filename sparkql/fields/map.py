@@ -1,12 +1,16 @@
 """Map field."""
 
 import copy
-from typing import Optional, Generic, TypeVar, Any
+from typing import Optional, Generic, TypeVar, Any, TYPE_CHECKING, Type
 
 from pyspark.sql.types import MapType, StructField
 
 from sparkql.exceptions import FieldValueValidationError
 from sparkql.fields.base import BaseField
+
+if TYPE_CHECKING:
+    from sparkql import Struct
+
 
 KeyType = TypeVar("KeyType", bound=BaseField)  # pylint: disable=invalid-name
 ValueType = TypeVar("ValueType", bound=BaseField)  # pylint: disable=invalid-name
@@ -29,8 +33,8 @@ class Map(Generic[KeyType, ValueType], BaseField):
 
     __hash__ = BaseField.__hash__
 
-    keyType: KeyType  # pytype: disable=not-supported-yet  # pylint: disable=invalid-name
-    valueType: ValueType  # pytype: disable=not-supported-yet  # pylint: disable=invalid-name
+    keyType: KeyType  # pylint: disable=invalid-name
+    valueType: ValueType  # pylint: disable=invalid-name
 
     def __init__(self, key_type: KeyType, value_type: ValueType, nullable: bool = True, name: Optional[str] = None):
         super().__init__(nullable=nullable, name=name)
@@ -77,7 +81,7 @@ class Map(Generic[KeyType, ValueType], BaseField):
     #
     # Field name management
 
-    def _set_contextual_name(self, value: str):
+    def _set_contextual_name(self, value: str) -> None:
         super()._set_contextual_name(value)
         # set child to same name as parent; i.e., propagate contextual name downwards:
         self.keyType._set_contextual_name(value)  # pylint: disable=protected-access
@@ -86,7 +90,7 @@ class Map(Generic[KeyType, ValueType], BaseField):
     #
     # Pass through to the element, for users who don't want to use the `.value_type` field
 
-    def __getattribute__(self, attr_name: str):
+    def __getattribute__(self, attr_name: str) -> Any:
         """Custom get attribute behaviour."""
         if attr_name.startswith("_"):
             return super().__getattribute__(attr_name)
@@ -102,7 +106,7 @@ class Map(Generic[KeyType, ValueType], BaseField):
         return getattr(super().__getattribute__("valueType"), attr_name)
 
     @property
-    def _spark_type_class(self):
+    def _spark_type_class(self) -> Type[MapType]:
         return MapType
 
     @property
