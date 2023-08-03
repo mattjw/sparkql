@@ -84,3 +84,25 @@ class TestEquality:
 
         # when, then
         assert field != another_field
+
+    #
+    # Test the influence of metadata on equality
+
+    @staticmethod
+    @pytest.mark.parametrize(
+        "value_a, value_b, expected_is_equal",
+        [
+            pytest.param(String(), String(metadata={}), True, id="default versus explicit empty dict lhs"),
+            pytest.param(String(metadata={}), String(), True, id="default versus explicit empty dict rhs"),
+            pytest.param(String(metadata={}), String(metadata={"some_key": "some_value"}), False, id="different dicts"),
+            pytest.param(String(metadata={}), String(metadata={}), True, id="both empty dicts"),
+        ],
+    )
+    def test_comparison_by_metadata(value_a, value_b, expected_is_equal):
+        # ^ given
+
+        # when
+        is_equal = value_a == value_b
+
+        # then
+        assert is_equal == expected_is_equal

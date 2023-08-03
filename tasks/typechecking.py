@@ -8,4 +8,4 @@ from tasks.utils import run, print_heavy
 def typecheck():
     """Typecheck code."""
     print_heavy(f"\n🔍 TYPECHECKING 🔎\n")
-    run(f"pytype --config .pytype.cfg")
+    run("mypy --strict sparkql")

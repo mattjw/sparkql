@@ -16,7 +16,6 @@ from pyspark.sql.types import (
     BooleanType,
     DateType,
     TimestampType,
-    DataType,
 )
 
 from sparkql.fields.base import AtomicField, IntegralField, FractionalField, _validate_value_type_for_field
@@ -30,7 +29,7 @@ class Byte(IntegralField):
     """Field for Spark's ByteType."""
 
     @property
-    def _spark_type_class(self) -> Type[DataType]:
+    def _spark_type_class(self) -> Type[ByteType]:
         return ByteType
 
 
@@ -38,7 +37,7 @@ class Integer(IntegralField):
     """Field for Spark's IntegerType."""
 
     @property
-    def _spark_type_class(self) -> Type[DataType]:
+    def _spark_type_class(self) -> Type[IntegerType]:
         return IntegerType
 
 
@@ -46,7 +45,7 @@ class Long(IntegralField):
     """Field for Spark's LongType."""
 
     @property
-    def _spark_type_class(self) -> Type[DataType]:
+    def _spark_type_class(self) -> Type[LongType]:
         return LongType
 
 
@@ -54,7 +53,7 @@ class Short(IntegralField):
     """Field for Spark's ShortType."""
 
     @property
-    def _spark_type_class(self) -> Type[DataType]:
+    def _spark_type_class(self) -> Type[ShortType]:
         return ShortType
 
 
@@ -74,11 +73,11 @@ class Decimal(FractionalField):
         self.__scale = scale
 
     @property
-    def _spark_type_class(self) -> Type[DataType]:
+    def _spark_type_class(self) -> Type[DecimalType]:
         return DecimalType
 
     @property
-    def _spark_data_type(self) -> DataType:
+    def _spark_data_type(self) -> DecimalType:
         return DecimalType(self.__precision, self.__scale)
 
     def _validate_on_value(self, value: Any) -> None:
@@ -90,7 +89,7 @@ class Double(FractionalField):
     """Field for Spark's DoubleType."""
 
     @property
-    def _spark_type_class(self) -> Type[DataType]:
+    def _spark_type_class(self) -> Type[DoubleType]:
         return DoubleType
 
     def _validate_on_value(self, value: Any) -> None:
@@ -102,7 +101,7 @@ class Float(FractionalField):
     """Field for Spark's FloatType."""
 
     @property
-    def _spark_type_class(self) -> Type[DataType]:
+    def _spark_type_class(self) -> Type[FloatType]:
         return FloatType
 
     def _validate_on_value(self, value: Any) -> None:
@@ -118,7 +117,7 @@ class String(AtomicField):
     """Field for Spark's StringType."""
 
     @property
-    def _spark_type_class(self) -> Type[DataType]:
+    def _spark_type_class(self) -> Type[StringType]:
         return StringType
 
     def _validate_on_value(self, value: Any) -> None:
@@ -130,7 +129,7 @@ class Binary(AtomicField):
     """Field for Spark's BinaryType."""
 
     @property
-    def _spark_type_class(self) -> Type[DataType]:
+    def _spark_type_class(self) -> Type[BinaryType]:
         return BinaryType
 
     def _validate_on_value(self, value: Any) -> None:
@@ -142,7 +141,7 @@ class Boolean(AtomicField):
     """Field for Spark's BooleanType."""
 
     @property
-    def _spark_type_class(self) -> Type[DataType]:
+    def _spark_type_class(self) -> Type[BooleanType]:
         return BooleanType
 
     def _validate_on_value(self, value: Any) -> None:
@@ -154,7 +153,7 @@ class Date(AtomicField):
     """Field for Spark's DateType."""
 
     @property
-    def _spark_type_class(self) -> Type[DataType]:
+    def _spark_type_class(self) -> Type[DateType]:
         return DateType
 
     def _validate_on_value(self, value: Any) -> None:
@@ -166,7 +165,7 @@ class Timestamp(AtomicField):
     """Field for Spark's TimestampType."""
 
     @property
-    def _spark_type_class(self) -> Type[DataType]:
+    def _spark_type_class(self) -> Type[TimestampType]:
         return TimestampType
 
     def _validate_on_value(self, value: Any) -> None:

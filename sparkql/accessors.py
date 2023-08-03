@@ -1,6 +1,6 @@
 """Accessor functions in order to access field paths, field names, and related field attributes."""
 
-from typing import Sequence
+from typing import Sequence, Dict, Any
 
 from pyspark.sql import Column
 from pyspark.sql.types import StructField
@@ -26,6 +26,11 @@ def path_str(field: BaseField) -> str:
 def name(field: BaseField) -> str:
     """Return field name of field `field`; an alias of `BaseField.NAME`."""
     return field.NAME
+
+
+def metadata(field: BaseField) -> Dict[str, Any]:
+    """Return field metadata of field `field`; an alias of `BaseField.METADATA`."""
+    return field.METADATA
 
 
 def struct_field(field: BaseField) -> StructField:

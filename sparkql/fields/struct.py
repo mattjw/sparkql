@@ -7,8 +7,8 @@ from difflib import ndiff
 from inspect import isclass
 from typing import ClassVar, Optional, Mapping, Type, Any, Generator, Tuple, MutableMapping, Dict, List
 
-from pyspark.sql import types as sql_types, DataFrame
-from pyspark.sql.types import DataType, StructField, Row
+from pyspark.sql import DataFrame
+from pyspark.sql.types import StructType, StructField, Row
 
 from sparkql.formatters import pretty_schema
 from sparkql.schema_builder import schema as schematise
@@ -40,7 +40,7 @@ class ValidationResult:
     pretty_data_frame: str
     report: str = ""
 
-    def raise_on_invalid(self):
+    def raise_on_invalid(self) -> None:
         """
         If the DataFrame did not adhere to the schema, raises an appropriate error.
 
@@ -56,6 +56,23 @@ class Struct(BaseField):
 
     __hash__ = BaseField.__hash__
     _struct_metadata: ClassVar[Optional["_StructInnerMetadata"]] = None
+
+    @classmethod
+    def _valid_struct_metadata(cls) -> "_StructInnerMetadata":
+        """
+        A wrapper for the `_struct_metadata` class variable, which ensures a non-None return, failing if None.
+
+        Raises:
+            ValueError:
+                If the class's `_struct_metadata` is None, which means its inner metadata has not been set. The
+                noneness of `_struct_metadata` is managed by sparkql under-the-hood. In normal use of sparkql,
+                this should never occur.
+        """
+        # using this method instead of `_struct_metadata` (in appropriate contexts) simplifies type hinting by ensuring
+        # other functions are always dealing with a non-null `_struct_metadata`
+        if cls._struct_metadata is None:
+            raise ValueError(f"Struct class {cls.__name__} has not had its inner metadata extracted")
+        return cls._struct_metadata
 
     @classmethod
     def validate_data_frame(cls, dframe: DataFrame) -> ValidationResult:
@@ -91,14 +108,17 @@ class Struct(BaseField):
     # Handle type management and Spark representations for a Struct object
 
     @property
-    def _spark_type_class(self) -> Type[DataType]:
-        return sql_types.StructType
+    def _spark_type_class(self) -> Type[StructType]:
+        return StructType
 
     @property
     def _spark_struct_field(self) -> StructField:
         """The Spark StructField for this field."""
         return StructField(
-            name=self._field_name, dataType=self._struct_metadata.spark_struct, nullable=self._is_nullable
+            name=self._field_name,
+            dataType=self._valid_struct_metadata().spark_struct,
+            nullable=self._is_nullable,
+            metadata=self._metadata,
         )
 
     def _validate_on_value(self, value: Any) -> None:
@@ -111,7 +131,7 @@ class Struct(BaseField):
 
         dic: Mapping[str, Any] = value
 
-        fields = list(self._struct_metadata.fields.values())
+        fields = list(self._valid_struct_metadata().fields.values())
         field_names = [field._field_name for field in fields]  # pylint: disable=protected-access
         if len(fields) != len(dic):
             raise FieldValueValidationError(
@@ -134,9 +154,9 @@ class Struct(BaseField):
     # Hook in to sub-class creation. Ensure fields are pre-processed when a sub-class is declared
 
     @classmethod
-    def __init_subclass__(cls, **options):  # pylint: disable=unused-argument
+    def __init_subclass__(cls, **options: Any) -> None:  # pylint: disable=unused-argument
         """Hook in to the subclassing of this base class; process fields when sub-classing occurs."""
-        super().__init_subclass__(**options)  # pytype: disable=attribute-error
+        super().__init_subclass__(**options)
 
         # Ensure a subclass does not break any base class functionality
         for child_prop, child_val in cls.__dict__.items():
@@ -154,18 +174,18 @@ class Struct(BaseField):
     #
     # Handle dot chaining for full path ref to nested fields
 
-    def __getattribute__(self, attr_name):
+    def __getattribute__(self, attr_name: str) -> Any:
         """
         Customise how field attributes are handled.
 
         Augment the attribute reference chain to ensure that a field's parent is set.
         """
-        attr_value = super().__getattribute__(attr_name)  # pytype: disable=attribute-error
+        attr_value = super().__getattribute__(attr_name)
 
-        if attr_name == "_struct_metadata":
+        if attr_name in {"_struct_metadata", "_valid_struct_metadata"}:
             return attr_value
 
-        resolved_field = self._struct_metadata.resolve_field(
+        resolved_field = self._valid_struct_metadata().resolve_field(
             struct_object=self, attr_name=attr_name, attr_value=attr_value
         )
         if resolved_field is not None:
@@ -177,7 +197,7 @@ class Struct(BaseField):
     # Makers
 
     @classmethod
-    def make_dict(cls, *args, **kwargs) -> Dict[str, Any]:
+    def make_dict(cls, *args: Any, **kwargs: Any) -> Dict[str, Any]:
         """
         Create a data instance of this Struct schema, as a dictionary.
 
@@ -223,7 +243,7 @@ class Struct(BaseField):
         return _DictMaker(struct_class=cls, positional_args=args, keyword_args=kwargs).make_dict()
 
     @classmethod
-    def make_row(cls, *args, **kwargs) -> Row:
+    def make_row(cls, *args: Any, **kwargs: Any) -> Row:
         """Reserved."""
         # pylint: disable=broad-exception-raised
         raise Exception("Function name reserved.")
@@ -236,8 +256,8 @@ class Struct(BaseField):
         return (
             super().__eq__(other)
             and isinstance(other, Struct)
-            and self._struct_metadata.fields == other._struct_metadata.fields
-            and list(self._struct_metadata.fields.keys()) == list(other._struct_metadata.fields.keys())
+            and self._valid_struct_metadata().fields == other._valid_struct_metadata().fields
+            and list(self._valid_struct_metadata().fields.keys()) == list(other._valid_struct_metadata().fields.keys())
         )
 
 
@@ -249,20 +269,20 @@ class _StructInnerMetadata:
     # ^ All fields for the Struct, including both native fields and imported from includes
 
     @staticmethod
-    def from_struct_class(struct_class: Type["Struct"]) -> "_StructInnerMetadata":
+    def from_struct_class(struct_class: Type[Struct]) -> "_StructInnerMetadata":
         """Build instance from a struct class."""
         return _StructInnerMetadata(fields=_FieldsExtractor(struct_class).extract())
 
     @property
-    def spark_struct(self) -> sql_types.StructType:
+    def spark_struct(self) -> StructType:
         """Complete Spark StructType for the sparkql Struct."""
-        return sql_types.StructType(
+        return StructType(
             [field._spark_struct_field for field in self.fields.values()]  # pylint: disable=protected-access
         )
 
     # Resolving of class attributes
     @staticmethod
-    def resolve_field(struct_object: "Struct", attr_name: str, attr_value: Any) -> Optional[BaseField]:
+    def resolve_field(struct_object: Struct, attr_name: str, attr_value: Any) -> Optional[BaseField]:
         """
         Attempt to resolve a `getattribute` call on the Struct, returning a BaseField if applicable.
 
@@ -309,7 +329,7 @@ class _FieldsExtractor:
 
     struct_class: Type[Struct]
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate input instance variables."""
         _validate_struct_class(self.struct_class)
 
@@ -324,14 +344,14 @@ class _FieldsExtractor:
             field._set_contextual_name(field_name)  # pylint: disable=protected-access
 
         # Start with super class fields, if any
-        self._fields = OrderedDict(self._get_super_class_fields())
+        self._fields: MutableMapping[str, BaseField] = OrderedDict(self._get_super_class_fields())
 
         # Add native fields
         self._fields = self._safe_combine_fields(self._fields, self._native_fields)
 
         # Add includes fields (if any)
         for included_struct in self._yield_included_structs():
-            incl_fields = included_struct._struct_metadata.fields  # pylint: disable=protected-access
+            incl_fields = included_struct._valid_struct_metadata().fields  # pylint: disable=protected-access
             for incl_field_name, incl_field in incl_fields.items():
                 if incl_field_name not in self._fields:
                     self._fields[incl_field_name] = incl_field  # populate `_fields`
@@ -348,7 +368,7 @@ class _FieldsExtractor:
     #
     # Extraction and processing of the Struct class
 
-    def _yield_native_fields(self) -> Generator[Tuple[str, Struct], None, None]:
+    def _yield_native_fields(self) -> Generator[Tuple[str, BaseField], None, None]:
         """
         Get the native fields specified for this Struct class, if any.
 
@@ -375,16 +395,14 @@ class _FieldsExtractor:
             A Struct object. Note that this is an instance of the Struct, not the class.
             If `Meta` or `Meta.includes` are not provided, no yield.
         """
-        for struct in _yield_structs_from_meta(
-            self.struct_class, self.INCLUDES_FIELD_NAME  # pytype: disable=wrong-arg-types
-        ):
+        for struct in _yield_structs_from_meta(self.struct_class, self.INCLUDES_FIELD_NAME):
             yield struct
 
     #
     # Handle inheritance from super class
 
-    def _get_super_class(self) -> Type:
-        """Obtain super class."""
+    def _get_super_class(self) -> Type[Struct]:
+        """Obtain super class; this will be the Struct class, or a class that is a subclass (/descendant) of Struct."""
         root_class = self.struct_class
 
         assert len(root_class.__mro__) >= 2
@@ -449,11 +467,11 @@ class _Validator:
 
     struct_class: Type[Struct]
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate input instance variables."""
         _validate_struct_class(self.struct_class)
 
-    def validate(self):
+    def validate(self) -> None:
         """
         Validate that the meets "implements" requirements, if specified.
 
@@ -462,25 +480,21 @@ class _Validator:
                 If class does not correctly implement any required structs.
         """
         root_struct_metadata: _StructInnerMetadata = (
-            self.struct_class._struct_metadata  # pylint: disable=protected-access
+            self.struct_class._valid_struct_metadata()  # pylint: disable=protected-access
         )
-        if root_struct_metadata is None:
-            raise ValueError(f"Struct class {self.struct_class} has not had its inner metadata extracted")
 
         for required_struct in self._yield_implements_structs():
-            req_fields = (
-                required_struct._struct_metadata.fields  # pylint: disable=protected-access  # pytype: disable=attribute-error
-            )
+            req_fields = required_struct._valid_struct_metadata().fields  # pylint: disable=protected-access
             for req_field_name, req_field in req_fields.items():
-                if req_field_name not in root_struct_metadata.fields:  # pytype: disable=attribute-error
+                if req_field_name not in root_struct_metadata.fields:
                     raise StructImplementationError(
                         f"Struct '{self.struct_class.__name__}' does not implement field '{req_field_name}' "
                         f"required by struct '{type(required_struct).__name__}'"
                     )
-                if req_field != root_struct_metadata.fields[req_field_name]:  # pytype: disable=attribute-error
+                if req_field != root_struct_metadata.fields[req_field_name]:
                     # pylint: disable=protected-access
                     raise StructImplementationError(
-                        f"Struct '{self.struct_class.__name__}' "  # pytype: disable=attribute-error
+                        f"Struct '{self.struct_class.__name__}' "
                         f"implements field '{req_field_name}' "
                         f"(required by struct '{type(required_struct).__name__}') but field is not compatible. "
                         f"Required {req_field._short_info()} "
@@ -489,15 +503,13 @@ class _Validator:
 
     def _yield_implements_structs(self) -> Generator[Struct, None, None]:
         """Get the Structs specified in the `Meta.implements`, if any."""
-        for struct in _yield_structs_from_meta(
-            self.struct_class, self.IMPLEMENTS_FIELD_NAME  # pytype: disable=wrong-arg-types
-        ):
+        for struct in _yield_structs_from_meta(self.struct_class, self.IMPLEMENTS_FIELD_NAME):
             yield struct
 
 
-def _get_inner_meta_class(struct_class: Type[Struct]) -> Optional[Type]:
+def _get_inner_meta_class(struct_class: Type[Struct]) -> Optional[Type[Any]]:
     """Retrieve the `Meta` inner class of a Struct class, or None if none is provided."""
-    if not hasattr(struct_class, _META_INNER_CLASS_NAME):  # pytype: disable=wrong-arg-types
+    if not hasattr(struct_class, _META_INNER_CLASS_NAME):
         return None
     inner_meta_class = getattr(struct_class, _META_INNER_CLASS_NAME)
 
@@ -545,7 +557,7 @@ def _yield_structs_from_meta(source_struct_class: Type[Struct], attribute_name: 
         yield struct_instance
 
 
-def _validate_struct_class(struct_class: Type):
+def _validate_struct_class(struct_class: Type[Struct]) -> None:
     if not issubclass(struct_class, Struct):
         raise ValueError("'struct_class' must inherit from Struct")
     if struct_class is Struct:
@@ -557,26 +569,26 @@ class _DictMaker:
     """Construct an instance of a Struct, as a dictionary."""
 
     struct_class: Type[Struct]
-    positional_args: Tuple[Any]
+    positional_args: Tuple[Any, ...]
     keyword_args: Dict[str, Any]
 
     # internal state
-    _struct_property_to_field: Dict[str, BaseField] = dataclasses.field(init=False)
+    _struct_property_to_field: Mapping[str, BaseField] = dataclasses.field(init=False)
 
-    _property_to_value: "OrderedDict[str, List[Any]]" = dataclasses.field(init=False)
+    _property_to_value: OrderedDict[str, List[Any]] = dataclasses.field(init=False)
     # ^ store extracted values while we process them. maps property name (i.e., attrib name) to a value.
     #   we'll track if there are any surplus values for the same field
 
     _surplus_positional_values: List[Any] = dataclasses.field(default_factory=list, init=False)
     _surplus_keyword_args: Dict[str, Any] = dataclasses.field(default_factory=dict, init=False)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         # extract `_struct_metadata.fields` for convenience
-        inner_meta = self.struct_class._struct_metadata  # pylint: disable=protected-access
-        self._struct_property_to_field = inner_meta.fields  # pytype: disable=attribute-error,annotation-type-mismatch
+        inner_meta = self.struct_class._valid_struct_metadata()  # pylint: disable=protected-access
+        self._struct_property_to_field = inner_meta.fields
         self._property_to_value = OrderedDict((property_name, []) for property_name in self._struct_property_to_field)
 
-    def _process_positional_args(self):
+    def _process_positional_args(self) -> None:
         property_to_field = OrderedDict(self._struct_property_to_field)
         args = list(self.positional_args)
         while args:
@@ -590,7 +602,7 @@ class _DictMaker:
                 property_to_field.pop(property_name)
                 self._property_to_value[property_name].append(arg_value)
 
-    def _process_keyword_args(self):
+    def _process_keyword_args(self) -> None:
         property_to_field = OrderedDict(self._struct_property_to_field)
         kwargs = dict(self.keyword_args)
         while kwargs:

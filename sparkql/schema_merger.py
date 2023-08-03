@@ -2,11 +2,9 @@
 
 from collections import OrderedDict
 from copy import copy
-from typing import Dict, Union, Optional, overload
+from typing import Dict, Union, Optional, overload, get_args, cast
 
-
-from pyspark.sql.types import StructType, StructField, ArrayType, AtomicType
-
+from pyspark.sql.types import StructType, StructField, ArrayType, AtomicType, DataType
 
 MergeableSparkDataType = Union[StructType, ArrayType, AtomicType]
 
@@ -54,6 +52,16 @@ class _SchemaMerger:
     """
 
     @classmethod
+    def __validate_mergeable(cls, data_type: DataType) -> MergeableSparkDataType:
+        if not isinstance(data_type, get_args(MergeableSparkDataType)):
+            raise ValueError(
+                "Data type is not mergeable, expected one of: "
+                f"{[t.__name__ for t in get_args(MergeableSparkDataType)]} "
+                f"but got '{type(data_type).__name__}'"
+            )
+        return cast(MergeableSparkDataType, data_type)
+
+    @classmethod
     def append_to_fields(cls, fields: Dict[str, StructField], field: StructField) -> None:
         """
         Add `field` to `fields`; modifies `fields` as a side-effect.
@@ -80,10 +88,28 @@ class _SchemaMerger:
                 )
             )
 
+        shared_metadata_keys = set(field_a.metadata.keys()) & set(field_b.metadata.keys())
+        if shared_metadata_keys:
+            if any(field_a.metadata[key] != field_b.metadata[key] for key in shared_metadata_keys):
+                raise ValueError(
+                    _validation_error_message(
+                        "Cannot merge due to a conflict in field metadata. "
+                        "If both metadata share the same keys, those keys must have the same values. "
+                        f"metadata of field A is {field_a.metadata}. "
+                        f"metadata of field B is {field_b.metadata}. ",
+                        parent_field_name=field_a.name,
+                    )
+                )
+
         return StructField(
             name=field_a.name,
-            dataType=cls.merge_types(field_a.dataType, field_b.dataType, parent_field_name=field_a.name),
+            dataType=cls.merge_types(
+                cls.__validate_mergeable(field_a.dataType),
+                cls.__validate_mergeable(field_b.dataType),
+                parent_field_name=field_a.name,
+            ),
             nullable=field_a.nullable,
+            metadata={**(field_a.metadata or {}), **(field_b.metadata or {})},
         )
 
     #
@@ -131,7 +157,9 @@ class _SchemaMerger:
         return StructType(list(fields.values()))
 
     @classmethod
-    def merge_array_types(cls, array_type_a: ArrayType, array_type_b: ArrayType, parent_field_name) -> ArrayType:
+    def merge_array_types(
+        cls, array_type_a: ArrayType, array_type_b: ArrayType, parent_field_name: Optional[str]
+    ) -> ArrayType:
         assert all(isinstance(obj, ArrayType) for obj in [array_type_a, array_type_b])
 
         if array_type_a.containsNull != array_type_b.containsNull:
@@ -146,7 +174,9 @@ class _SchemaMerger:
 
         return ArrayType(
             elementType=cls.merge_types(
-                array_type_a.elementType, array_type_b.elementType, parent_field_name=parent_field_name
+                cls.__validate_mergeable(array_type_a.elementType),
+                cls.__validate_mergeable(array_type_b.elementType),
+                parent_field_name=parent_field_name,
             ),
             containsNull=array_type_a.containsNull,
         )

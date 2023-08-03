@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sparkql"
-version = "0.7.0"  # do not edit manually. kept in sync with `tool.commitizen` config via automation
+version = "0.9.0"  # do not edit manually. kept in sync with `tool.commitizen` config via automation
 description = "sparkql: Apache Spark SQL DataFrame schema management for sensible humans"
 authors = ["Matt J Williams <mattjw@mattjw.net>"]
 repository = "https://github.com/mattjw/sparkql"
@@ -17,7 +17,7 @@ invoke = "~2.0"
 black = "~23.1"
 pycodestyle = "~2.10"
 pydocstyle = "~6.3"
-pytype = "2023.2.17"
+mypy = "~1.4.1"
 pylint = "~2.16"
 pytest-spark = "~0.6"
 termcolor = "~2.2.0"
@@ -43,11 +43,16 @@ line-length = 120
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.7.0"  # do not edit manually. kept in sync with `tool.poetry` config via automation
+version = "0.9.0"  # do not edit manually. kept in sync with `tool.poetry` config via automation
 tag_format = "v$version"
 
 [tool.coverage.run]
 branch = true
+
+[tool.coverage.report]
+exclude_also = [
+    "if TYPE_CHECKING:"
+]
 
 [build-system]
 requires = ["poetry>=1.3"]

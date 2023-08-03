@@ -1,7 +1,7 @@
 import re
 
 import pytest
-from pyspark.sql.types import StructType, StructField, StringType, ArrayType, FloatType, DataType
+from pyspark.sql.types import StructType, StructField, StringType, ArrayType, FloatType, UserDefinedType
 
 from sparkql import merge_schemas
 
@@ -133,9 +133,20 @@ class TestMergeSchemas:
                 ),
                 id="fields-of-different-type",
             ),
+            pytest.param(
+                StructType([StructField("a_field", UserDefinedType())]),
+                StructType([StructField("a_field", UserDefinedType())]),
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(
+                        "Data type is not mergeable, expected one of: ['StructType', 'ArrayType', 'AtomicType'] but got 'UserDefinedType'"
+                    ),
+                ),
+                id="fields-not-mergeable",
+            ),
         ],
     )
-    def should_fail_to_merge_array_types_with(schema_a: StructType, schema_b: StructType, expected_error):
+    def should_fail_to_merge_struct_types_with(schema_a: StructType, schema_b: StructType, expected_error):
         # given ^
 
         # when, then
@@ -156,12 +167,113 @@ class TestMergeSchemas:
                     ),
                 ),
                 id="root-arrays-of-different-element-types",
-            )
+            ),
+            pytest.param(
+                ArrayType(UserDefinedType()),
+                ArrayType(UserDefinedType()),
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(
+                        "Data type is not mergeable, expected one of: ['StructType', 'ArrayType', 'AtomicType'] but got 'UserDefinedType'"
+                    ),
+                ),
+                id="fields-not-mergeable",
+            ),
         ],
     )
-    def should_fail_to_merge_struct_types_with(schema_a: ArrayType, schema_b: ArrayType, expected_error):
+    def should_fail_to_merge_array_types_with(schema_a: ArrayType, schema_b: ArrayType, expected_error):
         # given ^
 
         # when, then
         with expected_error:
             merge_schemas(schema_a, schema_b)
+
+    @staticmethod
+    @pytest.mark.parametrize(
+        "schema_a, schema_b, expected_error",
+        [
+            pytest.param(
+                StructType([StructField("some_field", StringType(), metadata={"key": "value"})]),
+                StructType([StructField("some_field", StringType(), metadata={"key": "another_value"})]),
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(
+                        "Cannot merge due to a conflict in field metadata. If both metadata share the same keys, those keys must have the same values. metadata of field A is {'key': 'value'}. metadata of field B is {'key': 'another_value'}. "
+                    ),
+                ),
+                id="fields-have-duplicate-metadata-keys",
+            )
+        ],
+    )
+    def should_fail_to_merge_overlapping_metadata_when(schema_a: ArrayType, schema_b: ArrayType, expected_error):
+        # given ^
+
+        # when, then
+        with expected_error:
+            merge_schemas(schema_a, schema_b)
+
+    @staticmethod
+    @pytest.mark.parametrize(
+        "schema_a, schema_b, expected_schema",
+        [
+            pytest.param(
+                StructType(
+                    [StructField("some_field", StringType(), metadata={"key": "value", "another_key": "value"})]
+                ),
+                StructType([StructField("some_field", StringType(), metadata={"key": "value"})]),
+                StructType(
+                    [StructField("some_field", StringType(), metadata={"key": "value", "another_key": "value"})]
+                ),
+                id="fields-have-duplicate-metadata-keys-but-same-value",
+            ),
+        ],
+    )
+    def should_successfully_merge_overlapping_metadata_when(
+        schema_a: StructType, schema_b: StructType, expected_schema: StructType
+    ):
+        # given ^
+
+        merged_schema = merge_schemas(schema_a, schema_b)
+
+        # then
+        assert merged_schema.jsonValue() == expected_schema.jsonValue()
+
+        # ...expect distinct objects
+        assert merged_schema is not schema_a
+        assert merged_schema is not schema_b
+
+    @staticmethod
+    @pytest.mark.parametrize(
+        "schema_a, schema_b, expected_schema",
+        [
+            pytest.param(
+                StructType([StructField("some_field", StringType(), metadata=None)]),
+                StructType([StructField("some_field", StringType(), metadata=None)]),
+                StructType([StructField("some_field", StringType(), metadata=None)]),
+                id="both-schemas-have-null-metadata",
+            ),
+            pytest.param(
+                StructType([StructField("some_field", StringType(), metadata={"key": "value"})]),
+                StructType([StructField("some_field", StringType(), metadata=None)]),
+                StructType([StructField("some_field", StringType(), metadata={"key": "value"})]),
+                id="right-hand-schema-has-null-metadata",
+            ),
+            pytest.param(
+                StructType([StructField("some_field", StringType(), metadata=None)]),
+                StructType([StructField("some_field", StringType(), metadata={"key": "value"})]),
+                StructType([StructField("some_field", StringType(), metadata={"key": "value"})]),
+                id="left-hand-schema-has-null-metadata",
+            ),
+        ],
+    )
+    def should_correctly_merge_metadata_when(schema_a: StructType, schema_b: StructType, expected_schema: StructType):
+        # given ^
+
+        merged_schema = merge_schemas(schema_a, schema_b)
+
+        # then
+        assert merged_schema.jsonValue() == expected_schema.jsonValue()
+
+        # ...expect distinct objects
+        assert merged_schema is not schema_a
+        assert merged_schema is not schema_b

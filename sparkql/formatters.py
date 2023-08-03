@@ -88,7 +88,16 @@ class SparkSchemaPrettifier:
 
         if isinstance(field.dataType, (StructType, ArrayType)):
             formatted += "\n" + cls._indent(depth + 1)
-        formatted += f"{cls._boolean_as_str(field.nullable)})"
+
+        formatted += f"{cls._boolean_as_str(field.nullable)}"
+
+        if field.metadata:
+            formatted += ", "
+            if isinstance(field.dataType, (StructType, ArrayType)):
+                formatted += "\n" + cls._indent(depth + 1)
+            formatted += str(field.metadata)
+
+        formatted += ")"
 
         return formatted
 
