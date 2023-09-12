@@ -5,7 +5,7 @@
 [![CI](https://github.com/mattjw/sparkql/workflows/CI/badge.svg)](https://github.com/mattjw/sparkql/actions)
 [![codecov](https://codecov.io/gh/mattjw/sparkql/branch/master/graph/badge.svg)](https://codecov.io/gh/mattjw/sparkql)
 
-Python Spark SQL DataFrame schema management for sensible humans.
+Python Spark SQL DataFrame schema management for sensible humans, with no dependencies other than pyspark.
 
 > _Don't sweat it... sparkql it ✨_
 
