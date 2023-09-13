@@ -18,6 +18,7 @@ from sparkql.fields import (
     Date,
     Timestamp,
     Array,
+    Map,
     Struct,
 )
 from sparkql.schema_merger import merge_schemas
@@ -45,6 +46,7 @@ __all__ = [
     "Date",
     "Timestamp",
     "Array",
+    "Map",
     "Struct",
     "ValidationResult",
     "merge_schemas",
