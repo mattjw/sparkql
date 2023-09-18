@@ -2,7 +2,7 @@
 
 [![PyPI version](https://badge.fury.io/py/sparkql.svg)](https://badge.fury.io/py/sparkql)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![CI](https://circleci.com/gh/mattjw/sparkql.svg?style=svg)
+[![CI](https://circleci.com/gh/mattjw/sparkql.svg?style=svg)](https://circleci.com/gh/mattjw/sparkql)
 [![codecov](https://codecov.io/gh/mattjw/sparkql/branch/master/graph/badge.svg)](https://codecov.io/gh/mattjw/sparkql)
 
 Python Spark SQL DataFrame schema management for sensible humans, with no dependencies aside from pyspark.
